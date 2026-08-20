@@ -1,6 +1,7 @@
 import os
 import logging
 import re
+import random
 from urllib.parse import urlparse, urljoin, quote
 from flask import Flask, request, render_template, Response
 import requests
@@ -88,8 +89,15 @@ def proxy_media():
     range_header = request.headers.get("Range")
     if range_header: req_headers["Range"] = range_header
 
+    active_proxy = None
+    if scraper.proxy_pool:
+        active_proxy = random.choice(scraper.proxy_pool)
+        active_proxies = {"http": active_proxy, "https": active_proxy}
+    else:
+        active_proxies = scraper.proxies
+
     try:
-        upstream = requests.get(target, headers=req_headers, proxies=scraper.proxies, stream=True, timeout=15)
+        upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=15)
         
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}

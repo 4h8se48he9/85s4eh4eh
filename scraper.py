@@ -1,6 +1,8 @@
 import json
 import re
 import os
+import random
+import tempfile
 import requests
 from lxml import html
 import yt_dlp
@@ -9,6 +11,14 @@ import logging
 class VideoScraper:
     def __init__(self, proxy_url=None):
         self.proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
+        
+        # Load external proxy rotation pool if provided
+        proxy_env = os.environ.get("PROXY_LIST", "")
+        self.proxy_pool = [p.strip() for p in proxy_env.split(",") if p.strip()]
+        
+        # Load external session cookies if provided
+        self.cookies_content = os.environ.get("YT_COOKIES", "")
+        
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -17,6 +27,12 @@ class VideoScraper:
 
     def title_case(self, text):
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
+
+    def get_request_proxies(self):
+        if self.proxy_pool:
+            p = random.choice(self.proxy_pool)
+            return {"http": p, "https": p}
+        return self.proxies
 
     def extract(self, url):
         m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
@@ -56,8 +72,19 @@ class VideoScraper:
         except Exception as e:
             logging.warning(f"Deno not found in PATH, signature extraction may fail: {e}")
 
-        if self.proxies and self.proxies.get("https"):
+        if self.proxy_pool:
+            selected_proxy = random.choice(self.proxy_pool)
+            ydl_opts['proxy'] = selected_proxy
+            logging.info(f"Routing yt-dlp through residential proxy: {selected_proxy}")
+        elif self.proxies and self.proxies.get("https"):
             ydl_opts['proxy'] = self.proxies["https"]
+
+        if self.cookies_content:
+            cookie_path = os.path.join(tempfile.gettempdir(), 'yt_cookies.txt')
+            with open(cookie_path, 'w', encoding='utf-8') as f:
+                f.write(self.cookies_content)
+            ydl_opts['cookiefile'] = cookie_path
+            logging.info("Injecting session cookies into extraction engine.")
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -122,9 +149,10 @@ class VideoScraper:
 
         geo_url = url.replace("www.pornhub.com", "de.pornhub.com")
         title, poster, media_defs = "Unknown Title", "", []
+        req_proxies = self.get_request_proxies()
 
         try:
-            resp = requests.get(geo_url, headers=self.headers, proxies=self.proxies, timeout=15)
+            resp = requests.get(geo_url, headers=self.headers, proxies=req_proxies, timeout=15)
             if resp.status_code == 200:
                 fv_match = re.search(r'flashvars(?:_\d+)?\s*=\s*(\{.*?\});', resp.text, re.DOTALL)
                 if fv_match:
@@ -157,8 +185,9 @@ class VideoScraper:
         }
 
     def _scrape_xnxx_xvideos(self, url):
+        req_proxies = self.get_request_proxies()
         try:
-            resp = requests.get(url, headers=self.headers, proxies=self.proxies, timeout=15)
+            resp = requests.get(url, headers=self.headers, proxies=req_proxies, timeout=15)
             if resp.status_code != 200:
                 return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
         except Exception as e:

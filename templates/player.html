@@ -14,7 +14,6 @@
 {% block content %}
 <div class="max-w-[1600px] mx-auto w-full p-4 md:p-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
     
-    <!-- Player Area -->
     <div class="xl:col-span-3 flex flex-col gap-6">
         <div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50">
             <video id="main-player" controls poster="{{ data.thumbnail }}" class="w-full h-full object-contain outline-none bg-black"></video>
@@ -31,7 +30,6 @@
         </div>
     </div>
 
-    <!-- Sidebar / Controls -->
     <div class="xl:col-span-1">
         <div class="glass-panel rounded-[2rem] p-6 sticky top-28 border border-zinc-800">
             <h3 class="text-[11px] uppercase tracking-[0.2em] text-zinc-500 font-black mb-5 pl-2">Stream Matrix</h3>
