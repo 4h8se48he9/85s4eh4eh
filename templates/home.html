@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}Home | VexoStream{% endblock %}
+
+{% block content %}
+<div class="w-full flex-1 flex items-center justify-center relative overflow-hidden p-6 min-h-[80vh]">
+    <div class="absolute w-[800px] h-[800px] bg-radial-gradient from-indigo-500/20 to-transparent top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none blur-3xl z-0 rounded-full"></div>
+    
+    <div class="max-w-3xl w-full text-center relative z-10 flex flex-col items-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-bold tracking-wide mb-8">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            Edge Routing Protocol
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl font-black text-white tracking-tight mb-6 leading-tight">
+            Unrestricted Media <br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">Delivered Fast.</span>
+        </h1>
+        
+        <p class="text-lg md:text-xl text-zinc-400 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
+            VexoStream is a high-performance proxy gateway. We extract adaptive media streams from restricted networks and deliver them directly to your browser—no VPN required.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <a href="/view" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(99,102,241,0.39)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.23)] hover:-translate-y-[1px]">
+                Launch Viewer
+            </a>
+            <a href="/abilities" class="w-full sm:w-auto bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-bold py-4 px-8 rounded-xl transition-all">
+                System Abilities
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

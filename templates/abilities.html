@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block title %}Abilities | VexoStream{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl w-full mx-auto p-6 py-16">
+    <div class="text-center mb-16">
+        <h2 class="text-4xl font-black text-white tracking-tight mb-4">Core Abilities</h2>
+        <p class="text-zinc-400 text-lg max-w-2xl mx-auto">VexoStream bridges the gap between restricted media and your browser utilizing modern edge-proxy techniques.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Card 1 -->
+        <div class="glass-panel p-8 rounded-2xl hover:border-indigo-500/50 transition-colors">
+            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 border border-indigo-500/20">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">No VPN Required</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">Our backend handles the IP routing and proxy networking. Your device connects only to us, completely sidestepping local ISP blocks and DNS filters.</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="glass-panel p-8 rounded-2xl hover:border-indigo-500/50 transition-colors">
+            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 border border-indigo-500/20">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">Adaptive Playback</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">We extract dynamic HLS (.m3u8) manifests and proxy chunk requests on the fly. The built-in HLS.js engine ensures smooth video scaling based on your network speed.</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="glass-panel p-8 rounded-2xl hover:border-indigo-500/50 transition-colors">
+            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 border border-indigo-500/20">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">Multi-CDN Scraper</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">Integrated fallback algorithms extract direct MP4 lines and streams from major providers including Pornhub, XNXX, and XVideos securely.</p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="glass-panel p-8 rounded-2xl hover:border-indigo-500/50 transition-colors">
+            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 border border-indigo-500/20">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">Zero Logging</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">Streams are proxied directly in memory. Data is passed through directly to your browser buffer without being written to disk or recorded in databases.</p>
+        </div>
+        
+        <!-- Card 5 -->
+        <div class="glass-panel p-8 rounded-2xl hover:border-indigo-500/50 transition-colors">
+            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 border border-indigo-500/20">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">Header Spoofing</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">The backend bypasses Web Application Firewalls (WAF) by automatically injecting required Origin and Referer headers specific to the requested target.</p>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="glass-panel p-8 rounded-2xl hover:border-indigo-500/50 transition-colors">
+            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 border border-indigo-500/20">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">Railway Optimized</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">Built and containerized natively for Railway's edge architecture, ensuring high bandwidth throughput directly from US datacenters.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

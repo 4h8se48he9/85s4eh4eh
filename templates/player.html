@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block title %}Stream | VexoStream{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+    .quality-btn.active { border-color: #6366f1; background: rgba(99,102,241,0.1); color: #818cf8; }
+    .quality-btn.active svg { opacity: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto w-full p-4 md:p-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
+    
+    <!-- Player Area -->
+    <div class="xl:col-span-3 flex flex-col gap-5">
+        <div class="bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group">
+            <video id="main-player" controls poster="{{ data.thumbnail }}" class="w-full h-full object-contain outline-none"></video>
+        </div>
+        
+        <div class="glass-panel rounded-2xl p-6">
+            <h1 class="text-2xl font-black tracking-tight mb-2 text-white">{{ data.title }}</h1>
+            <div class="flex items-center gap-3">
+                <span class="px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-md text-xs font-bold text-zinc-300">PROXY SECURE</span>
+                <span class="text-zinc-500 text-sm font-medium">Adaptive playback initialized</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar / Controls -->
+    <div class="xl:col-span-1">
+        <div class="glass-panel rounded-2xl p-5 sticky top-24 border-t-2 border-t-indigo-500/30">
+            <h3 class="text-xs uppercase tracking-widest text-zinc-500 font-black mb-4">Select Source</h3>
+            
+            <div class="flex flex-col gap-2">
+                {% for q in data.qualities %}
+                <button onclick="loadQuality('{{ q.url }}', this)" 
+                        class="quality-btn w-full py-3.5 px-4 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/50 rounded-xl text-sm font-bold transition-all flex justify-between items-center text-zinc-300">
+                    <span>{{ q.label }}</span>
+                    <svg class="w-4 h-4 text-indigo-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </button>
+                {% endfor %}
+            </div>
+
+            <div class="mt-8 border-t border-white/5 pt-6">
+                <a href="/view" class="w-full text-center block bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold py-3 rounded-xl transition-all text-sm border border-zinc-700">
+                    Load New Video
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const video = document.getElementById('main-player');
+    let hlsPlayer = null;
+
+    function loadQuality(url, btnElement) {
+        document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
+        if(btnElement) btnElement.classList.add('active');
+
+        const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
+        const isHls = url.includes('.m3u8') || url.includes('hls');
+
+        if (isHls && Hls.isSupported()) {
+            if (hlsPlayer) hlsPlayer.destroy();
+            hlsPlayer = new Hls({ maxBufferSize: 0, maxBufferLength: 30 });
+            hlsPlayer.loadSource(proxyUrl);
+            hlsPlayer.attachMedia(video);
+            hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
+            if (hlsPlayer) hlsPlayer.destroy();
+            video.src = proxyUrl;
+            video.play();
+        } else {
+            if (hlsPlayer) hlsPlayer.destroy();
+            video.src = proxyUrl;
+            video.load();
+            video.play();
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const firstSource = document.querySelector('.quality-btn');
+        if (firstSource) firstSource.click();
+    });
+</script>
+{% endblock %}
