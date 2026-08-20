@@ -5,47 +5,51 @@
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
-    .quality-btn.active { border-color: #6366f1; background: rgba(99,102,241,0.1); color: #818cf8; }
+    .quality-btn.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.1); color: #e879f9; }
     .quality-btn.active svg { opacity: 1; }
+    /* Hide native controls background gradient for cleaner look */
+    video::-webkit-media-controls-panel { background-image: none !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto w-full p-4 md:p-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
+<div class="max-w-[1600px] mx-auto w-full p-4 md:p-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
     
     <!-- Player Area -->
-    <div class="xl:col-span-3 flex flex-col gap-5">
-        <div class="bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group">
-            <video id="main-player" controls poster="{{ data.thumbnail }}" class="w-full h-full object-contain outline-none"></video>
+    <div class="xl:col-span-3 flex flex-col gap-6">
+        <div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50">
+            <video id="main-player" controls poster="{{ data.thumbnail }}" class="w-full h-full object-contain outline-none bg-black"></video>
         </div>
         
-        <div class="glass-panel rounded-2xl p-6">
-            <h1 class="text-2xl font-black tracking-tight mb-2 text-white">{{ data.title }}</h1>
-            <div class="flex items-center gap-3">
-                <span class="px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-md text-xs font-bold text-zinc-300">PROXY SECURE</span>
-                <span class="text-zinc-500 text-sm font-medium">Adaptive playback initialized</span>
+        <div class="glass-panel rounded-[2rem] p-8 border border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight mb-3 text-white leading-tight">{{ data.title }}</h1>
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-black text-indigo-400 uppercase tracking-widest">Gateway Proxy</span>
+                    <span class="text-zinc-500 text-sm font-bold">Encrypted Delivery Tunnel</span>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Sidebar / Controls -->
     <div class="xl:col-span-1">
-        <div class="glass-panel rounded-2xl p-5 sticky top-24 border-t-2 border-t-indigo-500/30">
-            <h3 class="text-xs uppercase tracking-widest text-zinc-500 font-black mb-4">Select Source</h3>
+        <div class="glass-panel rounded-[2rem] p-6 sticky top-28 border border-zinc-800">
+            <h3 class="text-[11px] uppercase tracking-[0.2em] text-zinc-500 font-black mb-5 pl-2">Stream Matrix</h3>
             
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-3">
                 {% for q in data.qualities %}
                 <button onclick="loadQuality('{{ q.url }}', this)" 
-                        class="quality-btn w-full py-3.5 px-4 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/50 rounded-xl text-sm font-bold transition-all flex justify-between items-center text-zinc-300">
+                        class="quality-btn w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-extrabold transition-all flex justify-between items-center text-zinc-400 shadow-inner">
                     <span>{{ q.label }}</span>
-                    <svg class="w-4 h-4 text-indigo-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 </button>
                 {% endfor %}
             </div>
 
-            <div class="mt-8 border-t border-white/5 pt-6">
-                <a href="/view" class="w-full text-center block bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold py-3 rounded-xl transition-all text-sm border border-zinc-700">
-                    Load New Video
+            <div class="mt-8 pt-6 border-t border-zinc-800">
+                <a href="/view" class="w-full text-center block bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-4 rounded-xl transition-all text-sm border border-zinc-700">
+                    Input New Target
                 </a>
             </div>
         </div>

@@ -4,25 +4,26 @@
 
 {% block content %}
 <div class="w-full flex-1 flex items-center justify-center p-6 min-h-[70vh]">
-    <div class="w-full max-w-xl glass-panel rounded-2xl p-8 shadow-2xl relative z-10 border-t-2 border-t-indigo-500/30">
-        <h2 class="text-3xl font-black mb-2 text-white">Stream Initializer</h2>
-        <p class="text-zinc-400 mb-8 text-sm font-medium">Input the target video URL. The backend will parse, extract, and proxy the stream securely.</p>
+    <div class="w-full max-w-xl glass-panel rounded-[2rem] p-10 shadow-2xl relative z-10 border border-zinc-800">
+        <h2 class="text-4xl font-black mb-3 text-white tracking-tight">Target Terminal</h2>
+        <p class="text-zinc-400 mb-10 text-sm font-medium">Input a video URL from YouTube, Pornhub, XNXX, or XVideos. The engine will locate the media chunks.</p>
         
         {% if error %}
-        <div class="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl mb-6 text-sm text-center font-bold">
-            {{ error }}
+        <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-xl mb-8 text-sm font-bold shadow-inner">
+            Error: {{ error }}
         </div>
         {% endif %}
 
-        <form action="/extract" method="POST" class="space-y-5">
-            <div class="relative">
+        <form action="/extract" method="POST" class="space-y-6">
+            <div class="relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-500"></div>
                 <input type="url" name="url" required placeholder="https://..." 
-                       class="w-full bg-black border border-zinc-700 rounded-xl pl-12 pr-4 py-4 text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm font-semibold shadow-inner">
-                <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                       class="relative w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-14 pr-5 py-5 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-all text-sm font-bold shadow-inner">
+                <svg class="w-6 h-6 absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
             </div>
             <button type="submit" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(99,102,241,0.39)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.23)] hover:-translate-y-[1px] uppercase tracking-wide">
-                Connect Target
+                    class="w-full bg-white text-black hover:bg-zinc-200 font-black py-5 px-6 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 uppercase tracking-wider text-sm">
+                Execute Extraction
             </button>
         </form>
     </div>

@@ -1,6 +1,5 @@
 import json
 import re
-import os
 import requests
 from lxml import html
 import yt_dlp
@@ -22,6 +21,10 @@ class VideoScraper:
         if m:
             url = f"https://www.xnxx.com/video-{m.group(1)}/x"
 
+        # Explicitly route YouTube to yt-dlp to bypass generic fallbacks
+        if 'youtube.com' in url or 'youtu.be' in url:
+            return self._extract_ytdlp(url)
+
         result = self._extract_ytdlp(url)
         
         if not result or not result.get("qualities"):
@@ -30,7 +33,7 @@ class VideoScraper:
             elif 'xnxx' in url or 'xvideos' in url:
                 result = self._scrape_xnxx_xvideos(url)
             else:
-                result = {"status": "error", "error": "Unsupported provider", "url": url}
+                result = {"status": "error", "error": "Unsupported provider or stream format", "url": url}
 
         return result
 
@@ -51,25 +54,55 @@ class VideoScraper:
                 if not info: return None
 
                 qualities = []
-                for fmt in info.get('formats', []):
-                    f_url = fmt.get('url', '')
-                    ext = fmt.get('ext', '')
-                    proto = fmt.get('protocol', '')
-                    height = fmt.get('height')
-                    label = f"{height}p" if height else fmt.get('format_id', 'auto')
+                
+                # YouTube specific extraction: filter for progressive streams (muxed audio/video)
+                progressive = [f for f in info.get('formats', []) if f.get('acodec') != 'none' and f.get('vcodec') != 'none']
+                
+                if progressive:
+                    for fmt in progressive:
+                        height = fmt.get('height')
+                        label = f"{height}p" if height else fmt.get('format_id', 'auto')
+                        qualities.append({"label": label, "url": fmt.get('url')})
+                else:
+                    # Fallback for sites with HLS or single stream objects
+                    for fmt in info.get('formats', []):
+                        f_url = fmt.get('url', '')
+                        ext = fmt.get('ext', '')
+                        proto = fmt.get('protocol', '')
+                        height = fmt.get('height')
+                        label = f"{height}p" if height else fmt.get('format_id', 'auto')
 
-                    if ext == 'mp4' or proto.startswith('http') or 'm3u8' in f_url:
-                        qualities.append({"label": label, "url": f_url})
+                        if ext == 'mp4' or proto.startswith('http') or 'm3u8' in f_url:
+                            qualities.append({"label": label, "url": f_url})
+
+                # Sort qualities descending
+                def extract_res(lbl):
+                    m = re.search(r'(\d+)', lbl)
+                    return int(m.group(1)) if m else 0
+                
+                qualities.sort(key=lambda x: extract_res(x['label']), reverse=True)
+
+                # Deduplicate
+                seen = set()
+                unique_qualities = []
+                for q in qualities:
+                    if q['label'] not in seen:
+                        seen.add(q['label'])
+                        unique_qualities.append(q)
+
+                # Ultimate fallback
+                if not unique_qualities and info.get('url'):
+                    unique_qualities.append({"label": "Default", "url": info.get('url')})
 
                 return {
                     "status": "success",
                     "title": info.get('title', 'Unknown Title'),
                     "thumbnail": info.get('thumbnail', ''),
-                    "qualities": qualities,
+                    "qualities": unique_qualities,
                     "url": url
                 }
-        except Exception:
-            return None
+        except Exception as e:
+            return {"status": "error", "error": f"Extraction failed: {str(e)}", "url": url}
 
     def _scrape_pornhub(self, url):
         viewkey = None
