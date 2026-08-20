@@ -1,8 +1,10 @@
 import json
 import re
+import os
 import requests
 from lxml import html
 import yt_dlp
+import logging
 
 class VideoScraper:
     def __init__(self, proxy_url=None):
@@ -21,7 +23,6 @@ class VideoScraper:
         if m:
             url = f"https://www.xnxx.com/video-{m.group(1)}/x"
 
-        # Explicitly route YouTube to yt-dlp to bypass generic fallbacks
         if 'youtube.com' in url or 'youtu.be' in url:
             return self._extract_ytdlp(url)
 
@@ -44,7 +45,17 @@ class VideoScraper:
             'skip_download': True,
             'extract_flat': False,
             'user_agent': self.headers['User-Agent'],
+            'extractor_args': {'youtube': {'player_client': ['web', 'mweb']}},
+            'compat_opts': set(),
+            'format': 'best',
+            'hls_prefer_native': True
         }
+        
+        try:
+            yt_dlp.utils.get_executable_path('deno')
+        except Exception as e:
+            logging.warning(f"Deno not found in PATH, signature extraction may fail: {e}")
+
         if self.proxies and self.proxies.get("https"):
             ydl_opts['proxy'] = self.proxies["https"]
 
@@ -55,7 +66,6 @@ class VideoScraper:
 
                 qualities = []
                 
-                # YouTube specific extraction: filter for progressive streams (muxed audio/video)
                 progressive = [f for f in info.get('formats', []) if f.get('acodec') != 'none' and f.get('vcodec') != 'none']
                 
                 if progressive:
@@ -64,7 +74,6 @@ class VideoScraper:
                         label = f"{height}p" if height else fmt.get('format_id', 'auto')
                         qualities.append({"label": label, "url": fmt.get('url')})
                 else:
-                    # Fallback for sites with HLS or single stream objects
                     for fmt in info.get('formats', []):
                         f_url = fmt.get('url', '')
                         ext = fmt.get('ext', '')
@@ -75,14 +84,12 @@ class VideoScraper:
                         if ext == 'mp4' or proto.startswith('http') or 'm3u8' in f_url:
                             qualities.append({"label": label, "url": f_url})
 
-                # Sort qualities descending
                 def extract_res(lbl):
                     m = re.search(r'(\d+)', lbl)
                     return int(m.group(1)) if m else 0
                 
                 qualities.sort(key=lambda x: extract_res(x['label']), reverse=True)
 
-                # Deduplicate
                 seen = set()
                 unique_qualities = []
                 for q in qualities:
@@ -90,7 +97,6 @@ class VideoScraper:
                         seen.add(q['label'])
                         unique_qualities.append(q)
 
-                # Ultimate fallback
                 if not unique_qualities and info.get('url'):
                     unique_qualities.append({"label": "Default", "url": info.get('url')})
 

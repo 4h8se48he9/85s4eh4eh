@@ -10,7 +10,6 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Card 1 -->
         <div class="glass-panel p-10 rounded-[2rem] hover:bg-zinc-900/80 transition-all border border-zinc-800 hover:border-indigo-500/50 group">
             <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800 group-hover:border-indigo-500/50 transition-colors shadow-lg">
                 <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
@@ -19,16 +18,14 @@
             <p class="text-zinc-400 text-sm leading-relaxed font-medium">The backend handles routing and proxy networking. Your device connects only to the gateway, sidestepping ISP blocks completely.</p>
         </div>
 
-        <!-- Card 2 -->
         <div class="glass-panel p-10 rounded-[2rem] hover:bg-zinc-900/80 transition-all border border-zinc-800 hover:border-purple-500/50 group">
             <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800 group-hover:border-purple-500/50 transition-colors shadow-lg">
                 <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
-            <h3 class="text-2xl font-black text-white mb-4 tracking-tight">YouTube & Shorts</h3>
-            <p class="text-zinc-400 text-sm leading-relaxed font-medium">Full support for YouTube's infrastructure. Scraper automatically decrypts signatures and extracts progressive multiplexed feeds.</p>
+            <h3 class="text-2xl font-black text-white mb-4 tracking-tight">YouTube Support</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed font-medium">Full support for YouTube infrastructure. The scraper executes JS runtimes (Deno) automatically to decrypt signatures and extract feeds.</p>
         </div>
 
-        <!-- Card 3 -->
         <div class="glass-panel p-10 rounded-[2rem] hover:bg-zinc-900/80 transition-all border border-zinc-800 hover:border-pink-500/50 group">
             <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800 group-hover:border-pink-500/50 transition-colors shadow-lg">
                 <svg class="w-7 h-7 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
@@ -37,7 +34,6 @@
             <p class="text-zinc-400 text-sm leading-relaxed font-medium">Extracts dynamic HLS (.m3u8) manifests and rewrites chunk URIs on the fly. The built-in engine scales resolution automatically.</p>
         </div>
 
-        <!-- Card 4 -->
         <div class="glass-panel p-10 rounded-[2rem] hover:bg-zinc-900/80 transition-all border border-zinc-800 hover:border-emerald-500/50 group">
             <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800 group-hover:border-emerald-500/50 transition-colors shadow-lg">
                 <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -46,7 +42,6 @@
             <p class="text-zinc-400 text-sm leading-relaxed font-medium">Streams are passed through directly via byte-range requests. Data hits your browser without touching the server's disk.</p>
         </div>
         
-        <!-- Card 5 -->
         <div class="glass-panel p-10 rounded-[2rem] hover:bg-zinc-900/80 transition-all border border-zinc-800 hover:border-blue-500/50 group">
             <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800 group-hover:border-blue-500/50 transition-colors shadow-lg">
                 <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
@@ -55,7 +50,6 @@
             <p class="text-zinc-400 text-sm leading-relaxed font-medium">Identifies the requested CDN and dynamically injects precise Origin and Referer headers to bypass strict hotlink protections.</p>
         </div>
 
-        <!-- Card 6 -->
         <div class="glass-panel p-10 rounded-[2rem] hover:bg-zinc-900/80 transition-all border border-zinc-800 hover:border-orange-500/50 group">
             <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center mb-6 border border-zinc-800 group-hover:border-orange-500/50 transition-colors shadow-lg">
                 <svg class="w-7 h-7 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
