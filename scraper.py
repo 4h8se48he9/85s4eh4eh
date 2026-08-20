@@ -2,22 +2,15 @@ import json
 import re
 import os
 import random
-import tempfile
 import requests
 from lxml import html
 import yt_dlp
-import logging
 
 class VideoScraper:
     def __init__(self, proxy_url=None):
         self.proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
-        
-        # Load external proxy rotation pool if provided
         proxy_env = os.environ.get("PROXY_LIST", "")
         self.proxy_pool = [p.strip() for p in proxy_env.split(",") if p.strip()]
-        
-        # Load external session cookies if provided
-        self.cookies_content = os.environ.get("YT_COOKIES", "")
         
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
@@ -39,8 +32,9 @@ class VideoScraper:
         if m:
             url = f"https://www.xnxx.com/video-{m.group(1)}/x"
 
+        # Explicitly block YouTube if any remnants are passed
         if 'youtube.com' in url or 'youtu.be' in url:
-            return self._extract_ytdlp(url)
+            return {"status": "error", "error": "YouTube support has been completely removed.", "url": url}
 
         result = self._extract_ytdlp(url)
         
@@ -61,30 +55,14 @@ class VideoScraper:
             'skip_download': True,
             'extract_flat': False,
             'user_agent': self.headers['User-Agent'],
-            'extractor_args': {'youtube': {'player_client': ['web', 'mweb']}},
-            'compat_opts': set(),
-            'format': 'best',
-            'hls_prefer_native': True
         }
         
-        try:
-            yt_dlp.utils.get_executable_path('deno')
-        except Exception as e:
-            logging.warning(f"Deno not found in PATH, signature extraction may fail: {e}")
-
+        active_proxy = None
         if self.proxy_pool:
-            selected_proxy = random.choice(self.proxy_pool)
-            ydl_opts['proxy'] = selected_proxy
-            logging.info(f"Routing yt-dlp through residential proxy: {selected_proxy}")
+            active_proxy = random.choice(self.proxy_pool)
+            ydl_opts['proxy'] = active_proxy
         elif self.proxies and self.proxies.get("https"):
             ydl_opts['proxy'] = self.proxies["https"]
-
-        if self.cookies_content:
-            cookie_path = os.path.join(tempfile.gettempdir(), 'yt_cookies.txt')
-            with open(cookie_path, 'w', encoding='utf-8') as f:
-                f.write(self.cookies_content)
-            ydl_opts['cookiefile'] = cookie_path
-            logging.info("Injecting session cookies into extraction engine.")
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -92,24 +70,15 @@ class VideoScraper:
                 if not info: return None
 
                 qualities = []
-                
-                progressive = [f for f in info.get('formats', []) if f.get('acodec') != 'none' and f.get('vcodec') != 'none']
-                
-                if progressive:
-                    for fmt in progressive:
-                        height = fmt.get('height')
-                        label = f"{height}p" if height else fmt.get('format_id', 'auto')
-                        qualities.append({"label": label, "url": fmt.get('url')})
-                else:
-                    for fmt in info.get('formats', []):
-                        f_url = fmt.get('url', '')
-                        ext = fmt.get('ext', '')
-                        proto = fmt.get('protocol', '')
-                        height = fmt.get('height')
-                        label = f"{height}p" if height else fmt.get('format_id', 'auto')
+                for fmt in info.get('formats', []):
+                    f_url = fmt.get('url', '')
+                    ext = fmt.get('ext', '')
+                    proto = fmt.get('protocol', '')
+                    height = fmt.get('height')
+                    label = f"{height}p" if height else fmt.get('format_id', 'auto')
 
-                        if ext == 'mp4' or proto.startswith('http') or 'm3u8' in f_url:
-                            qualities.append({"label": label, "url": f_url})
+                    if ext == 'mp4' or proto.startswith('http') or 'm3u8' in f_url:
+                        qualities.append({"label": label, "url": f_url})
 
                 def extract_res(lbl):
                     m = re.search(r'(\d+)', lbl)

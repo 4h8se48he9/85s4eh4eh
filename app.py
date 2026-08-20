@@ -75,8 +75,6 @@ def proxy_media():
         referer = "https://www.xnxx.com/"
     elif "xvideos" in parsed_url.netloc:
         referer = "https://www.xvideos.com/"
-    elif "googlevideo.com" in parsed_url.netloc:
-        referer = "https://www.youtube.com/"
     else:
         referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
 
