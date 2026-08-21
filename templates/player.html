@@ -5,6 +5,7 @@
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
+    /* Custom Player Controls Styling */
     video::-webkit-media-controls-panel { 
         background: linear-gradient(to top, rgba(0,0,0,0.9), transparent) !important; 
     }
@@ -39,19 +40,8 @@
         background: linear-gradient(to right, #27272a, transparent);
     }
 
-    .cinema-mode {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 100;
-        background: black;
-        padding: 0;
-        margin: 0;
-        max-width: none;
-    }
-    .cinema-mode .glass-panel {
+    /* Hide sidebar in native fullscreen if needed, though usually video takes priority */
+    :fullscreen .glass-panel {
         display: none;
     }
 </style>
@@ -64,11 +54,11 @@
     <div class="xl:col-span-9 flex flex-col gap-6">
         
         <!-- Video Container -->
-        <div id="player-container" class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50 flex items-center justify-center cursor-pointer transition-all duration-500" onclick="handleInitialPlay(this)">
+        <div id="player-container" class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50 flex items-center justify-center cursor-pointer transition-all duration-500">
             
-            <!-- Play Overlay -->
-            <div id="play-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm group-hover:bg-black/40 transition-all z-10">
-                <div class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-4 border border-white/20 group-hover:scale-110 transition-transform duration-300">
+            <!-- Play Overlay (Initial State) -->
+            <div id="play-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-10 transition-opacity duration-300">
+                <div class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-4 border border-white/20 hover:scale-110 transition-transform duration-300 cursor-pointer" onclick="handleInitialPlay()">
                     <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </div>
                 <span class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Click to Initialize Stream</span>
@@ -76,9 +66,10 @@
 
             <video id="main-player" controls controlsList="nodownload" disablePictureInPicture oncontextmenu="return false;" poster="{{ data.thumbnail }}" preload="metadata" playsinline class="w-full h-full object-contain outline-none bg-black relative z-0"></video>
             
-            <!-- Cinema Toggle -->
-            <button onclick="toggleCinema()" class="absolute top-4 right-4 z-20 p-3 rounded-xl bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+            <!-- Custom Fullscreen Toggle -->
+            <button onclick="toggleFullscreen()" class="absolute bottom-4 right-4 z-20 p-3 rounded-xl bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100 hidden md:block">
+                <svg id="fs-icon-enter" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                <svg id="fs-icon-exit" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5"></path></svg>
             </button>
         </div>
 
@@ -229,6 +220,9 @@
     const video = document.getElementById('main-player');
     const overlay = document.getElementById('play-overlay');
     const playerContainer = document.getElementById('player-container');
+    const fsIconEnter = document.getElementById('fs-icon-enter');
+    const fsIconExit = document.getElementById('fs-icon-exit');
+    
     let hlsPlayer = null;
     let isUserInitiated = false;
     let currentUrl = "";
@@ -236,20 +230,46 @@
     // Prevent context menu
     video.addEventListener('contextmenu', e => e.preventDefault());
 
-    // Cinema Mode Toggle
-    function toggleCinema() {
-        playerContainer.classList.toggle('cinema-mode');
-        if (playerContainer.classList.contains('cinema-mode')) {
-            document.body.style.overflow = 'hidden';
+    // Native Fullscreen Toggle
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            if (playerContainer.requestFullscreen) {
+                playerContainer.requestFullscreen();
+            } else if (playerContainer.webkitRequestFullscreen) { /* Safari */
+                playerContainer.webkitRequestFullscreen();
+            } else if (playerContainer.msRequestFullscreen) { /* IE11 */
+                playerContainer.msRequestFullscreen();
+            }
         } else {
-            document.body.style.overflow = 'auto';
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
+            }
+        }
+    }
+
+    // Listen for fullscreen changes to update icon
+    document.addEventListener('fullscreenchange', updateFsIcon);
+    document.addEventListener('webkitfullscreenchange', updateFsIcon);
+    document.addEventListener('mozfullscreenchange', updateFsIcon);
+    document.addEventListener('MSFullscreenChange', updateFsIcon);
+
+    function updateFsIcon() {
+        if (document.fullscreenElement) {
+            fsIconEnter.classList.add('hidden');
+            fsIconExit.classList.remove('hidden');
+        } else {
+            fsIconEnter.classList.remove('hidden');
+            fsIconExit.classList.add('hidden');
         }
     }
 
     // Initial Play Handler
-    function handleInitialPlay(container) {
+    function handleInitialPlay() {
         if(overlay) overlay.style.display = 'none';
-        container.style.cursor = 'default';
         isUserInitiated = true;
         
         if (currentUrl) {
@@ -280,6 +300,12 @@
     function applySource(proxyUrl, shouldPlay) {
         if (!proxyUrl) return;
 
+        // Note: We use the direct URL here because the proxy logic is handled by the server 
+        // or we need to pass it through the /proxy endpoint if required by CORS.
+        // In this architecture, the URLs from scraper are often direct CDN links that need Referer headers.
+        // The /proxy endpoint in app.py handles the Referer injection.
+        const finalUrl = '/proxy?url=' + encodeURIComponent(proxyUrl);
+
         const isHls = proxyUrl.includes('.m3u8') || proxyUrl.includes('hls') || proxyUrl.includes('manifest');
         const wasPlaying = !video.paused && video.currentTime > 0;
         const currentTime = video.currentTime;
@@ -298,7 +324,7 @@
                 lowLatencyMode: true
             });
             
-            hlsPlayer.loadSource(proxyUrl);
+            hlsPlayer.loadSource(finalUrl);
             hlsPlayer.attachMedia(video);
             
             hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -327,12 +353,12 @@
             });
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
             // Native HLS support (Safari)
-            video.src = proxyUrl;
+            video.src = finalUrl;
             if (currentTime > 0) video.currentTime = currentTime;
             if (shouldPlay || wasPlaying) video.play().catch(()=>{});
         } else {
             // Standard MP4/Direct
-            video.src = proxyUrl;
+            video.src = finalUrl;
             video.load();
             if (currentTime > 0) video.currentTime = currentTime;
             if (shouldPlay || wasPlaying) video.play().catch(()=>{});
@@ -358,7 +384,7 @@
                 currentUrl = "";
             {% endif %}
             
-            if(currentUrl) video.src = currentUrl;
+            if(currentUrl) video.src = '/proxy?url=' + encodeURIComponent(currentUrl);
         }
     });
 </script>
