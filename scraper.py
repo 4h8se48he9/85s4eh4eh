@@ -20,7 +20,7 @@ class VideoScraper:
 
     def _extract_res(self, label):
         """Safely extract resolution integer for sorting."""
-        m = re.search(r'(\d+)', label)
+        m = re.search(r'(\d+)', str(label))
         return int(m.group(1)) if m else 0
 
     def parse_hls_qualities(self, master_m3u8_url):
@@ -45,7 +45,6 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
-        # Uses sys.executable to run yt-dlp as a module, bypassing all $PATH and binary issues
         base_cmd = [
             sys.executable, "-m", "yt_dlp",
             "-J",
@@ -56,11 +55,9 @@ class VideoScraper:
         ]
 
         try:
-            # 1. Try Direct (Best speed, bypasses dead WARP tunnel issue)
             process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
             stdout, stderr = process.communicate(timeout=45)
 
-            # 2. Try WARP SOCKS5 if Direct fails
             if process.returncode != 0:
                 proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
                 process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
@@ -119,9 +116,7 @@ class VideoScraper:
             if not result["streams"]["hls_master"] and data.get("manifest_url") and '.m3u8' in data.get("manifest_url"):
                 result["streams"]["hls_master"] = data["manifest_url"]
 
-            # Use the safe helper function for sorting
             result["streams"]["qualities"].sort(key=lambda x: self._extract_res(x['quality']), reverse=True)
-
             return result
 
         except Exception as e:

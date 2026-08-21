@@ -3,11 +3,9 @@ nixPkgs = ["python311", "curl", "ffmpeg", "cloudflare-warp"]
 
 [phases.install]
 cmds = [
-  "python3 -m venv /app/venv",
-  "/app/venv/bin/pip install --upgrade pip",
-  "/app/venv/bin/pip install requests lxml flask gunicorn yt-dlp",
-  "curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o yt-dlp",
-  "chmod +x yt-dlp"
+  "python3 -m ensurepip --upgrade",
+  "python3 -m pip install --upgrade pip",
+  "python3 -m pip install requests lxml flask gunicorn yt-dlp"
 ]
 
 [phases.build]
