@@ -13,19 +13,91 @@ class VideoScraper:
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
-        
-        # Locate isolated yt-dlp binary
-        self.ytdlp_path = "yt-dlp"
-        if os.path.isfile("/opt/venv/bin/yt-dlp"):
-            self.ytdlp_path = "/opt/venv/bin/yt-dlp"
+        self.proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
+        self._write_deno_script()
 
-    def title_case(self, text):
-        return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
+    def _write_deno_script(self):
+        """Generates the Deno script that uses CURL to bypass the Python PySocks bug."""
+        deno_code = """
+        const targetUrl = Deno.args[0];
+        
+        const cmd = new Deno.Command("curl", {
+            args: [
+                "-sSL",
+                "-x", "socks5h://127.0.0.1:40000",
+                "-H", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "-H", "Accept-Language: en-US,en;q=0.9",
+                targetUrl
+            ]
+        });
+        
+        const { stdout, stderr, code } = cmd.outputSync();
+        if (code !== 0) {
+            console.error("Curl WARP execution failed: " + new TextDecoder().decode(stderr));
+            Deno.exit(1);
+        }
+
+        const html = new TextDecoder().decode(stdout);
+        const match = html.match(/ytInitialPlayerResponse\\s*=\\s*(\\{.+?\\});/);
+
+        if (!match) {
+            console.error("YouTube blocked the request or URL is invalid.");
+            Deno.exit(1);
+        }
+
+        try {
+            const data = JSON.parse(match[1]);
+            const details = data.videoDetails || {};
+            const strData = data.streamingData || {};
+
+            const result = {
+                status: "success",
+                extractor: "youtube",
+                title: details.title || "Unknown Title",
+                uploader: details.author || "",
+                duration: parseInt(details.lengthSeconds || "0"),
+                thumbnail: (details.thumbnail && details.thumbnail.thumbnails && details.thumbnail.thumbnails.length > 0) ? details.thumbnail.thumbnails[0].url : "",
+                tags: details.keywords || [],
+                url: targetUrl,
+                streams: { direct_mp4: {}, video_only: {}, audio_only: {}, qualities: [], hls_master: strData.hlsManifestUrl || null, dash_manifest: strData.dashManifestUrl || null }
+            };
+
+            const formats = [...(strData.formats || []), ...(strData.adaptiveFormats || [])];
+
+            for (const fmt of formats) {
+                if (!fmt.url) continue;
+
+                const hasVideo = !!fmt.width;
+                const hasAudio = !!fmt.audioSampleRate;
+                const ext = fmt.mimeType ? (fmt.mimeType.includes("mp4") ? "mp4" : "webm") : "mp4";
+                const label = fmt.height ? `${fmt.height}p` : "auto";
+
+                if (hasVideo && hasAudio) result.streams.direct_mp4[label] = fmt.url;
+                else if (hasVideo && !hasAudio) result.streams.video_only[`${label} - ${ext}`] = fmt.url;
+                else if (!hasVideo && hasAudio) result.streams.audio_only[`${fmt.bitrate || 'auto'}bps - ${ext}`] = fmt.url;
+            }
+
+            console.log(JSON.stringify(result));
+        } catch (e) {
+            console.error("JSON Parse Error: " + e.message);
+            Deno.exit(1);
+        }
+        """
+        with open("yt_scraper.ts", "w", encoding="utf-8") as f:
+            f.write(deno_code)
+
+    def safe_request(self, url):
+        try:
+            resp = requests.get(url, headers=self.headers, timeout=10)
+            resp.raise_for_status()
+            return resp
+        except:
+            return requests.get(url, headers=self.headers, proxies=self.proxies, timeout=15)
 
     def parse_hls_qualities(self, master_m3u8_url):
         qualities = []
         try:
-            resp = requests.get(master_m3u8_url, headers=self.headers, timeout=15)
+            resp = self.safe_request(master_m3u8_url)
             if resp.status_code != 200: return qualities
             lines = resp.text.splitlines()
             base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
@@ -42,80 +114,37 @@ class VideoScraper:
         qualities.sort(key=lambda x: int(re.search(r'(\d+)', x['quality']).group(1)) if re.search(r'(\d+)', x['quality']) else 0, reverse=True)
         return qualities
 
-    def _extract_youtube_native(self, url):
-        cmd = [
-            self.ytdlp_path,
-            "-J",
-            "--proxy", "socks5h://127.0.0.1:40000",
-            "--socket-timeout", "30",
-            "--extractor-args", "youtube:client=ios,android,web",
-            "--no-warnings",
-            url
-        ]
+    def title_case(self, text):
+        return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
 
+    def extract(self, url):
+        m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
+        if m: url = f"https://www.xnxx.com/video-{m.group(1)}/x"
+
+        if 'youtube.com' in url or 'youtu.be' in url or 'googlevideo.com' in url:
+            return self._extract_youtube_deno(url)
+        elif 'pornhub' in url:
+            return self._scrape_pornhub(url)
+        elif 'xnxx' in url or 'xvideos' in url:
+            return self._scrape_xnxx_xvideos(url)
+        return {"status": "error", "error": "Unsupported provider"}
+
+    def _extract_youtube_deno(self, url):
         try:
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
-            stdout, stderr = process.communicate(timeout=45)
-
-            if process.returncode != 0:
-                return {"status": "error", "error": f"WARP Extractor Failed: {stderr.strip()}"}
-
-            data = json.loads(stdout.strip())
+            result = subprocess.run(["deno", "run", "-A", "yt_scraper.ts", url], capture_output=True, text=True)
+            if result.returncode == 0 and result.stdout.strip():
+                data = json.loads(result.stdout.strip())
+                
+                hls_master = data.get("streams", {}).get("hls_master")
+                if hls_master:
+                    data["streams"]["qualities"] = self.parse_hls_qualities(hls_master)
+                    
+                return data
             
-            result = {
-                "status": "success",
-                "extractor": "youtube",
-                "title": data.get("title", "Unknown Title"),
-                "uploader": data.get("uploader", ""),
-                "duration": data.get("duration", 0),
-                "thumbnail": data.get("thumbnail", ""),
-                "tags": data.get("tags", []),
-                "url": data.get("webpage_url", url),
-                "streams": { "direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": [], "hls_master": None, "dash_manifest": None }
-            }
-
-            seen = set()
-            for fmt in data.get("formats", []):
-                f_url = fmt.get("url")
-                if not f_url or f_url in seen: continue
-                seen.add(f_url)
-
-                ext = fmt.get("ext", "mp4")
-                height = fmt.get("height")
-                note = fmt.get("format_note", "")
-                label = f"{height}p" if height else (fmt.get("format_id", "auto"))
-
-                if '.m3u8' in f_url or 'manifest/hls_playlist' in f_url:
-                    if height:
-                        result["streams"]["qualities"].append({
-                            "quality": label,
-                            "resolution": f"{fmt.get('width', 0)}x{height}",
-                            "bandwidth": fmt.get("tbr") or fmt.get("vbr") or 0,
-                            "type": "hls",
-                            "url": f_url
-                        })
-                    if 'master.m3u8' in f_url or fmt.get("format_id") == "hls-meta":
-                        if not result["streams"]["hls_master"]:
-                            result["streams"]["hls_master"] = f_url
-                    continue
-
-                has_video = fmt.get("vcodec") and fmt.get("vcodec") != "none"
-                has_audio = fmt.get("acodec") and fmt.get("acodec") != "none"
-
-                if has_video and has_audio: result["streams"]["direct_mp4"][label] = f_url
-                elif has_video and not has_audio: result["streams"]["video_only"][f"{label} - {ext}"] = f_url
-                elif not has_video and has_audio: result["streams"]["audio_only"][f"{fmt.get('abr', 'auto')}kbps - {ext}"] = f_url
-                elif ext == 'mp4' or fmt.get("protocol", "").startswith("http"): result["streams"]["direct_mp4"][label] = f_url
-
-            if not result["streams"]["hls_master"] and data.get("manifest_url") and '.m3u8' in data.get("manifest_url"):
-                result["streams"]["hls_master"] = data["manifest_url"]
-
-            result["streams"]["qualities"].sort(key=lambda x: int(re.search(r'\d+', x['quality']).group(1)) if re.search(r'\d+', x['quality']) else 0, reverse=True)
-
-            return result
-
+            error_details = result.stderr.strip() or "Region blocked or WARP tunnel dead."
+            return {"status": "error", "error": f"YouTube WARP Extractor Failed: {error_details}"}
         except Exception as e:
-            return {"status": "error", "error": f"JSON or Execution Error: {str(e)}"}
+            return {"status": "error", "error": str(e)}
 
     def _scrape_pornhub(self, url):
         viewkey = None
@@ -148,11 +177,8 @@ class VideoScraper:
             fmt = m.get('format', '')
             qual_raw = m.get('quality')
             
-            if isinstance(qual_raw, list):
-                qual = str(qual_raw[0]) if qual_raw else "auto"
-            else:
-                qual = str(qual_raw or "auto")
-                
+            if isinstance(qual_raw, list): qual = str(qual_raw[0]) if qual_raw else "auto"
+            else: qual = str(qual_raw or "auto")
             if qual == "[]" or not qual: qual = "auto"
                 
             if fmt == 'mp4' or 'mp4' in v_url:
@@ -190,16 +216,3 @@ class VideoScraper:
         if low_match: stream_data["direct_mp4"]["Low"] = low_match.group(1)
 
         return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "streams": stream_data, "url": url}
-
-    def extract(self, url):
-        m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
-        if m: url = f"https://www.xnxx.com/video-{m.group(1)}/x"
-
-        if 'youtube.com' in url or 'youtu.be' in url or 'googlevideo.com' in url:
-            return self._extract_youtube_native(url)
-        elif 'pornhub' in url:
-            return self._scrape_pornhub(url)
-        elif 'xnxx' in url or 'xvideos' in url:
-            return self._scrape_xnxx_xvideos(url)
-            
-        return {"status": "error", "error": "Unsupported provider"}

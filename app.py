@@ -60,17 +60,14 @@ def proxy_media():
 
     parsed_url = urlparse(target)
 
-    is_youtube = any(d in parsed_url.netloc for d in ["googlevideo.com", "youtube.com", "youtu.be"])
-    active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"} if is_youtube else None
-
     if "phncdn" in parsed_url.netloc or "pornhub" in parsed_url.netloc: referer = "https://www.pornhub.com/"
     elif "xnxx" in parsed_url.netloc: referer = "https://www.xnxx.com/"
     elif "xvideos" in parsed_url.netloc: referer = "https://www.xvideos.com/"
-    elif is_youtube: referer = "https://www.youtube.com/"
+    elif "googlevideo" in parsed_url.netloc or "youtube" in parsed_url.netloc: referer = "https://www.youtube.com/"
     else: referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
 
     req_headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
         "Referer": referer,
         "Origin": referer.rstrip('/'),
         "Accept-Encoding": "identity"
@@ -80,8 +77,15 @@ def proxy_media():
     if range_header: req_headers["Range"] = range_header
 
     try:
-        upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
-        upstream.raise_for_status()
+        # Try Direct First (Best Performance, No SOCKS EOF bugs)
+        try:
+            upstream = requests.get(target, headers=req_headers, stream=True, timeout=10)
+            upstream.raise_for_status()
+        except Exception as direct_err:
+            logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
+            active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
+            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
+            upstream.raise_for_status()
 
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
@@ -103,8 +107,12 @@ def proxy_media():
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
 
         def generate():
-            for chunk in upstream.iter_content(chunk_size=131072):
-                if chunk: yield chunk
+            try:
+                for chunk in upstream.iter_content(chunk_size=131072):
+                    if chunk: yield chunk
+            except Exception as stream_err:
+                logging.warning(f"Stream suppressed EOF drop: {stream_err}")
+                pass # Suppress PySocks 1-byte drop so video keeps playing silently
 
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
 

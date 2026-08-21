@@ -6,11 +6,11 @@
 <div class="w-full flex-1 flex items-center justify-center p-6 min-h-[70vh]">
     <div class="w-full max-w-xl glass-panel rounded-[2rem] p-10 shadow-2xl relative z-10 border border-zinc-800">
         <h2 class="text-4xl font-black mb-3 text-white tracking-tight">Target Terminal</h2>
-        <p class="text-zinc-400 mb-10 text-sm font-medium">Input a video URL from Pornhub, XNXX, or XVideos. The engine will locate the media chunks.</p>
-        
+        <p class="text-zinc-400 mb-10 text-sm font-medium">Input a video URL from YouTube, Pornhub, XNXX, or XVideos. The engine will locate the media chunks.</p>
+
         {% if error %}
-        <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-xl mb-8 text-sm font-bold shadow-inner">
-            Error: {{ error }}
+        <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-xl mb-8 text-sm font-bold shadow-inner flex break-words overflow-hidden text-left">
+            <span class="flex-1 break-all">{{ error }}</span>
         </div>
         {% endif %}
 
@@ -18,7 +18,7 @@
             <div class="relative group">
                 <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-500"></div>
                 <input type="url" name="url" required placeholder="https://..." 
-                       class="relative w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-14 pr-5 py-5 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-all text-sm font-bold shadow-inner">
+                       class="relative w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-14 pr-5 py-5 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-all text-lg font-medium shadow-inner">
                 <svg class="w-6 h-6 absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
             </div>
             <button type="submit" 
