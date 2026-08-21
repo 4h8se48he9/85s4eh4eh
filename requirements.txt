@@ -3,3 +3,4 @@ gunicorn==22.0.0
 requests
 requests[socks]
 lxml
+yt-dlp

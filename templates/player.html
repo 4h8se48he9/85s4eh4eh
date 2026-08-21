@@ -30,7 +30,7 @@
 
     <div class="xl:col-span-3 flex flex-col gap-6">
         <div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50 flex items-center justify-center">
-            <video id="main-player" controls poster="{{ data.thumbnail }}" playsinline class="w-full h-full object-contain outline-none bg-black"></video>
+            <video id="main-player" controls poster="{{ data.thumbnail }}" playsinline preload="none" class="w-full h-full object-contain outline-none bg-black"></video>
         </div>
 
         <div class="glass-panel rounded-[2rem] p-8 border border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -105,6 +105,7 @@
 <script>
     const video = document.getElementById('main-player');
     let hlsPlayer = null;
+    let initialSelected = false;
 
     function loadQuality(url, btnElement) {
         document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
@@ -112,8 +113,6 @@
 
         const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
         const isHls = url.includes('.m3u8') || url.includes('hls') || url.includes('manifest');
-
-        // Check if video is currently playing so we can resume automatically if switching mid-stream
         const wasPlaying = !video.paused && video.currentTime > 0;
 
         if (isHls && Hls.isSupported()) {
@@ -122,23 +121,29 @@
             hlsPlayer.loadSource(proxyUrl);
             hlsPlayer.attachMedia(video);
             hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
-                if (wasPlaying) video.play().catch(()=>{});
+                if (initialSelected && wasPlaying) video.play().catch(()=>{});
             });
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
-            if (wasPlaying) video.play().catch(()=>{});
+            if (initialSelected && wasPlaying) video.play().catch(()=>{});
         } else {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
             video.load();
-            if (wasPlaying) video.play().catch(()=>{});
+            if (initialSelected && wasPlaying) video.play().catch(()=>{});
         }
+        initialSelected = true;
     }
 
     window.addEventListener('DOMContentLoaded', () => {
         const firstSource = document.querySelector('.quality-btn');
-        if (firstSource) firstSource.click();
+        if (firstSource) {
+            // Preload the source without triggering autoplay
+            const proxyUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.qualities[0].url if data.streams.qualities else data.streams.direct_mp4.values()|first }}");
+            video.src = proxyUrl;
+            firstSource.classList.add('active');
+        }
     });
 </script>
 {% endblock %}

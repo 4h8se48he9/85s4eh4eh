@@ -1,15 +1,15 @@
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip", "cloudflare-warp", "curl", "ffmpeg"]
+nixPkgs = ["python311", "curl", "ffmpeg", "cloudflare-warp"]
 
 [phases.install]
 cmds = [
-  "python -m venv /opt/venv",
-  "curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py",
-  "/opt/venv/bin/python get-pip.py",
-  "/opt/venv/bin/pip install -r requirements.txt"
+  "python3 -m ensurepip --upgrade",
+  "python3 -m pip install --upgrade pip",
+  "python3 -m pip install requests lxml flask gunicorn yt-dlp"
 ]
 
 [phases.build]
-cmds = [
-  "chmod +x start.sh"
-]
+cmds = ["chmod +x start.sh"]
+
+[start]
+cmd = "bash start.sh"

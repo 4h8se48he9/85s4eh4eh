@@ -77,7 +77,6 @@ def proxy_media():
     if range_header: req_headers["Range"] = range_header
 
     try:
-        # Try Direct First (Best Performance, No SOCKS EOF bugs)
         try:
             upstream = requests.get(target, headers=req_headers, stream=True, timeout=10)
             upstream.raise_for_status()
@@ -112,7 +111,7 @@ def proxy_media():
                     if chunk: yield chunk
             except Exception as stream_err:
                 logging.warning(f"Stream suppressed EOF drop: {stream_err}")
-                pass # Suppress PySocks 1-byte drop so video keeps playing silently
+                pass
 
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
 
