@@ -1,8 +1,6 @@
 import os
 import logging
 import re
-import hashlib
-import time
 from urllib.parse import urlparse, urljoin, quote
 from flask import Flask, request, render_template, Response
 import requests
@@ -15,31 +13,12 @@ app.secret_key = os.urandom(24)
 
 scraper = VideoScraper()
 
-def generate_token(target_url):
-    expiry = int(time.time()) + 7200
-    payload = f"{target_url}:{expiry}:{app.secret_key.hex()}"
-    sig = hashlib.sha256(payload.encode()).hexdigest()
-    return f"{expiry}:{sig}"
-
-def verify_token(target_url, token):
-    try:
-        expiry_str, sig = token.split(":")
-        expiry = int(expiry_str)
-        if time.time() > expiry:
-            return False
-        payload = f"{target_url}:{expiry}:{app.secret_key.hex()}"
-        expected_sig = hashlib.sha256(payload.encode()).hexdigest()
-        return sig == expected_sig
-    except Exception:
-        return False
-
 def rewrite_playlist(playlist, base_url):
     def build_proxy_uri(raw_uri):
         clean_uri = raw_uri.strip().strip("'\"")
         if clean_uri.startswith("data:"): return clean_uri
         resolved = urljoin(base_url, clean_uri)
-        token = generate_token(resolved)
-        return f"/proxy?url={quote(resolved, safe='')}&token={token}"
+        return "/proxy?url=" + quote(resolved, safe="")
 
     out_lines = []
     for line in playlist.splitlines():
@@ -72,44 +51,12 @@ def extract():
     if not data or data.get("status") == "error":
         return render_template("view.html", error=data.get("error", "Extraction failed."))
 
-    if data.get("thumbnail"):
-        thumb_token = generate_token(data["thumbnail"])
-        data["thumbnail"] = f"/proxy?url={quote(data['thumbnail'], safe='')}&token={thumb_token}"
-
-    for q in data["streams"].get("qualities", []):
-        t = generate_token(q["url"])
-        q["url"] = f"/proxy?url={quote(q['url'], safe='')}&token={t}"
-
-    for label, u in list(data["streams"].get("direct_mp4", {}).items()):
-        t = generate_token(u)
-        data["streams"]["direct_mp4"][label] = f"/proxy?url={quote(u, safe='')}&token={t}"
-
-    for label, u in list(data["streams"].get("video_only", {}).items()):
-        t = generate_token(u)
-        data["streams"]["video_only"][label] = f"/proxy?url={quote(u, safe='')}&token={t}"
-
-    for label, u in list(data["streams"].get("audio_only", {}).items()):
-        t = generate_token(u)
-        data["streams"]["audio_only"][label] = f"/proxy?url={quote(u, safe='')}&token={t}"
-
     return render_template("player.html", data=data)
 
-@app.route("/proxy", methods=["GET", "OPTIONS"])
+@app.route("/proxy")
 def proxy_media():
-    if request.method == "OPTIONS":
-        headers = {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Range, Content-Type, Accept, Origin, Referer, User-Agent",
-            "Access-Control-Max-Age": "86400"
-        }
-        return Response(status=204, headers=headers)
-
     target = request.args.get("url")
-    token = request.args.get("token")
-
-    if not target or not token or not verify_token(target, token):
-        return "Forbidden: Invalid or expired session token.", 403
+    if not target: return "Missing URL", 400
 
     parsed_url = urlparse(target)
 
@@ -126,57 +73,52 @@ def proxy_media():
         "Accept-Encoding": "identity"
     }
 
-    try:
-        try:
-            upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
-            upstream.raise_for_status()
-        except requests.exceptions.RequestException as direct_err:
-            logging.warning(f"Direct connection failed, attempting WARP SOCKS5: {direct_err}")
-            try:
-                active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
-                upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
-                upstream.raise_for_status()
-            except requests.exceptions.RequestException as proxy_err:
-                logging.error(f"WARP SOCKS5 also failed: {proxy_err}")
-                return Response(f"Upstream connection failed: {proxy_err}", status=502)
+    range_header = request.headers.get("Range")
+    if range_header: req_headers["Range"] = range_header
 
-        excluded_headers = ['transfer-encoding', 'connection', 'content-range']
+    try:
+        # Try Direct First (Best Performance, No SOCKS EOF bugs)
+        try:
+            upstream = requests.get(target, headers=req_headers, stream=True, timeout=10)
+            upstream.raise_for_status()
+        except Exception as direct_err:
+            logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
+            active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
+            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
+            upstream.raise_for_status()
+
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
         res_headers["Access-Control-Allow-Origin"] = "*"
-        res_headers["Accept-Ranges"] = "none"
+        res_headers["Accept-Ranges"] = "bytes"
+
+        if "Content-Length" in upstream.headers:
+            res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
         content_type = upstream.headers.get("content-type", "").lower()
-        is_m3u8 = "mpegurl" in content_type or "hls" in content_type or ".m3u8" in target or "manifest/hls" in target
+        is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
 
         if is_m3u8:
             text = upstream.text
             final_base = upstream.url or target
             rewritten = rewrite_playlist(text, final_base)
-            
-            res_headers.pop('content-encoding', None)
-            res_headers.pop('content-length', None)
-            
             res_headers["Content-Type"] = "application/vnd.apple.mpegurl"
             res_headers["Content-Length"] = str(len(rewritten.encode('utf-8')))
-            
-            upstream.close()
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
 
         def generate():
             try:
-                for chunk in upstream.raw.stream(65536, decode_content=False):
+                for chunk in upstream.iter_content(chunk_size=131072):
                     if chunk: yield chunk
             except Exception as stream_err:
-                logging.warning(f"Stream suppressed drop: {stream_err}")
-                pass
-            finally:
-                upstream.close()
+                logging.warning(f"Stream suppressed EOF drop: {stream_err}")
+                pass # Suppress PySocks 1-byte drop so video keeps playing silently
 
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
 
     except Exception as e:
         logging.error(f"Proxy failure for {target}: {e}")
-        return Response(f"Proxy stream failure: {e}", status=502)
+        return "Proxy stream failure", 502
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)), debug=True)

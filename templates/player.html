@@ -5,19 +5,19 @@
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
-    .quality-btn.active { border-color: rgba(168, 85, 247, 0.6); background: rgba(168, 85, 247, 0.12); color: #f0abfc; box-shadow: 0 0 20px rgba(168, 85, 247, 0.15); }
+    .quality-btn.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.15); color: #f0abfc; }
     .quality-btn.active svg { opacity: 1; }
     video::-webkit-media-controls-panel { background-image: none !important; }
     
     .stream-section-title {
-        font-size: 10px;
+        font-size: 11px;
         text-transform: uppercase;
-        letter-spacing: 0.25em;
+        letter-spacing: 0.2em;
         color: #71717a;
-        font-weight: 800;
-        margin-bottom: 10px;
-        padding-left: 4px;
-        margin-top: 24px;
+        font-weight: 900;
+        margin-bottom: 8px;
+        padding-left: 8px;
+        margin-top: 20px;
     }
     .stream-section-title:first-child {
         margin-top: 0;
@@ -26,40 +26,35 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-[1600px] mx-auto w-full p-4 md:p-8 grid grid-cols-1 xl:grid-cols-4 gap-6">
+<div class="max-w-[1600px] mx-auto w-full p-4 md:p-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
 
     <div class="xl:col-span-3 flex flex-col gap-6">
-        <div class="bg-zinc-950 rounded-[2.5xl] overflow-hidden shadow-2xl border border-zinc-800/80 relative aspect-video group shadow-black/60 flex items-center justify-center cursor-pointer backdrop-blur-xl" onclick="handleInitialPlay(this)">
-            <video id="main-player" controls controlsList="nodownload" disablePictureInPicture oncontextmenu="return false;" poster="{{ data.thumbnail }}" preload="none" playsinline class="w-full h-full object-contain outline-none bg-black"></video>
-            <div id="play-overlay" class="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm group-hover:bg-black/40 transition-all duration-300">
-                <div class="w-20 h-20 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xl backdrop-blur-md">
-                    <svg class="w-10 h-10 text-white ml-1 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-            </div>
+        <div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50 flex items-center justify-center">
+            <video id="main-player" controls poster="{{ data.thumbnail }}" playsinline class="w-full h-full object-contain outline-none bg-black"></video>
         </div>
 
-        <div class="glass-panel rounded-[2.5xl] p-8 border border-zinc-800/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 backdrop-blur-xl shadow-2xl">
+        <div class="glass-panel rounded-[2rem] p-8 border border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
                 <h1 class="text-3xl font-black tracking-tight mb-3 text-white leading-tight">{{ data.title }}</h1>
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="px-3.5 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs font-bold text-indigo-400 uppercase tracking-widest shadow-inner">Protected Stream</span>
-                    <span class="text-zinc-500 text-xs font-semibold uppercase tracking-wider">Anti-Rip Tokenized Gateway</span>
+                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-black text-indigo-400 uppercase tracking-widest">Gateway Proxy</span>
+                    <span class="text-zinc-500 text-sm font-bold">Dynamic Protocol Detection</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="xl:col-span-1">
-        <div class="glass-panel rounded-[2.5xl] p-6 sticky top-28 border border-zinc-800/80 max-h-[82vh] overflow-y-auto backdrop-blur-xl shadow-2xl custom-scrollbar">
+        <div class="glass-panel rounded-[2rem] p-6 sticky top-28 border border-zinc-800 max-h-[80vh] overflow-y-auto">
             
-            <div class="flex flex-col gap-2.5">
+            <div class="flex flex-col gap-2">
                 {% if data.streams.qualities %}
                     <h3 class="stream-section-title">HLS / Adaptive</h3>
                     {% for q in data.streams.qualities %}
                     <button onclick="loadQuality('{{ q.url }}', this)" 
-                            class="quality-btn w-full py-3.5 px-4 bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800/80 rounded-2xl text-xs font-bold transition-all duration-200 flex justify-between items-center text-zinc-300 group">
-                        <span class="truncate pr-2">{{ q.quality }}</span>
-                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            class="quality-btn w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-extrabold transition-all flex justify-between items-center text-zinc-300">
+                        <span>{{ q.quality }}</span>
+                        <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
@@ -68,9 +63,9 @@
                     <h3 class="stream-section-title">Direct MP4</h3>
                     {% for label, url in data.streams.direct_mp4.items() %}
                     <button onclick="loadQuality('{{ url }}', this)" 
-                            class="quality-btn w-full py-3.5 px-4 bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800/80 rounded-2xl text-xs font-bold transition-all duration-200 flex justify-between items-center text-zinc-300 group">
-                        <span class="truncate pr-2">{{ label }}</span>
-                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            class="quality-btn w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-extrabold transition-all flex justify-between items-center text-zinc-300">
+                        <span>{{ label }}</span>
+                        <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
@@ -79,9 +74,9 @@
                     <h3 class="stream-section-title">Raw Video (Silent)</h3>
                     {% for label, url in data.streams.video_only.items() %}
                     <button onclick="loadQuality('{{ url }}', this)" 
-                            class="quality-btn w-full py-3 px-4 bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800/80 rounded-2xl text-xs font-semibold transition-all duration-200 flex justify-between items-center text-zinc-400 group">
+                            class="quality-btn w-full py-3 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-bold transition-all flex justify-between items-center text-zinc-400">
                         <span class="truncate pr-2">{{ label }}</span>
-                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
@@ -90,16 +85,16 @@
                     <h3 class="stream-section-title">Audio Only</h3>
                     {% for label, url in data.streams.audio_only.items() %}
                     <button onclick="loadQuality('{{ url }}', this)" 
-                            class="quality-btn w-full py-3 px-4 bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800/80 rounded-2xl text-xs font-semibold transition-all duration-200 flex justify-between items-center text-zinc-400 group">
+                            class="quality-btn w-full py-3 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-bold transition-all flex justify-between items-center text-zinc-400">
                         <span class="truncate pr-2">{{ label }}</span>
-                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
             </div>
 
-            <div class="mt-6 pt-6 border-t border-zinc-800/80">
-                <a href="/view" class="w-full text-center block bg-zinc-900 hover:bg-zinc-800 text-zinc-200 font-bold py-3.5 rounded-xl transition-all duration-200 text-xs uppercase tracking-wider border border-zinc-800 shadow-inner">
+            <div class="mt-8 pt-6 border-t border-zinc-800">
+                <a href="/view" class="w-full text-center block bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-4 rounded-xl transition-all text-sm border border-zinc-700">
                     Input New Target
                 </a>
             </div>
@@ -109,102 +104,41 @@
 
 <script>
     const video = document.getElementById('main-player');
-    const overlay = document.getElementById('play-overlay');
     let hlsPlayer = null;
-    let isUserInitiated = false;
-    let currentUrl = "";
-
-    video.addEventListener('contextmenu', e => e.preventDefault());
-
-    function handleInitialPlay(container) {
-        if(overlay) overlay.style.display = 'none';
-        container.style.cursor = 'default';
-        isUserInitiated = true;
-        
-        if (currentUrl) {
-            applySource(currentUrl, true);
-        } else {
-            const firstSource = document.querySelector('.quality-btn');
-            if (firstSource) firstSource.click();
-        }
-    }
-
-    video.addEventListener('play', () => {
-        if(overlay) overlay.style.display = 'none';
-        isUserInitiated = true;
-    });
 
     function loadQuality(url, btnElement) {
         document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
 
-        currentUrl = url;
-        applySource(url, isUserInitiated);
-    }
+        const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
+        const isHls = url.includes('.m3u8') || url.includes('hls') || url.includes('manifest');
 
-    function applySource(proxyUrl, shouldPlay) {
-        const isHls = proxyUrl.includes('.m3u8') || proxyUrl.includes('hls') || proxyUrl.includes('manifest');
+        // Check if video is currently playing so we can resume automatically if switching mid-stream
         const wasPlaying = !video.paused && video.currentTime > 0;
-        const currentTime = video.currentTime;
 
         if (isHls && Hls.isSupported()) {
             if (hlsPlayer) hlsPlayer.destroy();
             hlsPlayer = new Hls({ maxBufferSize: 60*1000*1000, maxBufferLength: 60 });
             hlsPlayer.loadSource(proxyUrl);
             hlsPlayer.attachMedia(video);
-            
             hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
-                if (currentTime > 0) video.currentTime = currentTime;
-                if (shouldPlay || wasPlaying) video.play().catch(()=>{});
-            });
-
-            hlsPlayer.on(Hls.Events.ERROR, function (event, data) {
-                if (data.fatal) {
-                    switch (data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            hlsPlayer.startLoad();
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            hlsPlayer.recoverMediaError();
-                            break;
-                        default:
-                            hlsPlayer.destroy();
-                            break;
-                    }
-                }
+                if (wasPlaying) video.play().catch(()=>{});
             });
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
-            if (currentTime > 0) video.currentTime = currentTime;
-            if (shouldPlay || wasPlaying) video.play().catch(()=>{});
+            if (wasPlaying) video.play().catch(()=>{});
         } else {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
             video.load();
-            if (currentTime > 0) video.currentTime = currentTime;
-            if (shouldPlay || wasPlaying) video.play().catch(()=>{});
+            if (wasPlaying) video.play().catch(()=>{});
         }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
         const firstSource = document.querySelector('.quality-btn');
-        if (firstSource) {
-            firstSource.classList.add('active');
-            {% if data.streams.qualities %}
-                currentUrl = "{{ data.streams.qualities[0].url }}";
-            {% elif data.streams.direct_mp4 %}
-                currentUrl = "{{ data.streams.direct_mp4.values()|first }}";
-            {% elif data.streams.video_only %}
-                currentUrl = "{{ data.streams.video_only.values()|first }}";
-            {% elif data.streams.audio_only %}
-                currentUrl = "{{ data.streams.audio_only.values()|first }}";
-            {% else %}
-                currentUrl = "";
-            {% endif %}
-            
-            if(currentUrl) video.src = currentUrl;
-        }
+        if (firstSource) firstSource.click();
     });
 </script>
 {% endblock %}

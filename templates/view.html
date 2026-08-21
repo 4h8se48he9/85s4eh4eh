@@ -3,29 +3,26 @@
 {% block title %}Gateway | VexoStream{% endblock %}
 
 {% block content %}
-<div class="w-full flex-1 flex items-center justify-center p-6 min-h-[75vh]">
-    <div class="w-full max-w-xl glass-panel rounded-[2.5xl] p-10 shadow-2xl relative z-10 border border-zinc-800/80 backdrop-blur-2xl">
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-t-[2.5xl]"></div>
-        
+<div class="w-full flex-1 flex items-center justify-center p-6 min-h-[70vh]">
+    <div class="w-full max-w-xl glass-panel rounded-[2rem] p-10 shadow-2xl relative z-10 border border-zinc-800">
         <h2 class="text-4xl font-black mb-3 text-white tracking-tight">Target Terminal</h2>
-        <p class="text-zinc-400 mb-8 text-sm font-normal leading-relaxed">Input a video URL from YouTube, Pornhub, XNXX, or XVideos. The engine will locate the media chunks.</p>
+        <p class="text-zinc-400 mb-10 text-sm font-medium">Input a video URL from YouTube, Pornhub, XNXX, or XVideos. The engine will locate the media chunks.</p>
 
         {% if error %}
-        <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-2xl mb-8 text-xs font-semibold shadow-inner flex break-words overflow-hidden text-left backdrop-blur-md">
+        <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-xl mb-8 text-sm font-bold shadow-inner flex break-words overflow-hidden text-left">
             <span class="flex-1 break-all">{{ error }}</span>
         </div>
         {% endif %}
 
         <form action="/extract" method="POST" class="space-y-6">
             <div class="relative group">
-                <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-500 pointer-events-none"></div>
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-500"></div>
                 <input type="url" name="url" required placeholder="https://..." 
-                       class="relative w-full bg-zinc-950/80 border border-zinc-800/80 rounded-2xl pl-14 pr-5 py-4.5 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-all text-base font-medium shadow-inner">
-                <svg class="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                       class="relative w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-14 pr-5 py-5 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-all text-lg font-medium shadow-inner">
+                <svg class="w-6 h-6 absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
             </div>
             <button type="submit" 
-                    class="w-full bg-white text-black hover:bg-zinc-200 font-bold py-4.5 px-6 rounded-2xl transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:shadow-[0_0_40px_rgba(255,255,255,0.25)] hover:-translate-y-0.5 uppercase tracking-wider text-xs flex items-center justify-center gap-2">
-                <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    class="w-full bg-white text-black hover:bg-zinc-200 font-black py-5 px-6 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 uppercase tracking-wider text-sm">
                 Execute Extraction
             </button>
         </form>

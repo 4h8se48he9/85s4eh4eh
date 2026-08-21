@@ -3,22 +3,14 @@ import re
 import os
 import sys
 import subprocess
-import random
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 import requests
 from lxml import html
 
 class VideoScraper:
     def __init__(self):
-        self.user_agents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
-        ]
-
-    def get_headers(self):
-        return {
-            'User-Agent': random.choice(self.user_agents),
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
@@ -26,14 +18,10 @@ class VideoScraper:
     def title_case(self, text):
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
 
-    def _extract_res(self, label):
-        m = re.search(r'(\d+)', str(label))
-        return int(m.group(1)) if m else 0
-
     def parse_hls_qualities(self, master_m3u8_url):
         qualities = []
         try:
-            resp = requests.get(master_m3u8_url, headers=self.get_headers(), timeout=15)
+            resp = requests.get(master_m3u8_url, headers=self.headers, timeout=15)
             if resp.status_code != 200: return qualities
             lines = resp.text.splitlines()
             base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
@@ -44,27 +32,33 @@ class VideoScraper:
                     quality_label = f"{height}p" if height.isdigit() and int(height) > 0 else "auto"
                     if i + 1 < len(lines) and not lines[i + 1].startswith("#"):
                         stream_uri = lines[i + 1].strip()
-                        stream_url = stream_uri if stream_uri.startswith('http') else urljoin(base_url, stream_uri)
+                        stream_url = stream_uri if stream_uri.startswith('http') else base_url + stream_uri
                         qualities.append({"quality": quality_label, "url": stream_url})
         except Exception: pass
-        
-        qualities.sort(key=lambda x: self._extract_res(x['quality']), reverse=True)
+        qualities.sort(key=lambda x: int(re.search(r'(\d+)', x['quality']).group(1)) if re.search(r'(\d+)', x['quality']) else 0, reverse=True)
         return qualities
 
     def _extract_youtube_subprocess(self, url):
-        # Direct extraction bypassing local proxy failure points
+        # Uses sys.executable to run yt-dlp as a module, bypassing all $PATH and binary issues
         base_cmd = [
-            "/app/venv/bin/python", "-m", "yt_dlp",
+            sys.executable, "-m", "yt_dlp",
             "-J",
             "--no-warnings",
             "--extractor-args", "youtube:client=ios,android,web",
-            "--socket-timeout", "30",
+            "--socket-timeout", "20",
             url
         ]
 
         try:
+            # 1. Try Direct (Best speed, bypasses dead WARP tunnel issue)
             process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
             stdout, stderr = process.communicate(timeout=45)
+
+            # 2. Try WARP SOCKS5 if Direct fails
+            if process.returncode != 0:
+                proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
+                process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+                stdout, stderr = process.communicate(timeout=45)
 
             if process.returncode != 0:
                 return {"status": "error", "error": f"YouTube Extractor Failed: {stderr.strip()}"}
@@ -91,16 +85,13 @@ class VideoScraper:
 
                 ext = fmt.get("ext", "mp4")
                 height = fmt.get("height")
+                note = fmt.get("format_note", "")
                 label = f"{height}p" if height else (fmt.get("format_id", "auto"))
 
-                is_hls = '.m3u8' in f_url or 'manifest/hls' in f_url
-                if is_hls:
+                if '.m3u8' in f_url or 'manifest/hls_playlist' in f_url:
                     if height:
-                        vcodec = fmt.get("vcodec", "unknown")
-                        codec_str = vcodec.split(".")[0] if vcodec != "unknown" else "hls"
-                        label_codec = f"{label} - {codec_str}"
                         result["streams"]["qualities"].append({
-                            "quality": label_codec,
+                            "quality": label,
                             "resolution": f"{fmt.get('width', 0)}x{height}",
                             "bandwidth": fmt.get("tbr") or fmt.get("vbr") or 0,
                             "type": "hls",
@@ -122,7 +113,8 @@ class VideoScraper:
             if not result["streams"]["hls_master"] and data.get("manifest_url") and '.m3u8' in data.get("manifest_url"):
                 result["streams"]["hls_master"] = data["manifest_url"]
 
-            result["streams"]["qualities"].sort(key=lambda x: self._extract_res(x['quality']), reverse=True)
+            result["streams"]["qualities"].sort(key=lambda x: int(re.search(r'\d+', x['quality']).group(1)) if re.search(r'\d+', x['quality']) else 0, reverse=True)
+
             return result
 
         except Exception as e:
@@ -138,7 +130,7 @@ class VideoScraper:
         title, poster, media_defs = "Unknown Title", "", []
 
         try:
-            resp = requests.get(geo_url, headers=self.get_headers(), timeout=15)
+            resp = requests.get(geo_url, headers=self.headers, timeout=15)
             if resp.status_code == 200:
                 fv_match = re.search(r'flashvars(?:_\d+)?\s*=\s*(\{.*?\});', resp.text, re.DOTALL)
                 if fv_match:
@@ -180,7 +172,7 @@ class VideoScraper:
 
     def _scrape_xnxx_xvideos(self, url):
         try:
-            resp = requests.get(url, headers=self.get_headers(), timeout=15)
+            resp = requests.get(url, headers=self.headers, timeout=15)
             if resp.status_code != 200: return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
         except Exception as e: return {"status": "error", "error": str(e), "url": url}
 

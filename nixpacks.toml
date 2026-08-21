@@ -1,26 +1,15 @@
 [phases.setup]
-nixPkgs = ["python311", "curl", "ffmpeg", "wget"]
-
-[phases.install_warp]
-dependsOn = ["setup"]
-cmds = [
-  "apt-get update && apt-get install -y gpg lsb-release",
-  "curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg",
-  "echo \"deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main\" > /etc/apt/sources.list.d/cloudflare-client.list",
-  "apt-get update",
-  "apt-get install -y cloudflare-warp"
-]
+nixPkgs = ["python311", "python311Packages.pip", "cloudflare-warp", "curl", "ffmpeg"]
 
 [phases.install]
-dependsOn = ["install_warp"]
 cmds = [
-  "python3 -m venv /app/venv",
-  "/app/venv/bin/python -m pip install --upgrade pip",
-  "/app/venv/bin/pip install -r requirements.txt"
+  "python -m venv /opt/venv",
+  "curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py",
+  "/opt/venv/bin/python get-pip.py",
+  "/opt/venv/bin/pip install -r requirements.txt"
 ]
 
 [phases.build]
-cmds = ["chmod +x start.sh"]
-
-[start]
-cmd = "bash start.sh"
+cmds = [
+  "chmod +x start.sh"
+]
