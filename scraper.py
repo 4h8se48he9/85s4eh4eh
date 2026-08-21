@@ -2,6 +2,7 @@ import json
 import re
 import os
 import random
+import logging
 from urllib.parse import urlparse
 import requests
 from lxml import html
@@ -30,15 +31,25 @@ class VideoScraper:
             return {"http": p, "https": p}
         return self.proxies
 
+    def safe_request(self, url, timeout=15):
+        proxies = self.get_request_proxies()
+        try:
+            resp = requests.get(url, headers=self.headers, proxies=proxies, timeout=timeout)
+            resp.raise_for_status()
+            return resp
+        except Exception as e:
+            logging.warning(f"WARP proxy refused connection for {url}. Routing directly. ({e})")
+            resp = requests.get(url, headers=self.headers, proxies=None, timeout=timeout)
+            if resp.status_code != 200:
+                raise Exception(f"Direct route failed with status {resp.status_code}")
+            return resp
+
     def parse_hls_qualities(self, master_m3u8_url):
         qualities = []
         if not master_m3u8_url:
             return qualities
         try:
-            resp = requests.get(master_m3u8_url, headers=self.headers, proxies=self.get_request_proxies(), timeout=15)
-            if resp.status_code != 200:
-                return qualities
-            
+            resp = self.safe_request(master_m3u8_url)
             lines = resp.text.splitlines()
             base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
             
@@ -93,7 +104,8 @@ class VideoScraper:
             elif 'xnxx' in url or 'xvideos' in url:
                 result = self._scrape_xnxx_xvideos(url)
             else:
-                result = {"status": "error", "error": "Extraction failed or format unsupported.", "url": url}
+                err_msg = result.get("error") if result else "Extraction failed or format unsupported."
+                result = {"status": "error", "error": err_msg, "url": url}
 
         return result
 
@@ -108,89 +120,96 @@ class VideoScraper:
             'extract_flat': False,
             'user_agent': self.headers['User-Agent'],
         }
-        if proxy_str:
-            ydl_opts['proxy'] = proxy_str
-
+        
+        info = None
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            opts = dict(ydl_opts)
+            if proxy_str:
+                opts['proxy'] = proxy_str
+            with yt_dlp.YoutubeDL(opts) as ydl:
                 info = ydl.extract_info(url, download=False)
-                if not info:
-                    return None
-
-                direct_mp4 = {}
-                video_only = {}
-                audio_only = {}
-                hls_master = None
-                dash_manifest = info.get('manifest_url') if info.get('manifest_url') and '.mpd' in info.get('manifest_url') else None
-                qualities = []
-                seen = set()
-
-                for fmt in info.get('formats', []):
-                    f_url = fmt.get('url', '')
-                    if not f_url or f_url in seen:
-                        continue
-                    seen.add(f_url)
-
-                    ext = fmt.get('ext', '')
-                    proto = fmt.get('protocol', '')
-                    height = fmt.get('height')
-                    format_note = fmt.get('format_note', '')
-                    vcodec = fmt.get('vcodec', 'none')
-                    acodec = fmt.get('acodec', 'none')
-
-                    label = f"{height}p" if height else (format_note or fmt.get('format_id', 'auto'))
-
-                    # HLS Manifest extraction
-                    if 'm3u8' in f_url and ('master.m3u8' in f_url or fmt.get('format_id') == 'hls-meta'):
-                        if not hls_master:
-                            hls_master = f_url
-
-                    if 'm3u8' in proto or ext == 'm3u8' or 'm3u8' in f_url or 'manifest/hls_playlist' in f_url:
-                        if height:
-                            qualities.append({
-                                "quality": label,
-                                "resolution": f"{fmt.get('width', 0)}x{height}",
-                                "bandwidth": fmt.get('tbr') or fmt.get('vbr') or 0,
-                                "type": "hls",
-                                "url": f_url
-                            })
-                    else:
-                        has_video = vcodec != 'none' and bool(vcodec)
-                        has_audio = acodec != 'none' and bool(acodec)
-
-                        if has_video and has_audio:
-                            direct_mp4[label] = f_url
-                        elif has_video and not has_audio:
-                            video_only[f"{label} - {ext}"] = f_url
-                        elif not has_video and has_audio:
-                            audio_only[f"{fmt.get('abr', 'auto')}kbps - {ext}"] = f_url
-                        elif ext == 'mp4' or proto.startswith('http'):
-                            direct_mp4[label] = f_url
-
-                if not hls_master and info.get('manifest_url') and '.m3u8' in info.get('manifest_url'):
-                    hls_master = info.get('manifest_url')
-
-                if hls_master and not qualities:
-                    qualities = self.parse_hls_qualities(hls_master)
-
-                qualities.sort(key=lambda q: int(re.search(r'(\d+)', q.get('quality', '')).group(1)) if re.search(r'(\d+)', q.get('quality', '')) else 0, reverse=True)
-
-                return {
-                    "status": "success",
-                    "title": info.get('title', 'Unknown Title'),
-                    "thumbnail": info.get('thumbnail', ''),
-                    "streams": {
-                        "direct_mp4": direct_mp4,
-                        "video_only": video_only,
-                        "audio_only": audio_only,
-                        "hls_master": hls_master,
-                        "dash_manifest": dash_manifest,
-                        "qualities": qualities
-                    },
-                    "url": info.get('webpage_url', url)
-                }
         except Exception as e:
-            return {"status": "error", "error": f"Extraction failed: {str(e)}", "url": url}
+            logging.warning(f"yt-dlp WARP proxy failed: {e}. Retrying directly.")
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl_direct:
+                    info = ydl_direct.extract_info(url, download=False)
+            except Exception as e2:
+                return {"status": "error", "error": f"Extraction failed: {str(e2)}", "url": url}
+
+        if not info:
+            return None
+
+        direct_mp4 = {}
+        video_only = {}
+        audio_only = {}
+        hls_master = None
+        dash_manifest = info.get('manifest_url') if info.get('manifest_url') and '.mpd' in info.get('manifest_url') else None
+        qualities = []
+        seen = set()
+
+        for fmt in info.get('formats', []):
+            f_url = fmt.get('url', '')
+            if not f_url or f_url in seen:
+                continue
+            seen.add(f_url)
+
+            ext = fmt.get('ext', '')
+            proto = fmt.get('protocol', '')
+            height = fmt.get('height')
+            format_note = fmt.get('format_note', '')
+            vcodec = fmt.get('vcodec', 'none')
+            acodec = fmt.get('acodec', 'none')
+
+            label = f"{height}p" if height else (format_note or fmt.get('format_id', 'auto'))
+
+            if 'm3u8' in f_url and ('master.m3u8' in f_url or fmt.get('format_id') == 'hls-meta'):
+                if not hls_master:
+                    hls_master = f_url
+
+            if 'm3u8' in proto or ext == 'm3u8' or 'm3u8' in f_url or 'manifest/hls_playlist' in f_url:
+                if height:
+                    qualities.append({
+                        "quality": label,
+                        "resolution": f"{fmt.get('width', 0)}x{height}",
+                        "bandwidth": fmt.get('tbr') or fmt.get('vbr') or 0,
+                        "type": "hls",
+                        "url": f_url
+                    })
+            else:
+                has_video = vcodec != 'none' and bool(vcodec)
+                has_audio = acodec != 'none' and bool(acodec)
+
+                if has_video and has_audio:
+                    direct_mp4[label] = f_url
+                elif has_video and not has_audio:
+                    video_only[f"{label} - {ext}"] = f_url
+                elif not has_video and has_audio:
+                    audio_only[f"{fmt.get('abr', 'auto')}kbps - {ext}"] = f_url
+                elif ext == 'mp4' or proto.startswith('http'):
+                    direct_mp4[label] = f_url
+
+        if not hls_master and info.get('manifest_url') and '.m3u8' in info.get('manifest_url'):
+            hls_master = info.get('manifest_url')
+
+        if hls_master and not qualities:
+            qualities = self.parse_hls_qualities(hls_master)
+
+        qualities.sort(key=lambda q: int(re.search(r'(\d+)', q.get('quality', '')).group(1)) if re.search(r'(\d+)', q.get('quality', '')) else 0, reverse=True)
+
+        return {
+            "status": "success",
+            "title": info.get('title', 'Unknown Title'),
+            "thumbnail": info.get('thumbnail', ''),
+            "streams": {
+                "direct_mp4": direct_mp4,
+                "video_only": video_only,
+                "audio_only": audio_only,
+                "hls_master": hls_master,
+                "dash_manifest": dash_manifest,
+                "qualities": qualities
+            },
+            "url": info.get('webpage_url', url)
+        }
 
     def _scrape_pornhub(self, url):
         viewkey = None
@@ -204,11 +223,10 @@ class VideoScraper:
 
         geo_url = url.replace("www.pornhub.com", "de.pornhub.com")
         title, poster, media_defs = "Unknown Title", "", []
-        req_proxies = self.get_request_proxies()
 
         try:
-            resp = requests.get(geo_url, headers=self.headers, proxies=req_proxies, timeout=15)
-            if resp.status_code == 200:
+            resp = self.safe_request(geo_url)
+            if resp and resp.status_code == 200:
                 fv_match = re.search(r'flashvars(?:_\d+)?\s*=\s*(\{.*?\});', resp.text, re.DOTALL)
                 if fv_match:
                     data = json.loads(fv_match.group(1))
@@ -253,13 +271,10 @@ class VideoScraper:
         }
 
     def _scrape_xnxx_xvideos(self, url):
-        req_proxies = self.get_request_proxies()
         try:
-            resp = requests.get(url, headers=self.headers, proxies=req_proxies, timeout=15)
-            if resp.status_code != 200:
-                return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
+            resp = self.safe_request(url)
         except Exception as e:
-            return {"status": "error", "error": str(e), "url": url}
+            return {"status": "error", "error": f"Connection failed: {str(e)}", "url": url}
 
         page = resp.text
         tree = html.fromstring(resp.content)

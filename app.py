@@ -12,7 +12,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Default to local WARP SOCKS5 proxy if PROXY_URL is not set
 DEFAULT_PROXY = os.environ.get("PROXY_URL", "socks5h://127.0.0.1:40000")
 scraper = VideoScraper(proxy_url=DEFAULT_PROXY)
 
@@ -31,12 +30,10 @@ def rewrite_playlist(playlist, base_url):
             out_lines.append(trimmed)
             continue
         if trimmed.startswith('#'):
-            # Rewrite URI attributes in #EXT-X-KEY, #EXT-X-MEDIA, #EXT-X-MAP, etc.
             def repl(m): 
                 return f'URI="{build_proxy_uri(m.group(1))}"'
             out_lines.append(re.sub(r'URI="([^"]+)"', repl, trimmed))
         else:
-            # Segment or sub-playlist URLs
             out_lines.append(build_proxy_uri(trimmed))
 
     return '\n'.join(out_lines)
@@ -96,17 +93,15 @@ def proxy_media():
     if range_header:
         req_headers["Range"] = range_header
 
-    # Always ensure WARP proxy or configured proxy is used
     active_proxies = scraper.get_request_proxies()
 
     try:
-        upstream = requests.get(
-            target, 
-            headers=req_headers, 
-            proxies=active_proxies, 
-            stream=True, 
-            timeout=20
-        )
+        try:
+            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
+            upstream.raise_for_status()
+        except requests.exceptions.RequestException:
+            logging.warning(f"WARP tunnel bypassed for media segment: {target}")
+            upstream = requests.get(target, headers=req_headers, proxies=None, stream=True, timeout=20)
 
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
