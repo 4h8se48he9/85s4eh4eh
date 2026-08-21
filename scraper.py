@@ -14,7 +14,6 @@ class VideoScraper:
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
-        self.proxy = "socks5h://127.0.0.1:40000"
 
     def title_case(self, text):
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
@@ -40,6 +39,7 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
+        # Uses sys.executable to run yt-dlp as a module, bypassing all $PATH and binary issues
         base_cmd = [
             sys.executable, "-m", "yt_dlp",
             "-J",
@@ -50,11 +50,13 @@ class VideoScraper:
         ]
 
         try:
+            # 1. Try Direct (Best speed, bypasses dead WARP tunnel issue)
             process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
             stdout, stderr = process.communicate(timeout=45)
 
+            # 2. Try WARP SOCKS5 if Direct fails
             if process.returncode != 0:
-                proxy_cmd = base_cmd[:3] + ["--proxy", self.proxy] + base_cmd[3:]
+                proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
                 process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
                 stdout, stderr = process.communicate(timeout=45)
 
@@ -83,6 +85,7 @@ class VideoScraper:
 
                 ext = fmt.get("ext", "mp4")
                 height = fmt.get("height")
+                note = fmt.get("format_note", "")
                 label = f"{height}p" if height else (fmt.get("format_id", "auto"))
 
                 if '.m3u8' in f_url or 'manifest/hls_playlist' in f_url:
@@ -111,6 +114,7 @@ class VideoScraper:
                 result["streams"]["hls_master"] = data["manifest_url"]
 
             result["streams"]["qualities"].sort(key=lambda x: int(re.search(r'\d+', x['quality']).group(1)) if re.search(r'\d+', x['quality']) else 0, reverse=True)
+
             return result
 
         except Exception as e:
