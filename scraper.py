@@ -19,7 +19,6 @@ class VideoScraper:
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
 
     def _extract_res(self, label):
-        """Safely extract resolution integer for sorting."""
         m = re.search(r'(\d+)', str(label))
         return int(m.group(1)) if m else 0
 
@@ -29,6 +28,7 @@ class VideoScraper:
             resp = requests.get(master_m3u8_url, headers=self.headers, timeout=15)
             if resp.status_code != 200: return qualities
             lines = resp.text.splitlines()
+            base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
             for i, line in enumerate(lines):
                 if line.startswith("#EXT-X-STREAM-INF:"):
                     res_match = re.search(r"RESOLUTION=(\d+x\d+)", line)
@@ -36,7 +36,7 @@ class VideoScraper:
                     quality_label = f"{height}p" if height.isdigit() and int(height) > 0 else "auto"
                     if i + 1 < len(lines) and not lines[i + 1].startswith("#"):
                         stream_uri = lines[i + 1].strip()
-                        stream_url = stream_uri if stream_uri.startswith('http') else urljoin(master_m3u8_url, stream_uri)
+                        stream_url = stream_uri if stream_uri.startswith('http') else urljoin(base_url, stream_uri)
                         qualities.append({"quality": quality_label, "url": stream_url})
         except Exception: pass
         
@@ -92,8 +92,11 @@ class VideoScraper:
                 is_hls = '.m3u8' in f_url or 'manifest/hls' in f_url
                 if is_hls:
                     if height:
+                        vcodec = fmt.get("vcodec", "unknown")
+                        codec_str = vcodec.split(".")[0] if vcodec != "unknown" else "hls"
+                        label_codec = f"{label} - {codec_str}"
                         result["streams"]["qualities"].append({
-                            "quality": label,
+                            "quality": label_codec,
                             "resolution": f"{fmt.get('width', 0)}x{height}",
                             "bandwidth": fmt.get("tbr") or fmt.get("vbr") or 0,
                             "type": "hls",

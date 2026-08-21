@@ -53,8 +53,17 @@ def extract():
 
     return render_template("player.html", data=data)
 
-@app.route("/proxy")
+@app.route("/proxy", methods=["GET", "OPTIONS"])
 def proxy_media():
+    if request.method == "OPTIONS":
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Range, Content-Type, Accept, Origin, Referer, User-Agent",
+            "Access-Control-Max-Age": "86400"
+        }
+        return Response(status=204, headers=headers)
+
     target = request.args.get("url")
     if not target: return "Missing URL", 400
 
@@ -78,7 +87,7 @@ def proxy_media():
 
     try:
         try:
-            upstream = requests.get(target, headers=req_headers, stream=True, timeout=10)
+            upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
             upstream.raise_for_status()
         except Exception as direct_err:
             logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
@@ -86,13 +95,10 @@ def proxy_media():
             upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
             upstream.raise_for_status()
 
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        excluded_headers = ['transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
         res_headers["Access-Control-Allow-Origin"] = "*"
         res_headers["Accept-Ranges"] = "bytes"
-
-        if "Content-Length" in upstream.headers:
-            res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
         content_type = upstream.headers.get("content-type", "").lower()
         is_m3u8 = "mpegurl" in content_type or "hls" in content_type or ".m3u8" in target or "manifest/hls" in target
@@ -101,14 +107,19 @@ def proxy_media():
             text = upstream.text
             final_base = upstream.url or target
             rewritten = rewrite_playlist(text, final_base)
+            
+            res_headers.pop('content-encoding', None)
+            res_headers.pop('content-length', None)
+            
             res_headers["Content-Type"] = "application/vnd.apple.mpegurl"
             res_headers["Content-Length"] = str(len(rewritten.encode('utf-8')))
+            
             upstream.close()
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
 
         def generate():
             try:
-                for chunk in upstream.iter_content(chunk_size=131072):
+                for chunk in upstream.raw.stream(131072, decode_content=False):
                     if chunk: yield chunk
             except Exception as stream_err:
                 logging.warning(f"Stream suppressed EOF drop: {stream_err}")

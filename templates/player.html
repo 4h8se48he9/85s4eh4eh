@@ -57,7 +57,7 @@
                     <button onclick="loadQuality('{{ q.url }}', this)" 
                             class="quality-btn w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-extrabold transition-all flex justify-between items-center text-zinc-300">
                         <span>{{ q.quality }}</span>
-                        <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+                        <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
@@ -68,7 +68,7 @@
                     <button onclick="loadQuality('{{ url }}', this)" 
                             class="quality-btn w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-extrabold transition-all flex justify-between items-center text-zinc-300">
                         <span>{{ label }}</span>
-                        <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+                        <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
@@ -79,7 +79,7 @@
                     <button onclick="loadQuality('{{ url }}', this)" 
                             class="quality-btn w-full py-3 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-bold transition-all flex justify-between items-center text-zinc-400">
                         <span class="truncate pr-2">{{ label }}</span>
-                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
@@ -90,7 +90,7 @@
                     <button onclick="loadQuality('{{ url }}', this)" 
                             class="quality-btn w-full py-3 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-bold transition-all flex justify-between items-center text-zinc-400">
                         <span class="truncate pr-2">{{ label }}</span>
-                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+                        <svg class="w-4 h-4 text-purple-400 opacity-0 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
@@ -142,23 +142,46 @@
     function applySource(proxyUrl, shouldPlay) {
         const isHls = proxyUrl.includes('.m3u8') || proxyUrl.includes('hls') || proxyUrl.includes('manifest');
         const wasPlaying = !video.paused && video.currentTime > 0;
+        const currentTime = video.currentTime;
 
         if (isHls && Hls.isSupported()) {
             if (hlsPlayer) hlsPlayer.destroy();
             hlsPlayer = new Hls({ maxBufferSize: 60*1000*1000, maxBufferLength: 60 });
             hlsPlayer.loadSource(proxyUrl);
             hlsPlayer.attachMedia(video);
+            
             hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                if (currentTime > 0) video.currentTime = currentTime;
                 if (shouldPlay || wasPlaying) video.play().catch(()=>{});
+            });
+
+            hlsPlayer.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.error('Fatal network error, attempting recovery');
+                            hlsPlayer.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.error('Fatal media error, attempting recovery');
+                            hlsPlayer.recoverMediaError();
+                            break;
+                        default:
+                            hlsPlayer.destroy();
+                            break;
+                    }
+                }
             });
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
+            if (currentTime > 0) video.currentTime = currentTime;
             if (shouldPlay || wasPlaying) video.play().catch(()=>{});
         } else {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
             video.load();
+            if (currentTime > 0) video.currentTime = currentTime;
             if (shouldPlay || wasPlaying) video.play().catch(()=>{});
         }
     }
@@ -167,8 +190,19 @@
         const firstSource = document.querySelector('.quality-btn');
         if (firstSource) {
             firstSource.classList.add('active');
-            currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.qualities[0].url if data.streams.qualities else data.streams.direct_mp4.values()|first }}");
-            video.src = currentUrl;
+            {% if data.streams.qualities %}
+                currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.qualities[0].url }}");
+            {% elif data.streams.direct_mp4 %}
+                currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.direct_mp4.values()|first }}");
+            {% elif data.streams.video_only %}
+                currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.video_only.values()|first }}");
+            {% elif data.streams.audio_only %}
+                currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.audio_only.values()|first }}");
+            {% else %}
+                currentUrl = "";
+            {% endif %}
+            
+            if(currentUrl) video.src = currentUrl;
         }
     });
 </script>
