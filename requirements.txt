@@ -1,6 +1,6 @@
 Flask==3.0.3
 gunicorn==22.0.0
-requests==2.31.0
-requests[socks]==2.31.0
-yt-dlp==2024.4.9
-lxml==5.2.1
+requests
+requests[socks]
+yt-dlp
+lxml

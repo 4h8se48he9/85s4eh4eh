@@ -29,7 +29,14 @@ class VideoScraper:
         } catch (e) {}
 
         const cmd = new Deno.Command(ytdlpPath, {
-            args: ["-J", "--proxy", "socks5h://127.0.0.1:40000", "--socket-timeout", "20", "--no-warnings", target]
+            args: [
+                "-J", 
+                "--proxy", "socks5h://127.0.0.1:40000", 
+                "--socket-timeout", "30", 
+                "--extractor-args", "youtube:client=ios,android,web",
+                "--no-warnings", 
+                target
+            ]
         });
         
         const { stdout, stderr, code } = cmd.outputSync();
@@ -184,7 +191,6 @@ class VideoScraper:
             fmt = m.get('format', '')
             qual_raw = m.get('quality')
             
-            # Fixes the empty array [] bug
             if isinstance(qual_raw, list):
                 qual = str(qual_raw[0]) if qual_raw else "auto"
             else:
