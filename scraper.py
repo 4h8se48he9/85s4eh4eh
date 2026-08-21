@@ -38,88 +38,6 @@ class VideoScraper:
         qualities.sort(key=lambda x: int(re.search(r'(\d+)', x['quality']).group(1)) if re.search(r'(\d+)', x['quality']) else 0, reverse=True)
         return qualities
 
-    def _extract_youtube_subprocess(self, url):
-        # Uses sys.executable to run yt-dlp as a module, bypassing all $PATH and binary issues
-        base_cmd = [
-            sys.executable, "-m", "yt_dlp",
-            "-J",
-            "--no-warnings",
-            "--extractor-args", "youtube:client=ios,android,web",
-            "--socket-timeout", "20",
-            url
-        ]
-
-        try:
-            # 1. Try Direct (Best speed, bypasses dead WARP tunnel issue)
-            process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
-            stdout, stderr = process.communicate(timeout=45)
-
-            # 2. Try WARP SOCKS5 if Direct fails
-            if process.returncode != 0:
-                proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
-                process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
-                stdout, stderr = process.communicate(timeout=45)
-
-            if process.returncode != 0:
-                return {"status": "error", "error": f"YouTube Extractor Failed: {stderr.strip()}"}
-
-            data = json.loads(stdout.strip())
-            
-            result = {
-                "status": "success",
-                "extractor": "youtube",
-                "title": data.get("title", "Unknown Title"),
-                "uploader": data.get("uploader", ""),
-                "duration": data.get("duration", 0),
-                "thumbnail": data.get("thumbnail", ""),
-                "tags": data.get("tags", []),
-                "url": data.get("webpage_url", url),
-                "streams": { "direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": [], "hls_master": None, "dash_manifest": None }
-            }
-
-            seen = set()
-            for fmt in data.get("formats", []):
-                f_url = fmt.get("url")
-                if not f_url or f_url in seen: continue
-                seen.add(f_url)
-
-                ext = fmt.get("ext", "mp4")
-                height = fmt.get("height")
-                note = fmt.get("format_note", "")
-                label = f"{height}p" if height else (fmt.get("format_id", "auto"))
-
-                if '.m3u8' in f_url or 'manifest/hls_playlist' in f_url:
-                    if height:
-                        result["streams"]["qualities"].append({
-                            "quality": label,
-                            "resolution": f"{fmt.get('width', 0)}x{height}",
-                            "bandwidth": fmt.get("tbr") or fmt.get("vbr") or 0,
-                            "type": "hls",
-                            "url": f_url
-                        })
-                    if 'master.m3u8' in f_url or fmt.get("format_id") == "hls-meta":
-                        if not result["streams"]["hls_master"]:
-                            result["streams"]["hls_master"] = f_url
-                    continue
-
-                has_video = fmt.get("vcodec") and fmt.get("vcodec") != "none"
-                has_audio = fmt.get("acodec") and fmt.get("acodec") != "none"
-
-                if has_video and has_audio: result["streams"]["direct_mp4"][label] = f_url
-                elif has_video and not has_audio: result["streams"]["video_only"][f"{label} - {ext}"] = f_url
-                elif not has_video and has_audio: result["streams"]["audio_only"][f"{fmt.get('abr', 'auto')}kbps - {ext}"] = f_url
-                elif ext == 'mp4' or fmt.get("protocol", "").startswith("http"): result["streams"]["direct_mp4"][label] = f_url
-
-            if not result["streams"]["hls_master"] and data.get("manifest_url") and '.m3u8' in data.get("manifest_url"):
-                result["streams"]["hls_master"] = data["manifest_url"]
-
-            result["streams"]["qualities"].sort(key=lambda x: int(re.search(r'\d+', x['quality']).group(1)) if re.search(r'\d+', x['quality']) else 0, reverse=True)
-
-            return result
-
-        except Exception as e:
-            return {"status": "error", "error": f"JSON or Execution Error: {str(e)}"}
-
     def _scrape_pornhub(self, url):
         viewkey = None
         if 'viewkey=' in url: viewkey = url.split('viewkey=')[1].split('&')[0]
@@ -198,8 +116,6 @@ class VideoScraper:
         m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
         if m: url = f"https://www.xnxx.com/video-{m.group(1)}/x"
 
-        if 'youtube.com' in url or 'youtu.be' in url or 'googlevideo.com' in url:
-            return self._extract_youtube_subprocess(url)
         elif 'pornhub' in url:
             return self._scrape_pornhub(url)
         elif 'xnxx' in url or 'xvideos' in url:
