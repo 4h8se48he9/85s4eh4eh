@@ -13,10 +13,6 @@ app.secret_key = os.urandom(24)
 
 scraper = VideoScraper()
 
-# Load optional external proxy from Railway Variables
-PROXY_URL = os.environ.get("PROXY_URL", "").strip()
-PROXIES = {"http": PROXY_URL, "https": PROXY_URL} if PROXY_URL else None
-
 def rewrite_playlist(playlist, base_url):
     def build_proxy_uri(raw_uri):
         clean_uri = raw_uri.strip().strip("'\"")
@@ -74,22 +70,20 @@ def proxy_media():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
         "Referer": referer,
         "Origin": referer.rstrip('/'),
-        "Accept-Encoding": "identity" # Crucial to prevent EOF chunking errors
+        "Accept-Encoding": "identity"
     }
 
     range_header = request.headers.get("Range")
     if range_header: req_headers["Range"] = range_header
 
-    # Apply proxy ONLY to YouTube streams to save bandwidth on direct adult sites
-    active_proxies = PROXIES if ("googlevideo" in target and PROXIES) else None
-
     try:
         try:
-            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=15)
+            upstream = requests.get(target, headers=req_headers, stream=True, timeout=10)
             upstream.raise_for_status()
-        except Exception as e:
-            logging.warning(f"Initial stream failed, trying direct fallback: {e}")
-            upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
+        except Exception as direct_err:
+            logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
+            active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
+            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
             upstream.raise_for_status()
 
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
@@ -122,7 +116,7 @@ def proxy_media():
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
 
     except Exception as e:
-        logging.error(f"Proxy stream failure for {target}: {e}")
+        logging.error(f"Proxy failure for {target}: {e}")
         return "Proxy stream failure", 502
 
 if __name__ == "__main__":

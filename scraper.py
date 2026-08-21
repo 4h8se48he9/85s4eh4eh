@@ -14,8 +14,6 @@ class VideoScraper:
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
-        # Get optional external proxy from Railway Variables
-        self.proxy_url = os.environ.get("PROXY_URL", "").strip()
 
     def title_case(self, text):
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
@@ -47,32 +45,27 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
-        # We explicitly exclude the "web" client because YouTube blocks datacenter IPs on web first.
-        # "ios" and "android" clients often bypass the block cleanly.
+        # Pointing to the absolute path of Python inside the VENV to avoid execution errors
         base_cmd = [
             "/app/venv/bin/python", "-m", "yt_dlp",
             "-J",
             "--no-warnings",
-            "--extractor-args", "youtube:client=android,ios",
-            "--socket-timeout", "25",
+            "--extractor-args", "youtube:client=ios,android,web",
+            "--socket-timeout", "20",
             url
         ]
 
         try:
-            # 1. Attempt Direct First
             process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
             stdout, stderr = process.communicate(timeout=45)
 
-            # 2. If Direct fails, and we have a custom PROXY_URL, use it
-            if process.returncode != 0 and self.proxy_url:
-                proxy_cmd = base_cmd.copy()
-                proxy_cmd.insert(3, "--proxy")
-                proxy_cmd.insert(4, self.proxy_url)
+            if process.returncode != 0:
+                proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
                 process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
                 stdout, stderr = process.communicate(timeout=45)
 
             if process.returncode != 0:
-                return {"status": "error", "error": f"YouTube Extractor Blocked: {stderr.strip()}"}
+                return {"status": "error", "error": f"YouTube Extractor Failed: {stderr.strip()}"}
 
             data = json.loads(stdout.strip())
             
