@@ -2,6 +2,7 @@ import json
 import re
 import os
 import random
+from urllib.parse import urlparse
 import requests
 from lxml import html
 import yt_dlp
@@ -11,7 +12,7 @@ class VideoScraper:
         self.proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
         proxy_env = os.environ.get("PROXY_LIST", "")
         self.proxy_pool = [p.strip() for p in proxy_env.split(",") if p.strip()]
-        
+
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -27,18 +28,59 @@ class VideoScraper:
             return {"http": p, "https": p}
         return self.proxies
 
+    def parse_hls_qualities(self, master_m3u8_url):
+        qualities = []
+        if not master_m3u8_url: return qualities
+        try:
+            resp = requests.get(master_m3u8_url, headers=self.headers, proxies=self.get_request_proxies(), timeout=15)
+            if resp.status_code != 200: return qualities
+            lines = resp.text.splitlines()
+            base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
+            
+            for i, line in enumerate(lines):
+                if line.startswith("#EXT-X-STREAM-INF:"):
+                    res_match = re.search(r"RESOLUTION=(\d+x\d+)", line)
+                    bw_match = re.search(r"BANDWIDTH=(\d+)", line)
+                    resolution = res_match.group(1) if res_match else "0x0"
+                    bandwidth = int(bw_match.group(1)) if bw_match else 0
+                    height = resolution.split("x")[1] if "x" in resolution else "0"
+                    quality_label = f"{height}p" if height.isdigit() and int(height) > 0 else "auto"
+                    
+                    if i + 1 < len(lines) and not lines[i + 1].startswith("#"):
+                        stream_uri = lines[i + 1].strip()
+                        if stream_uri.startswith('http'): stream_url = stream_uri
+                        elif stream_uri.startswith('/'):
+                            parsed = urlparse(master_m3u8_url)
+                            stream_url = f"{parsed.scheme}://{parsed.netloc}{stream_uri}"
+                        else: stream_url = base_url + stream_uri
+                        
+                        qualities.append({
+                            "quality": quality_label,
+                            "resolution": resolution,
+                            "bandwidth": bandwidth,
+                            "type": "hls",
+                            "url": stream_url
+                        })
+        except Exception:
+            pass
+        qualities.sort(key=lambda x: x.get('bandwidth', 0), reverse=True)
+        return qualities
+
     def extract(self, url):
         m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
         if m:
             url = f"https://www.xnxx.com/video-{m.group(1)}/x"
 
-        # Explicitly block YouTube if any remnants are passed
-        if 'youtube.com' in url or 'youtu.be' in url:
-            return {"status": "error", "error": "YouTube support has been completely removed.", "url": url}
-
         result = self._extract_ytdlp(url)
         
-        if not result or not result.get("qualities"):
+        is_extracted = result and result.get("streams") and (
+            result["streams"].get("qualities") or 
+            result["streams"].get("direct_mp4") or
+            result["streams"].get("video_only") or
+            result["streams"].get("audio_only")
+        )
+
+        if not is_extracted:
             if 'pornhub' in url:
                 result = self._scrape_pornhub(url)
             elif 'xnxx' in url or 'xvideos' in url:
@@ -56,7 +98,7 @@ class VideoScraper:
             'extract_flat': False,
             'user_agent': self.headers['User-Agent'],
         }
-        
+
         active_proxy = None
         if self.proxy_pool:
             active_proxy = random.choice(self.proxy_pool)
@@ -69,39 +111,74 @@ class VideoScraper:
                 info = ydl.extract_info(url, download=False)
                 if not info: return None
 
+                direct_mp4 = {}
+                video_only = {}
+                audio_only = {}
+                hls_master = None
+                dash_manifest = info.get('manifest_url') if info.get('manifest_url') and '.mpd' in info.get('manifest_url') else None
                 qualities = []
+                seen = set()
+
                 for fmt in info.get('formats', []):
                     f_url = fmt.get('url', '')
+                    if not f_url or f_url in seen: continue
+                    seen.add(f_url)
+
                     ext = fmt.get('ext', '')
                     proto = fmt.get('protocol', '')
                     height = fmt.get('height')
-                    label = f"{height}p" if height else fmt.get('format_id', 'auto')
+                    format_note = fmt.get('format_note', '')
+                    vcodec = fmt.get('vcodec', 'none')
+                    acodec = fmt.get('acodec', 'none')
 
-                    if ext == 'mp4' or proto.startswith('http') or 'm3u8' in f_url:
-                        qualities.append({"label": label, "url": f_url})
+                    label = f"{height}p" if height else (format_note or fmt.get('format_id', 'auto'))
 
-                def extract_res(lbl):
-                    m = re.search(r'(\d+)', lbl)
-                    return int(m.group(1)) if m else 0
-                
-                qualities.sort(key=lambda x: extract_res(x['label']), reverse=True)
+                    if 'm3u8' in f_url and ('master.m3u8' in f_url or fmt.get('format_id') == 'hls-meta'):
+                        if not hls_master: hls_master = f_url
 
-                seen = set()
-                unique_qualities = []
-                for q in qualities:
-                    if q['label'] not in seen:
-                        seen.add(q['label'])
-                        unique_qualities.append(q)
+                    if 'm3u8' in proto or ext == 'm3u8' or 'm3u8' in f_url:
+                        if height:
+                            qualities.append({
+                                "quality": label,
+                                "resolution": f"{fmt.get('width', 0)}x{height}",
+                                "bandwidth": fmt.get('tbr') or fmt.get('vbr') or 0,
+                                "type": "hls",
+                                "url": f_url
+                            })
+                    else:
+                        has_video = vcodec != 'none' and vcodec
+                        has_audio = acodec != 'none' and acodec
 
-                if not unique_qualities and info.get('url'):
-                    unique_qualities.append({"label": "Default", "url": info.get('url')})
+                        if has_video and has_audio:
+                            direct_mp4[label] = f_url
+                        elif has_video and not has_audio:
+                            video_only[f"{label} - {ext}"] = f_url
+                        elif not has_video and has_audio:
+                            audio_only[f"{fmt.get('abr', 'auto')}kbps - {ext}"] = f_url
+                        elif ext == 'mp4' or proto.startswith('http'):
+                            direct_mp4[label] = f_url
+
+                if not hls_master and info.get('manifest_url') and '.m3u8' in info.get('manifest_url'):
+                    hls_master = info.get('manifest_url')
+
+                if hls_master and not qualities:
+                    qualities = self.parse_hls_qualities(hls_master)
+
+                qualities.sort(key=lambda q: int(re.search(r'(\d+)', q.get('quality', '')).group(1)) if re.search(r'(\d+)', q.get('quality', '')) else 0, reverse=True)
 
                 return {
                     "status": "success",
                     "title": info.get('title', 'Unknown Title'),
                     "thumbnail": info.get('thumbnail', ''),
-                    "qualities": unique_qualities,
-                    "url": url
+                    "streams": {
+                        "direct_mp4": direct_mp4,
+                        "video_only": video_only,
+                        "audio_only": audio_only,
+                        "hls_master": hls_master,
+                        "dash_manifest": dash_manifest,
+                        "qualities": qualities
+                    },
+                    "url": info.get('webpage_url', url)
                 }
         except Exception as e:
             return {"status": "error", "error": f"Extraction failed: {str(e)}", "url": url}
@@ -132,24 +209,37 @@ class VideoScraper:
         except Exception:
             pass
 
-        qualities = []
+        stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "hls_master": None, "dash_manifest": None, "qualities": []}
+        seen_q = set()
+
         for m in media_defs:
             if not isinstance(m, dict): continue
             v_url = m.get('videoUrl') or m.get('url')
             if not v_url or not isinstance(v_url, str): continue
-            
+
             fmt = m.get('format', '')
             qual = str(m.get('quality', 'auto'))
-            q_label = f"{qual}p" if qual.isdigit() else qual.upper()
-            qualities.append({"label": q_label, "url": v_url})
+            
+            if fmt == 'mp4' or 'mp4' in v_url:
+                q_label = f"{qual}p" if qual.isdigit() else qual.upper()
+                stream_data["direct_mp4"][q_label] = v_url
+            
+            if fmt == 'hls' or '.m3u8' in v_url:
+                if not stream_data["hls_master"]:
+                    stream_data["hls_master"] = v_url
+                for pq in self.parse_hls_qualities(v_url):
+                    if pq["quality"] not in seen_q:
+                        seen_q.add(pq["quality"])
+                        stream_data["qualities"].append(pq)
 
-        qualities.sort(key=lambda x: int(re.search(r'\d+', x['label']).group()) if re.search(r'\d+', x['label']) else 0, reverse=True)
+        if stream_data["qualities"]:
+            stream_data["qualities"].sort(key=lambda x: int(re.search(r'\d+', x['quality']).group()) if re.search(r'\d+', x['quality']) else 0, reverse=True)
 
         return {
             "status": "success",
             "title": title.strip(),
             "thumbnail": poster,
-            "qualities": qualities,
+            "streams": stream_data,
             "url": url
         }
 
@@ -164,27 +254,29 @@ class VideoScraper:
 
         page = resp.text
         tree = html.fromstring(resp.content)
-        
+
         title_raw = tree.xpath('//meta[@property="og:title"]/@content')
         title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
-        
+
         thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
         thumbnail = thumb_raw[0] if thumb_raw else ""
-        
-        qualities = []
-        
+
+        stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "hls_master": None, "dash_manifest": None, "qualities": []}
+
         hls_match = re.search(r'(?:setVideoHLS|html5player\.setVideoHLS)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
         high_match = re.search(r'(?:setVideoUrlHigh|html5player\.setVideoUrlHigh)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
         low_match = re.search(r'(?:setVideoUrlLow|html5player\.setVideoUrlLow)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
-        
-        if hls_match: qualities.append({"label": "Auto (HLS)", "url": hls_match.group(1)})
-        if high_match: qualities.append({"label": "High", "url": high_match.group(1)})
-        if low_match: qualities.append({"label": "Low", "url": low_match.group(1)})
+
+        if hls_match:
+            stream_data["hls_master"] = hls_match.group(1)
+            stream_data["qualities"] = self.parse_hls_qualities(stream_data["hls_master"])
+        if high_match: stream_data["direct_mp4"]["High"] = high_match.group(1)
+        if low_match: stream_data["direct_mp4"]["Low"] = low_match.group(1)
 
         return {
             "status": "success",
             "title": title.strip(),
             "thumbnail": thumbnail,
-            "qualities": qualities,
+            "streams": stream_data,
             "url": url
         }

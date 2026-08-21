@@ -33,7 +33,7 @@ def rewrite_playlist(playlist, base_url):
             out_lines.append(re.sub(r'URI="([^"]+)"', repl, trimmed))
         else:
             out_lines.append(build_proxy_uri(trimmed))
-            
+
     return '\n'.join(out_lines)
 
 @app.route("/", methods=["GET"])
@@ -53,10 +53,10 @@ def extract():
     url = request.form.get("url")
     if not url:
         return render_template("view.html", error="Target URL is required.")
-    
+
     logging.info(f"Extracting metadata for: {url}")
     data = scraper.extract(url)
-    
+
     if not data or data.get("status") == "error":
         return render_template("view.html", error=data.get("error", "Failed to extract media."))
 
@@ -68,13 +68,15 @@ def proxy_media():
     if not target: return "Missing URL", 400
 
     parsed_url = urlparse(target)
-    
+
     if "phncdn" in parsed_url.netloc or "pornhub" in parsed_url.netloc:
         referer = "https://www.pornhub.com/"
     elif "xnxx" in parsed_url.netloc:
         referer = "https://www.xnxx.com/"
     elif "xvideos" in parsed_url.netloc:
         referer = "https://www.xvideos.com/"
+    elif "googlevideo.com" in parsed_url.netloc or "youtube.com" in parsed_url.netloc:
+        referer = "https://www.youtube.com/"
     else:
         referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
 
@@ -96,17 +98,17 @@ def proxy_media():
 
     try:
         upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=15)
-        
+
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
         res_headers["Access-Control-Allow-Origin"] = "*"
         res_headers["Accept-Ranges"] = "bytes"
-        
+
         if "Content-Length" in upstream.headers:
             res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
         content_type = upstream.headers.get("content-type", "").lower()
-        
+
         if "mpegurl" in content_type or target.endswith(".m3u8"):
             text = upstream.text
             final_base = upstream.url or target
