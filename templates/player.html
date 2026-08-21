@@ -30,7 +30,7 @@
 
     <div class="xl:col-span-3 flex flex-col gap-6">
         <div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50 flex items-center justify-center cursor-pointer" onclick="handleInitialPlay(this)">
-            <video id="main-player" controls poster="{{ data.thumbnail }}" preload="none" playsinline class="w-full h-full object-contain outline-none bg-black"></video>
+            <video id="main-player" controls controlsList="nodownload" disablePictureInPicture oncontextmenu="return false;" poster="{{ data.thumbnail }}" preload="none" playsinline class="w-full h-full object-contain outline-none bg-black"></video>
             <div id="play-overlay" class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/30 transition-colors">
                 <svg class="w-24 h-24 text-white opacity-90 group-hover:scale-110 transition-transform drop-shadow-2xl" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </div>
@@ -40,8 +40,8 @@
             <div>
                 <h1 class="text-3xl font-black tracking-tight mb-3 text-white leading-tight">{{ data.title }}</h1>
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-black text-indigo-400 uppercase tracking-widest">Gateway Proxy</span>
-                    <span class="text-zinc-500 text-sm font-bold">Dynamic Protocol Detection</span>
+                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-black text-indigo-400 uppercase tracking-widest">Protected Stream</span>
+                    <span class="text-zinc-500 text-sm font-bold">Anti-Rip Tokenized Gateway</span>
                 </div>
             </div>
         </div>
@@ -112,6 +112,8 @@
     let isUserInitiated = false;
     let currentUrl = "";
 
+    video.addEventListener('contextmenu', e => e.preventDefault());
+
     function handleInitialPlay(container) {
         if(overlay) overlay.style.display = 'none';
         container.style.cursor = 'default';
@@ -134,9 +136,8 @@
         document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
 
-        const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
-        currentUrl = proxyUrl;
-        applySource(proxyUrl, isUserInitiated);
+        currentUrl = url;
+        applySource(url, isUserInitiated);
     }
 
     function applySource(proxyUrl, shouldPlay) {
@@ -159,11 +160,9 @@
                 if (data.fatal) {
                     switch (data.type) {
                         case Hls.ErrorTypes.NETWORK_ERROR:
-                            console.error('Fatal network error, attempting recovery');
                             hlsPlayer.startLoad();
                             break;
                         case Hls.ErrorTypes.MEDIA_ERROR:
-                            console.error('Fatal media error, attempting recovery');
                             hlsPlayer.recoverMediaError();
                             break;
                         default:
@@ -191,13 +190,13 @@
         if (firstSource) {
             firstSource.classList.add('active');
             {% if data.streams.qualities %}
-                currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.qualities[0].url }}");
+                currentUrl = "{{ data.streams.qualities[0].url }}";
             {% elif data.streams.direct_mp4 %}
-                currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.direct_mp4.values()|first }}");
+                currentUrl = "{{ data.streams.direct_mp4.values()|first }}";
             {% elif data.streams.video_only %}
-                currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.video_only.values()|first }}");
+                currentUrl = "{{ data.streams.video_only.values()|first }}";
             {% elif data.streams.audio_only %}
-                currentUrl = '/proxy?url=' + encodeURIComponent("{{ data.streams.audio_only.values()|first }}");
+                currentUrl = "{{ data.streams.audio_only.values()|first }}";
             {% else %}
                 currentUrl = "";
             {% endif %}
