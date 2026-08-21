@@ -51,6 +51,10 @@ def extract():
     if not data or data.get("status") == "error":
         return render_template("view.html", error=data.get("error", "Extraction failed."))
 
+    # Proxy thumbnails to avoid CDN region blocks
+    if data.get("thumbnail"):
+        data["thumbnail"] = f"/proxy?url={quote(data['thumbnail'], safe='')}"
+
     return render_template("player.html", data=data)
 
 @app.route("/proxy", methods=["GET", "OPTIONS"])
