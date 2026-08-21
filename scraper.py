@@ -3,14 +3,22 @@ import re
 import os
 import sys
 import subprocess
+import random
 from urllib.parse import urlparse, urljoin
 import requests
 from lxml import html
 
 class VideoScraper:
     def __init__(self):
-        self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+        self.user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+        ]
+
+    def get_headers(self):
+        return {
+            'User-Agent': random.choice(self.user_agents),
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
@@ -25,7 +33,7 @@ class VideoScraper:
     def parse_hls_qualities(self, master_m3u8_url):
         qualities = []
         try:
-            resp = requests.get(master_m3u8_url, headers=self.headers, timeout=15)
+            resp = requests.get(master_m3u8_url, headers=self.get_headers(), timeout=15)
             if resp.status_code != 200: return qualities
             lines = resp.text.splitlines()
             base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
@@ -44,23 +52,19 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
+        # Direct extraction bypassing local proxy failure points
         base_cmd = [
             "/app/venv/bin/python", "-m", "yt_dlp",
             "-J",
             "--no-warnings",
             "--extractor-args", "youtube:client=ios,android,web",
-            "--socket-timeout", "20",
+            "--socket-timeout", "30",
             url
         ]
 
         try:
             process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
             stdout, stderr = process.communicate(timeout=45)
-
-            if process.returncode != 0:
-                proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
-                process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
-                stdout, stderr = process.communicate(timeout=45)
 
             if process.returncode != 0:
                 return {"status": "error", "error": f"YouTube Extractor Failed: {stderr.strip()}"}
@@ -134,7 +138,7 @@ class VideoScraper:
         title, poster, media_defs = "Unknown Title", "", []
 
         try:
-            resp = requests.get(geo_url, headers=self.headers, timeout=15)
+            resp = requests.get(geo_url, headers=self.get_headers(), timeout=15)
             if resp.status_code == 200:
                 fv_match = re.search(r'flashvars(?:_\d+)?\s*=\s*(\{.*?\});', resp.text, re.DOTALL)
                 if fv_match:
@@ -176,7 +180,7 @@ class VideoScraper:
 
     def _scrape_xnxx_xvideos(self, url):
         try:
-            resp = requests.get(url, headers=self.headers, timeout=15)
+            resp = requests.get(url, headers=self.get_headers(), timeout=15)
             if resp.status_code != 200: return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
         except Exception as e: return {"status": "error", "error": str(e), "url": url}
 
