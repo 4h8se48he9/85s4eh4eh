@@ -76,15 +76,15 @@ def proxy_media():
     range_header = request.headers.get("Range")
     if range_header: req_headers["Range"] = range_header
 
-    # Tunnel strict routing
-    proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"} if "googlevideo" in target else None
+    # Tunnel strict routing using Privoxy HTTP Bridge
+    proxies = {"http": "http://127.0.0.1:8118", "https": "http://127.0.0.1:8118"} if "googlevideo" in target else None
 
     try:
         try:
             upstream = requests.get(target, headers=req_headers, proxies=proxies, stream=True, timeout=15)
             upstream.raise_for_status()
         except Exception as e:
-            logging.warning(f"WARP Proxy failed, falling back to direct network: {e}")
+            logging.warning(f"Proxy failed, falling back to direct network: {e}")
             upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
             upstream.raise_for_status()
 

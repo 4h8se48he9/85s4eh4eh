@@ -14,6 +14,8 @@ class VideoScraper:
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
+        # The new Privoxy HTTP Bridge
+        self.proxy_http = "http://127.0.0.1:8118"
 
     def title_case(self, text):
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
@@ -45,28 +47,21 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
-        # Injected identity encoding and disabled keep-alive to bypass SOCKS5 EOF bugs
-        base_cmd = [
+        # We route directly through the reliable HTTP bridge. Railway IPs are always blocked by YT, 
+        # so direct connections will fail anyway. Proxy is mandatory here.
+        cmd = [
             sys.executable, "-m", "yt_dlp",
             "-J",
             "--no-warnings",
+            "--proxy", self.proxy_http,
             "--extractor-args", "youtube:client=android,ios,web",
-            "--socket-timeout", "30",
-            "--add-header", "Accept-Encoding: identity",
-            "--add-header", "Connection: close",
+            "--socket-timeout", "25",
             url
         ]
 
         try:
-            # 1. Try Direct (Best speed, bypasses dead WARP tunnel issue)
-            process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
             stdout, stderr = process.communicate(timeout=45)
-
-            # 2. Try WARP SOCKS5 if Direct fails
-            if process.returncode != 0:
-                proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
-                process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
-                stdout, stderr = process.communicate(timeout=45)
 
             if process.returncode != 0:
                 return {"status": "error", "error": f"YouTube Extractor Failed: {stderr.strip()}"}
