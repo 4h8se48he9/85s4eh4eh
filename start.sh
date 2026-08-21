@@ -20,4 +20,4 @@ for i in {1..15}; do
 done
 
 echo "Starting Gunicorn application..."
-exec gunicorn -w 4 -b 0.0.0.0:${PORT:-8080} --timeout 120 app:app
+exec /opt/venv/bin/gunicorn -w 4 -b 0.0.0.0:${PORT:-8080} --timeout 120 app:app
