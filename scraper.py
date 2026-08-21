@@ -18,6 +18,11 @@ class VideoScraper:
     def title_case(self, text):
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
 
+    def _extract_res(self, label):
+        """Safely extract resolution integer for sorting."""
+        m = re.search(r'(\d+)', label)
+        return int(m.group(1)) if m else 0
+
     def parse_hls_qualities(self, master_m3u8_url):
         qualities = []
         try:
@@ -35,7 +40,8 @@ class VideoScraper:
                         stream_url = stream_uri if stream_uri.startswith('http') else base_url + stream_uri
                         qualities.append({"quality": quality_label, "url": stream_url})
         except Exception: pass
-        qualities.sort(key=lambda x: int(re.search(r'(\d+)', x['quality']).group(1)) if re.search(r'(\d+)', x['quality']) else 0, reverse=True)
+        
+        qualities.sort(key=lambda x: self._extract_res(x['quality']), reverse=True)
         return qualities
 
     def _extract_youtube_subprocess(self, url):
@@ -113,7 +119,8 @@ class VideoScraper:
             if not result["streams"]["hls_master"] and data.get("manifest_url") and '.m3u8' in data.get("manifest_url"):
                 result["streams"]["hls_master"] = data["manifest_url"]
 
-            result["streams"]["qualities"].sort(key=lambda x: int(re.search(r'\d+', x['quality']).group(1)) if re.search(r'\d+', x['quality']) else 0, reverse=True)
+            # Use the safe helper function for sorting
+            result["streams"]["qualities"].sort(key=lambda x: self._extract_res(x['quality']), reverse=True)
 
             return result
 
