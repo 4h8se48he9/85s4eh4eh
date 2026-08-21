@@ -300,10 +300,6 @@
     function applySource(proxyUrl, shouldPlay) {
         if (!proxyUrl) return;
 
-        // Note: We use the direct URL here because the proxy logic is handled by the server 
-        // or we need to pass it through the /proxy endpoint if required by CORS.
-        // In this architecture, the URLs from scraper are often direct CDN links that need Referer headers.
-        // The /proxy endpoint in app.py handles the Referer injection.
         const finalUrl = '/proxy?url=' + encodeURIComponent(proxyUrl);
 
         const isHls = proxyUrl.includes('.m3u8') || proxyUrl.includes('hls') || proxyUrl.includes('manifest');
@@ -384,7 +380,14 @@
                 currentUrl = "";
             {% endif %}
             
-            if(currentUrl) video.src = '/proxy?url=' + encodeURIComponent(currentUrl);
+            if(currentUrl) {
+                // Set src immediately to allow metadata (duration) to load
+                const initialProxyUrl = '/proxy?url=' + encodeURIComponent(currentUrl);
+                video.src = initialProxyUrl;
+                
+                // Force metadata load so timeline shows duration
+                video.load();
+            }
         }
     });
 </script>
