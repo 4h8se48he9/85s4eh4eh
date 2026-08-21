@@ -12,26 +12,31 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-PROXY_URL = os.environ.get("PROXY_URL", None)
-scraper = VideoScraper(proxy_url=PROXY_URL)
+# Default to local WARP SOCKS5 proxy if PROXY_URL is not set
+DEFAULT_PROXY = os.environ.get("PROXY_URL", "socks5h://127.0.0.1:40000")
+scraper = VideoScraper(proxy_url=DEFAULT_PROXY)
 
 def rewrite_playlist(playlist, base_url):
     def build_proxy_uri(raw_uri):
         clean_uri = raw_uri.strip().strip("'\"")
-        if clean_uri.startswith("data:"): return clean_uri
+        if clean_uri.startswith("data:"):
+            return clean_uri
         resolved = urljoin(base_url, clean_uri)
         return "/proxy?url=" + quote(resolved, safe="")
 
     out_lines = []
-    for line in playlist.split('\n'):
+    for line in playlist.splitlines():
         trimmed = line.strip()
         if not trimmed:
             out_lines.append(trimmed)
             continue
         if trimmed.startswith('#'):
-            def repl(m): return f'URI="{build_proxy_uri(m.group(1))}"'
+            # Rewrite URI attributes in #EXT-X-KEY, #EXT-X-MEDIA, #EXT-X-MAP, etc.
+            def repl(m): 
+                return f'URI="{build_proxy_uri(m.group(1))}"'
             out_lines.append(re.sub(r'URI="([^"]+)"', repl, trimmed))
         else:
+            # Segment or sub-playlist URLs
             out_lines.append(build_proxy_uri(trimmed))
 
     return '\n'.join(out_lines)
@@ -65,7 +70,8 @@ def extract():
 @app.route("/proxy")
 def proxy_media():
     target = request.args.get("url")
-    if not target: return "Missing URL", 400
+    if not target:
+        return "Missing URL", 400
 
     parsed_url = urlparse(target)
 
@@ -87,29 +93,39 @@ def proxy_media():
     }
 
     range_header = request.headers.get("Range")
-    if range_header: req_headers["Range"] = range_header
+    if range_header:
+        req_headers["Range"] = range_header
 
-    active_proxy = None
-    if scraper.proxy_pool:
-        active_proxy = random.choice(scraper.proxy_pool)
-        active_proxies = {"http": active_proxy, "https": active_proxy}
-    else:
-        active_proxies = scraper.proxies
+    # Always ensure WARP proxy or configured proxy is used
+    active_proxies = scraper.get_request_proxies()
 
     try:
-        upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=15)
+        upstream = requests.get(
+            target, 
+            headers=req_headers, 
+            proxies=active_proxies, 
+            stream=True, 
+            timeout=20
+        )
 
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
         res_headers["Access-Control-Allow-Origin"] = "*"
+        res_headers["Access-Control-Allow-Headers"] = "*"
         res_headers["Accept-Ranges"] = "bytes"
 
         if "Content-Length" in upstream.headers:
             res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
         content_type = upstream.headers.get("content-type", "").lower()
+        is_m3u8 = (
+            "mpegurl" in content_type or 
+            ".m3u8" in target or 
+            "hls_playlist" in target or
+            "#EXTM3U" in (upstream.text[:50] if upstream.text else "")
+        )
 
-        if "mpegurl" in content_type or target.endswith(".m3u8"):
+        if is_m3u8:
             text = upstream.text
             final_base = upstream.url or target
             rewritten = rewrite_playlist(text, final_base)
@@ -118,13 +134,14 @@ def proxy_media():
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
 
         def generate():
-            for chunk in upstream.iter_content(chunk_size=131072):
-                if chunk: yield chunk
+            for chunk in upstream.iter_content(chunk_size=262144):
+                if chunk:
+                    yield chunk
 
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
 
     except Exception as e:
-        logging.error(f"Edge proxy failure: {e}")
+        logging.error(f"Edge proxy failure for {target}: {e}")
         return "Edge proxy failure", 502
 
 if __name__ == "__main__":

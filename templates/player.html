@@ -5,7 +5,7 @@
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
-    .quality-btn.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.1); color: #e879f9; }
+    .quality-btn.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.15); color: #f0abfc; }
     .quality-btn.active svg { opacity: 1; }
     video::-webkit-media-controls-panel { background-image: none !important; }
     
@@ -15,9 +15,9 @@
         letter-spacing: 0.2em;
         color: #71717a;
         font-weight: 900;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
         padding-left: 8px;
-        margin-top: 24px;
+        margin-top: 20px;
     }
     .stream-section-title:first-child {
         margin-top: 0;
@@ -29,31 +29,31 @@
 <div class="max-w-[1600px] mx-auto w-full p-4 md:p-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
 
     <div class="xl:col-span-3 flex flex-col gap-6">
-        <div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50">
-            <video id="main-player" controls poster="{{ data.thumbnail }}" class="w-full h-full object-contain outline-none bg-black"></video>
+        <div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50 flex items-center justify-center">
+            <video id="main-player" controls poster="{{ data.thumbnail }}" playsinline class="w-full h-full object-contain outline-none bg-black"></video>
         </div>
 
         <div class="glass-panel rounded-[2rem] p-8 border border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
                 <h1 class="text-3xl font-black tracking-tight mb-3 text-white leading-tight">{{ data.title }}</h1>
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-black text-indigo-400 uppercase tracking-widest">Gateway Proxy</span>
-                    <span class="text-zinc-500 text-sm font-bold">Encrypted Delivery Tunnel</span>
+                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-black text-indigo-400 uppercase tracking-widest">WARP Tunnel Active</span>
+                    <span class="text-zinc-500 text-sm font-bold">Lossless Stream Gateway</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="xl:col-span-1">
-        <div class="glass-panel rounded-[2rem] p-6 sticky top-28 border border-zinc-800 max-h-[80vh] overflow-y-auto custom-scrollbar">
+        <div class="glass-panel rounded-[2rem] p-6 sticky top-28 border border-zinc-800 max-h-[80vh] overflow-y-auto">
             
             <div class="flex flex-col gap-2">
                 {% if data.streams.qualities %}
-                    <h3 class="stream-section-title">HLS / Adaptive</h3>
+                    <h3 class="stream-section-title">Full HD / Audio + Video</h3>
                     {% for q in data.streams.qualities %}
                     <button onclick="loadQuality('{{ q.url }}', this)" 
                             class="quality-btn w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-extrabold transition-all flex justify-between items-center text-zinc-300">
-                        <span>{{ q.quality }}</span>
+                        <span>{{ q.quality }} <span class="text-xs text-zinc-500 font-medium">({{ q.resolution }})</span></span>
                         <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
                     </button>
                     {% endfor %}
@@ -71,7 +71,7 @@
                 {% endif %}
 
                 {% if data.streams.video_only %}
-                    <h3 class="stream-section-title">Video Only (No Audio)</h3>
+                    <h3 class="stream-section-title">Raw Video (Silent)</h3>
                     {% for label, url in data.streams.video_only.items() %}
                     <button onclick="loadQuality('{{ url }}', this)" 
                             class="quality-btn w-full py-3 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-bold transition-all flex justify-between items-center text-zinc-400">
@@ -111,23 +111,44 @@
         if(btnElement) btnElement.classList.add('active');
 
         const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
-        const isHls = url.includes('.m3u8') || url.includes('hls');
+        const isHls = url.includes('.m3u8') || url.includes('hls') || url.includes('manifest');
 
         if (isHls && Hls.isSupported()) {
             if (hlsPlayer) hlsPlayer.destroy();
-            hlsPlayer = new Hls({ maxBufferSize: 0, maxBufferLength: 30 });
+            hlsPlayer = new Hls({
+                maxBufferSize: 60 * 1000 * 1000,
+                maxBufferLength: 60,
+                enableWorker: true
+            });
             hlsPlayer.loadSource(proxyUrl);
             hlsPlayer.attachMedia(video);
-            hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                video.play().catch(e => console.log("Autoplay prevented:", e));
+            });
+            hlsPlayer.on(Hls.Events.ERROR, function(event, data) {
+                if (data.fatal) {
+                    switch(data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            hlsPlayer.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            hlsPlayer.recoverMediaError();
+                            break;
+                        default:
+                            hlsPlayer.destroy();
+                            break;
+                    }
+                }
+            });
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
-            video.play();
+            video.play().catch(() => {});
         } else {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
             video.load();
-            video.play();
+            video.play().catch(() => {});
         }
     }
 

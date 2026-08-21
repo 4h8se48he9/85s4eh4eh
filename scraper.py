@@ -9,7 +9,9 @@ import yt_dlp
 
 class VideoScraper:
     def __init__(self, proxy_url=None):
-        self.proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
+        default_proxy = proxy_url or os.environ.get("PROXY_URL", "socks5h://127.0.0.1:40000")
+        self.proxies = {"http": default_proxy, "https": default_proxy} if default_proxy else None
+        
         proxy_env = os.environ.get("PROXY_LIST", "")
         self.proxy_pool = [p.strip() for p in proxy_env.split(",") if p.strip()]
 
@@ -30,10 +32,13 @@ class VideoScraper:
 
     def parse_hls_qualities(self, master_m3u8_url):
         qualities = []
-        if not master_m3u8_url: return qualities
+        if not master_m3u8_url:
+            return qualities
         try:
             resp = requests.get(master_m3u8_url, headers=self.headers, proxies=self.get_request_proxies(), timeout=15)
-            if resp.status_code != 200: return qualities
+            if resp.status_code != 200:
+                return qualities
+            
             lines = resp.text.splitlines()
             base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
             
@@ -48,11 +53,13 @@ class VideoScraper:
                     
                     if i + 1 < len(lines) and not lines[i + 1].startswith("#"):
                         stream_uri = lines[i + 1].strip()
-                        if stream_uri.startswith('http'): stream_url = stream_uri
+                        if stream_uri.startswith('http'):
+                            stream_url = stream_uri
                         elif stream_uri.startswith('/'):
                             parsed = urlparse(master_m3u8_url)
                             stream_url = f"{parsed.scheme}://{parsed.netloc}{stream_uri}"
-                        else: stream_url = base_url + stream_uri
+                        else:
+                            stream_url = base_url + stream_uri
                         
                         qualities.append({
                             "quality": quality_label,
@@ -86,11 +93,14 @@ class VideoScraper:
             elif 'xnxx' in url or 'xvideos' in url:
                 result = self._scrape_xnxx_xvideos(url)
             else:
-                result = {"status": "error", "error": "Unsupported provider or stream format", "url": url}
+                result = {"status": "error", "error": "Extraction failed or format unsupported.", "url": url}
 
         return result
 
     def _extract_ytdlp(self, url):
+        active_proxies = self.get_request_proxies()
+        proxy_str = active_proxies.get("https") if active_proxies else None
+
         ydl_opts = {
             'quiet': True,
             'no_warnings': True,
@@ -98,18 +108,14 @@ class VideoScraper:
             'extract_flat': False,
             'user_agent': self.headers['User-Agent'],
         }
-
-        active_proxy = None
-        if self.proxy_pool:
-            active_proxy = random.choice(self.proxy_pool)
-            ydl_opts['proxy'] = active_proxy
-        elif self.proxies and self.proxies.get("https"):
-            ydl_opts['proxy'] = self.proxies["https"]
+        if proxy_str:
+            ydl_opts['proxy'] = proxy_str
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
-                if not info: return None
+                if not info:
+                    return None
 
                 direct_mp4 = {}
                 video_only = {}
@@ -121,7 +127,8 @@ class VideoScraper:
 
                 for fmt in info.get('formats', []):
                     f_url = fmt.get('url', '')
-                    if not f_url or f_url in seen: continue
+                    if not f_url or f_url in seen:
+                        continue
                     seen.add(f_url)
 
                     ext = fmt.get('ext', '')
@@ -133,10 +140,12 @@ class VideoScraper:
 
                     label = f"{height}p" if height else (format_note or fmt.get('format_id', 'auto'))
 
+                    # HLS Manifest extraction
                     if 'm3u8' in f_url and ('master.m3u8' in f_url or fmt.get('format_id') == 'hls-meta'):
-                        if not hls_master: hls_master = f_url
+                        if not hls_master:
+                            hls_master = f_url
 
-                    if 'm3u8' in proto or ext == 'm3u8' or 'm3u8' in f_url:
+                    if 'm3u8' in proto or ext == 'm3u8' or 'm3u8' in f_url or 'manifest/hls_playlist' in f_url:
                         if height:
                             qualities.append({
                                 "quality": label,
@@ -146,8 +155,8 @@ class VideoScraper:
                                 "url": f_url
                             })
                     else:
-                        has_video = vcodec != 'none' and vcodec
-                        has_audio = acodec != 'none' and acodec
+                        has_video = vcodec != 'none' and bool(vcodec)
+                        has_audio = acodec != 'none' and bool(acodec)
 
                         if has_video and has_audio:
                             direct_mp4[label] = f_url
