@@ -37,8 +37,8 @@
             <div>
                 <h1 class="text-3xl font-black tracking-tight mb-3 text-white leading-tight">{{ data.title }}</h1>
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-black text-indigo-400 uppercase tracking-widest">WARP Tunnel Active</span>
-                    <span class="text-zinc-500 text-sm font-bold">Lossless Stream Gateway</span>
+                    <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs font-black text-indigo-400 uppercase tracking-widest">Gateway Proxy</span>
+                    <span class="text-zinc-500 text-sm font-bold">Dynamic Protocol Detection</span>
                 </div>
             </div>
         </div>
@@ -49,18 +49,18 @@
             
             <div class="flex flex-col gap-2">
                 {% if data.streams.qualities %}
-                    <h3 class="stream-section-title">Full HD / Audio + Video</h3>
+                    <h3 class="stream-section-title">HLS / Adaptive</h3>
                     {% for q in data.streams.qualities %}
                     <button onclick="loadQuality('{{ q.url }}', this)" 
                             class="quality-btn w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-extrabold transition-all flex justify-between items-center text-zinc-300">
-                        <span>{{ q.quality }} <span class="text-xs text-zinc-500 font-medium">({{ q.resolution }})</span></span>
+                        <span>{{ q.quality }}</span>
                         <svg class="w-5 h-5 text-purple-400 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
                     </button>
                     {% endfor %}
                 {% endif %}
 
                 {% if data.streams.direct_mp4 %}
-                    <h3 class="stream-section-title">Combined MP4</h3>
+                    <h3 class="stream-section-title">Direct MP4</h3>
                     {% for label, url in data.streams.direct_mp4.items() %}
                     <button onclick="loadQuality('{{ url }}', this)" 
                             class="quality-btn w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-extrabold transition-all flex justify-between items-center text-zinc-300">
@@ -115,40 +115,19 @@
 
         if (isHls && Hls.isSupported()) {
             if (hlsPlayer) hlsPlayer.destroy();
-            hlsPlayer = new Hls({
-                maxBufferSize: 60 * 1000 * 1000,
-                maxBufferLength: 60,
-                enableWorker: true
-            });
+            hlsPlayer = new Hls({ maxBufferSize: 60*1000*1000, maxBufferLength: 60 });
             hlsPlayer.loadSource(proxyUrl);
             hlsPlayer.attachMedia(video);
-            hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
-                video.play().catch(e => console.log("Autoplay prevented:", e));
-            });
-            hlsPlayer.on(Hls.Events.ERROR, function(event, data) {
-                if (data.fatal) {
-                    switch(data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            hlsPlayer.startLoad();
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            hlsPlayer.recoverMediaError();
-                            break;
-                        default:
-                            hlsPlayer.destroy();
-                            break;
-                    }
-                }
-            });
+            hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=>{}));
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
-            video.play().catch(() => {});
+            video.play().catch(()=>{});
         } else {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
             video.load();
-            video.play().catch(() => {});
+            video.play().catch(()=>{});
         }
     }
 

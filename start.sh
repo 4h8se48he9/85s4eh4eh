@@ -10,5 +10,5 @@ warp-cli --accept-tos mode proxy || true
 warp-cli --accept-tos proxy port 40000 || true
 warp-cli --accept-tos connect || true
 
-echo "Launching gateway. Traffic will failover to native IP if WARP drops."
+echo "Launching gateway."
 exec /opt/venv/bin/gunicorn -w 4 -b 0.0.0.0:${PORT:-8080} --timeout 120 app:app
