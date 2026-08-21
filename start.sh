@@ -42,7 +42,7 @@ EOF
 
     echo "Starting User-Space WARP SOCKS5 Tunnel..."
     ./wireproxy -c wireproxy.conf &
-    sleep 3
+    sleep 5
 else
     echo "WARNING: WARP generation failed. Proceeding without proxy..."
 fi
