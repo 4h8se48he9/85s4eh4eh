@@ -54,7 +54,6 @@ class VideoScraper:
             "--socket-timeout", "30",
             "--add-header", "Accept-Encoding: identity",
             "--add-header", "Connection: close",
-            "--compat-options", "no-keepalive",
             url
         ]
 
