@@ -45,17 +45,21 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
+        # Injected identity encoding and disabled keep-alive to bypass SOCKS5 EOF bugs
         base_cmd = [
             sys.executable, "-m", "yt_dlp",
             "-J",
             "--no-warnings",
-            "--extractor-args", "youtube:client=ios,android,web",
-            "--socket-timeout", "20",
+            "--extractor-args", "youtube:client=android,ios,web",
+            "--socket-timeout", "30",
+            "--add-header", "Accept-Encoding: identity",
+            "--add-header", "Connection: close",
+            "--compat-options", "no-keepalive",
             url
         ]
 
         try:
-            # 1. Try Direct first
+            # 1. Try Direct (Best speed, bypasses dead WARP tunnel issue)
             process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
             stdout, stderr = process.communicate(timeout=45)
 
