@@ -45,8 +45,9 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
+        # Pointing to the absolute path of Python inside the VENV to avoid execution errors
         base_cmd = [
-            sys.executable, "-m", "yt_dlp",
+            "/app/venv/bin/python", "-m", "yt_dlp",
             "-J",
             "--no-warnings",
             "--extractor-args", "youtube:client=ios,android,web",
@@ -88,7 +89,6 @@ class VideoScraper:
 
                 ext = fmt.get("ext", "mp4")
                 height = fmt.get("height")
-                note = fmt.get("format_note", "")
                 label = f"{height}p" if height else (fmt.get("format_id", "auto"))
 
                 if '.m3u8' in f_url or 'manifest/hls_playlist' in f_url:
