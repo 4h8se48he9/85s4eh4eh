@@ -60,10 +60,13 @@
 {% block content %}
 <div class="max-w-[1800px] mx-auto w-full p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 relative">
 
+    <!-- Main Player Area -->
     <div class="xl:col-span-9 flex flex-col gap-6">
         
+        <!-- Video Container -->
         <div id="player-container" class="bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-800 relative aspect-video group shadow-black/50 flex items-center justify-center cursor-pointer transition-all duration-500" onclick="handleInitialPlay(this)">
             
+            <!-- Play Overlay -->
             <div id="play-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm group-hover:bg-black/40 transition-all z-10">
                 <div class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-4 border border-white/20 group-hover:scale-110 transition-transform duration-300">
                     <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -73,11 +76,13 @@
 
             <video id="main-player" controls controlsList="nodownload" disablePictureInPicture oncontextmenu="return false;" poster="{{ data.thumbnail }}" preload="metadata" playsinline class="w-full h-full object-contain outline-none bg-black relative z-0"></video>
             
+            <!-- Cinema Toggle -->
             <button onclick="toggleCinema()" class="absolute top-4 right-4 z-20 p-3 rounded-xl bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
             </button>
         </div>
 
+        <!-- Metadata Bar -->
         <div class="glass-panel rounded-[2rem] p-8 border border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-500 to-blue-600"></div>
             <div class="flex-1">
@@ -87,12 +92,32 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
                         Secure Proxy
                     </span>
+                    
+                    <!-- Dynamic Platform Icons -->
+                    {% if 'pornhub' in data.url %}
+                    <span class="px-3 py-1.5 bg-orange-950/30 border border-orange-500/20 rounded-lg text-[10px] font-bold text-orange-400 uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                        Pornhub
+                    </span>
+                    {% elif 'xnxx' in data.url %}
+                    <span class="px-3 py-1.5 bg-blue-950/30 border border-blue-500/20 rounded-lg text-[10px] font-bold text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                        XNXX
+                    </span>
+                    {% elif 'xvideos' in data.url %}
+                    <span class="px-3 py-1.5 bg-red-950/30 border border-red-500/20 rounded-lg text-[10px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                        XVideos
+                    </span>
+                    {% endif %}
+
                     <span class="px-3 py-1.5 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                         Tokenized Gateway
                     </span>
                 </div>
             </div>
             
+            <!-- Quick Stats -->
             <div class="hidden md:flex items-center gap-6 text-right">
                 <div>
                     <div class="text-xs text-zinc-500 font-bold uppercase tracking-wider mb-1">Source</div>
@@ -112,11 +137,13 @@
         </div>
     </div>
 
+    <!-- Sidebar Controls -->
     <div class="xl:col-span-3">
         <div class="glass-panel rounded-[2rem] p-6 sticky top-28 border border-zinc-800 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar">
             
             <div class="flex flex-col gap-8">
                 
+                <!-- HLS Qualities -->
                 {% if data.streams.qualities %}
                     <div>
                         <h3 class="section-header">Adaptive Streams (HLS)</h3>
@@ -135,6 +162,7 @@
                     </div>
                 {% endif %}
 
+                <!-- Direct MP4 -->
                 {% if data.streams.direct_mp4 %}
                     <div>
                         <h3 class="section-header">Direct Downloads</h3>
@@ -153,6 +181,7 @@
                     </div>
                 {% endif %}
 
+                <!-- Raw Video -->
                 {% if data.streams.video_only %}
                     <div>
                         <h3 class="section-header">Raw Video Tracks</h3>
@@ -168,6 +197,7 @@
                     </div>
                 {% endif %}
 
+                <!-- Audio Only -->
                 {% if data.streams.audio_only %}
                     <div>
                         <h3 class="section-header">Audio Tracks</h3>
@@ -185,6 +215,7 @@
 
             </div>
 
+            <!-- Bottom Action -->
             <div class="mt-8 pt-6 border-t border-zinc-800/50">
                 <a href="/view" class="w-full text-center block bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-4 rounded-xl transition-all text-sm border border-zinc-700 hover:border-zinc-600 shadow-lg">
                     Process New URL
@@ -202,8 +233,10 @@
     let isUserInitiated = false;
     let currentUrl = "";
 
+    // Prevent context menu
     video.addEventListener('contextmenu', e => e.preventDefault());
 
+    // Cinema Mode Toggle
     function toggleCinema() {
         playerContainer.classList.toggle('cinema-mode');
         if (playerContainer.classList.contains('cinema-mode')) {
@@ -213,6 +246,7 @@
         }
     }
 
+    // Initial Play Handler
     function handleInitialPlay(container) {
         if(overlay) overlay.style.display = 'none';
         container.style.cursor = 'default';
@@ -221,6 +255,7 @@
         if (currentUrl) {
             applySource(currentUrl, true);
         } else {
+            // Auto-select first available quality if none selected
             const firstSource = document.querySelector('.quality-btn');
             if (firstSource) firstSource.click();
         }
@@ -231,7 +266,9 @@
         isUserInitiated = true;
     });
 
+    // Quality Switching Logic
     function loadQuality(url, btnElement) {
+        // UI Update
         document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
 
@@ -239,6 +276,7 @@
         applySource(url, isUserInitiated);
     }
 
+    // Core Source Application
     function applySource(proxyUrl, shouldPlay) {
         if (!proxyUrl) return;
 
@@ -246,6 +284,7 @@
         const wasPlaying = !video.paused && video.currentTime > 0;
         const currentTime = video.currentTime;
 
+        // Destroy previous HLS instance if exists
         if (hlsPlayer) {
             hlsPlayer.destroy();
             hlsPlayer = null;
@@ -273,9 +312,11 @@
                 if (data.fatal) {
                     switch (data.type) {
                         case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.log("Network error, trying to recover...");
                             hlsPlayer.startLoad();
                             break;
                         case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.log("Media error, trying to recover...");
                             hlsPlayer.recoverMediaError();
                             break;
                         default:
@@ -285,10 +326,12 @@
                 }
             });
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support (Safari)
             video.src = proxyUrl;
             if (currentTime > 0) video.currentTime = currentTime;
             if (shouldPlay || wasPlaying) video.play().catch(()=>{});
         } else {
+            // Standard MP4/Direct
             video.src = proxyUrl;
             video.load();
             if (currentTime > 0) video.currentTime = currentTime;
@@ -296,11 +339,13 @@
         }
     }
 
+    // Initialize with first available source
     window.addEventListener('DOMContentLoaded', () => {
         const firstSource = document.querySelector('.quality-btn');
         if (firstSource) {
             firstSource.classList.add('active');
             
+            // Determine initial URL based on priority
             {% if data.streams.qualities %}
                 currentUrl = "{{ data.streams.qualities[0].url }}";
             {% elif data.streams.direct_mp4 %}
