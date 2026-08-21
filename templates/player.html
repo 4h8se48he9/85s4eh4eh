@@ -113,21 +113,26 @@
         const proxyUrl = '/proxy?url=' + encodeURIComponent(url);
         const isHls = url.includes('.m3u8') || url.includes('hls') || url.includes('manifest');
 
+        // Check if video is currently playing so we can resume automatically if switching mid-stream
+        const wasPlaying = !video.paused && video.currentTime > 0;
+
         if (isHls && Hls.isSupported()) {
             if (hlsPlayer) hlsPlayer.destroy();
             hlsPlayer = new Hls({ maxBufferSize: 60*1000*1000, maxBufferLength: 60 });
             hlsPlayer.loadSource(proxyUrl);
             hlsPlayer.attachMedia(video);
-            hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=>{}));
+            hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                if (wasPlaying) video.play().catch(()=>{});
+            });
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
-            video.play().catch(()=>{});
+            if (wasPlaying) video.play().catch(()=>{});
         } else {
             if (hlsPlayer) hlsPlayer.destroy();
             video.src = proxyUrl;
             video.load();
-            video.play().catch(()=>{});
+            if (wasPlaying) video.play().catch(()=>{});
         }
     }
 

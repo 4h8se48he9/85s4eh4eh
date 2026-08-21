@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip", "deno", "cloudflare-warp", "curl", "ffmpeg"]
+nixPkgs = ["python311", "python311Packages.pip", "cloudflare-warp", "curl", "ffmpeg"]
 
 [phases.install]
 cmds = [
