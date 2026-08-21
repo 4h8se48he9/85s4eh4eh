@@ -76,7 +76,7 @@ def proxy_media():
     range_header = request.headers.get("Range")
     if range_header: req_headers["Range"] = range_header
 
-    # Tunnel strict routing using Privoxy HTTP Bridge
+    # Tunnel strict routing via Privoxy HTTP Bridge
     proxies = {"http": "http://127.0.0.1:8118", "https": "http://127.0.0.1:8118"} if "googlevideo" in target else None
 
     try:

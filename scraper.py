@@ -14,7 +14,6 @@ class VideoScraper:
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
-        # The new Privoxy HTTP Bridge
         self.proxy_http = "http://127.0.0.1:8118"
 
     def title_case(self, text):
@@ -47,10 +46,8 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
-        # We route directly through the reliable HTTP bridge. Railway IPs are always blocked by YT, 
-        # so direct connections will fail anyway. Proxy is mandatory here.
         cmd = [
-            sys.executable, "-m", "yt_dlp",
+            "/app/venv/bin/python", "-m", "yt_dlp",
             "-J",
             "--no-warnings",
             "--proxy", self.proxy_http,
