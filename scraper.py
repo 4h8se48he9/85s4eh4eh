@@ -9,20 +9,36 @@ from lxml import html
 class VideoScraper:
     def __init__(self):
         self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
         self._write_deno_script()
 
     def _write_deno_script(self):
+        """Generates the Deno script used exclusively for YouTube extraction via WARP."""
         deno_code = """
         const target = Deno.args[0];
-        const cmd = new Deno.Command("yt-dlp", {
-            args: ["-J", "--proxy", "socks5h://127.0.0.1:40000", "--no-warnings", target]
+        
+        // Target the isolated venv binary path where Railway installed yt-dlp
+        let ytdlpPath = "yt-dlp";
+        try {
+            if (Deno.statSync("/opt/venv/bin/yt-dlp").isFile) {
+                ytdlpPath = "/opt/venv/bin/yt-dlp";
+            }
+        } catch (e) {}
+
+        const cmd = new Deno.Command(ytdlpPath, {
+            args: ["-J", "--proxy", "socks5h://127.0.0.1:40000", "--socket-timeout", "20", "--no-warnings", target]
         });
-        const { stdout, code } = cmd.outputSync();
-        if (code !== 0) Deno.exit(1);
+        
+        const { stdout, stderr, code } = cmd.outputSync();
+        
+        if (code !== 0) {
+            const errLog = new TextDecoder().decode(stderr).trim();
+            console.error(errLog || "Unknown Deno/yt-dlp crash.");
+            Deno.exit(code);
+        }
 
         try {
             const data = JSON.parse(new TextDecoder().decode(stdout));
@@ -83,7 +99,10 @@ class VideoScraper:
             });
 
             console.log(JSON.stringify(result));
-        } catch (e) { Deno.exit(1); }
+        } catch (e) { 
+            console.error("JSON Parse Error: " + e.message);
+            Deno.exit(1); 
+        }
         """
         with open("yt_scraper.ts", "w", encoding="utf-8") as f:
             f.write(deno_code)
@@ -92,7 +111,7 @@ class VideoScraper:
         m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
         if m: url = f"https://www.xnxx.com/video-{m.group(1)}/x"
 
-        if 'youtube.com' in url or 'youtu.be' in url:
+        if 'youtube.com' in url or 'youtu.be' in url or 'googlevideo.com' in url:
             return self._extract_youtube_deno(url)
         elif 'pornhub' in url:
             return self._scrape_pornhub(url)
@@ -105,7 +124,9 @@ class VideoScraper:
             result = subprocess.run(["deno", "run", "-A", "yt_scraper.ts", url], capture_output=True, text=True)
             if result.returncode == 0 and result.stdout.strip():
                 return json.loads(result.stdout.strip())
-            return {"status": "error", "error": "YouTube WARP Extractor Failed. Region blocked."}
+            
+            error_details = result.stderr.strip() or "Region blocked or WARP tunnel dead."
+            return {"status": "error", "error": f"YouTube WARP Extractor Failed: {error_details}"}
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
@@ -154,20 +175,34 @@ class VideoScraper:
 
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
         seen_q = set()
+        
         for m in media_defs:
             if not isinstance(m, dict): continue
             v_url = m.get('videoUrl') or m.get('url')
             if not v_url or not isinstance(v_url, str): continue
+            
             fmt = m.get('format', '')
-            qual = str(m.get('quality', 'auto'))
+            qual_raw = m.get('quality')
+            
+            # Fixes the empty array [] bug
+            if isinstance(qual_raw, list):
+                qual = str(qual_raw[0]) if qual_raw else "auto"
+            else:
+                qual = str(qual_raw or "auto")
+                
+            if qual == "[]" or not qual:
+                qual = "auto"
+                
             if fmt == 'mp4' or 'mp4' in v_url:
                 q_label = f"{qual}p" if qual.isdigit() else qual.upper()
                 stream_data["direct_mp4"][q_label] = v_url
+                
             if fmt == 'hls' or '.m3u8' in v_url:
                 for pq in self.parse_hls_qualities(v_url):
                     if pq["quality"] not in seen_q:
                         seen_q.add(pq["quality"])
                         stream_data["qualities"].append(pq)
+                        
         return {"status": "success", "title": title.strip(), "thumbnail": poster, "streams": stream_data, "url": url}
 
     def _scrape_xnxx_xvideos(self, url):
