@@ -13,6 +13,10 @@ app.secret_key = os.urandom(24)
 
 scraper = VideoScraper()
 
+# Load optional external proxy from Railway Variables
+PROXY_URL = os.environ.get("PROXY_URL", "").strip()
+PROXIES = {"http": PROXY_URL, "https": PROXY_URL} if PROXY_URL else None
+
 def rewrite_playlist(playlist, base_url):
     def build_proxy_uri(raw_uri):
         clean_uri = raw_uri.strip().strip("'\"")
@@ -70,21 +74,21 @@ def proxy_media():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
         "Referer": referer,
         "Origin": referer.rstrip('/'),
-        "Accept-Encoding": "identity" # Stops EOF 1-byte drops
+        "Accept-Encoding": "identity" # Crucial to prevent EOF chunking errors
     }
 
     range_header = request.headers.get("Range")
     if range_header: req_headers["Range"] = range_header
 
-    # Tunnel strict routing via Privoxy HTTP Bridge
-    proxies = {"http": "http://127.0.0.1:8118", "https": "http://127.0.0.1:8118"} if "googlevideo" in target else None
+    # Apply proxy ONLY to YouTube streams to save bandwidth on direct adult sites
+    active_proxies = PROXIES if ("googlevideo" in target and PROXIES) else None
 
     try:
         try:
-            upstream = requests.get(target, headers=req_headers, proxies=proxies, stream=True, timeout=15)
+            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=15)
             upstream.raise_for_status()
         except Exception as e:
-            logging.warning(f"Proxy failed, falling back to direct network: {e}")
+            logging.warning(f"Initial stream failed, trying direct fallback: {e}")
             upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
             upstream.raise_for_status()
 
