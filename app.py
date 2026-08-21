@@ -95,7 +95,7 @@ def proxy_media():
             res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
         content_type = upstream.headers.get("content-type", "").lower()
-        is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
+        is_m3u8 = "mpegurl" in content_type or "hls" in content_type or ".m3u8" in target or "manifest/hls" in target
 
         if is_m3u8:
             text = upstream.text
@@ -103,6 +103,7 @@ def proxy_media():
             rewritten = rewrite_playlist(text, final_base)
             res_headers["Content-Type"] = "application/vnd.apple.mpegurl"
             res_headers["Content-Length"] = str(len(rewritten.encode('utf-8')))
+            upstream.close()
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
 
         def generate():
@@ -112,6 +113,8 @@ def proxy_media():
             except Exception as stream_err:
                 logging.warning(f"Stream suppressed EOF drop: {stream_err}")
                 pass
+            finally:
+                upstream.close()
 
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
 

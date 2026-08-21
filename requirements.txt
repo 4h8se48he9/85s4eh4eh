@@ -3,4 +3,4 @@ gunicorn==22.0.0
 requests
 requests[socks]
 lxml
-yt-dlp
+yt-dlp @ git+https://github.com/yt-dlp/yt-dlp.git@master

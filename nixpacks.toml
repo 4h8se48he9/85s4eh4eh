@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python311", "curl", "ffmpeg", "cloudflare-warp"]
+nixPkgs = ["python311", "ffmpeg"]
 
 [phases.install]
 cmds = [

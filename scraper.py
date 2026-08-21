@@ -3,7 +3,7 @@ import re
 import os
 import sys
 import subprocess
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import requests
 from lxml import html
 
@@ -29,7 +29,6 @@ class VideoScraper:
             resp = requests.get(master_m3u8_url, headers=self.headers, timeout=15)
             if resp.status_code != 200: return qualities
             lines = resp.text.splitlines()
-            base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
             for i, line in enumerate(lines):
                 if line.startswith("#EXT-X-STREAM-INF:"):
                     res_match = re.search(r"RESOLUTION=(\d+x\d+)", line)
@@ -37,7 +36,7 @@ class VideoScraper:
                     quality_label = f"{height}p" if height.isdigit() and int(height) > 0 else "auto"
                     if i + 1 < len(lines) and not lines[i + 1].startswith("#"):
                         stream_uri = lines[i + 1].strip()
-                        stream_url = stream_uri if stream_uri.startswith('http') else base_url + stream_uri
+                        stream_url = stream_uri if stream_uri.startswith('http') else urljoin(master_m3u8_url, stream_uri)
                         qualities.append({"quality": quality_label, "url": stream_url})
         except Exception: pass
         
@@ -45,7 +44,6 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
-        # Pointing to the absolute path of Python inside the VENV to avoid execution errors
         base_cmd = [
             "/app/venv/bin/python", "-m", "yt_dlp",
             "-J",
@@ -91,7 +89,8 @@ class VideoScraper:
                 height = fmt.get("height")
                 label = f"{height}p" if height else (fmt.get("format_id", "auto"))
 
-                if '.m3u8' in f_url or 'manifest/hls_playlist' in f_url:
+                is_hls = '.m3u8' in f_url or 'manifest/hls' in f_url
+                if is_hls:
                     if height:
                         result["streams"]["qualities"].append({
                             "quality": label,
