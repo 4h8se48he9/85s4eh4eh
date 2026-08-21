@@ -1,6 +1,7 @@
 import json
 import re
 import os
+import sys
 import subprocess
 from urllib.parse import urlparse
 import requests
@@ -13,10 +14,6 @@ class VideoScraper:
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
         }
-        
-        self.ytdlp_path = "yt-dlp"
-        if os.path.isfile("/opt/venv/bin/yt-dlp"):
-            self.ytdlp_path = "/opt/venv/bin/yt-dlp"
 
     def title_case(self, text):
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
@@ -42,8 +39,9 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
+        # Uses sys.executable to run yt-dlp as a module, bypassing all $PATH and binary issues
         base_cmd = [
-            self.ytdlp_path,
+            sys.executable, "-m", "yt_dlp",
             "-J",
             "--no-warnings",
             "--extractor-args", "youtube:client=ios,android,web",
@@ -58,7 +56,7 @@ class VideoScraper:
 
             # 2. Try WARP SOCKS5 if Direct fails
             if process.returncode != 0:
-                proxy_cmd = base_cmd[:2] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[2:]
+                proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
                 process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
                 stdout, stderr = process.communicate(timeout=45)
 
