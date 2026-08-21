@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python311", "ffmpeg"]
+nixPkgs = ["python311", "curl", "ffmpeg", "wget", "tar"]
 
 [phases.install]
 cmds = [

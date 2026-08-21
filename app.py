@@ -89,11 +89,15 @@ def proxy_media():
         try:
             upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
             upstream.raise_for_status()
-        except Exception as direct_err:
-            logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
-            active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
-            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
-            upstream.raise_for_status()
+        except requests.exceptions.RequestException as direct_err:
+            logging.warning(f"Direct connection failed, attempting WARP SOCKS5: {direct_err}")
+            try:
+                active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
+                upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
+                upstream.raise_for_status()
+            except requests.exceptions.RequestException as proxy_err:
+                logging.error(f"WARP SOCKS5 also failed: {proxy_err}")
+                return Response(f"Upstream connection failed: {proxy_err}", status=502)
 
         excluded_headers = ['transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
@@ -131,7 +135,7 @@ def proxy_media():
 
     except Exception as e:
         logging.error(f"Proxy failure for {target}: {e}")
-        return "Proxy stream failure", 502
+        return Response(f"Proxy stream failure: {e}", status=502)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)), debug=True)
