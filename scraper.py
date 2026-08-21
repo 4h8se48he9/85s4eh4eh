@@ -45,9 +45,8 @@ class VideoScraper:
         return qualities
 
     def _extract_youtube_subprocess(self, url):
-        # Pointing to the absolute path of Python inside the VENV to avoid execution errors
         base_cmd = [
-            "/app/venv/bin/python", "-m", "yt_dlp",
+            sys.executable, "-m", "yt_dlp",
             "-J",
             "--no-warnings",
             "--extractor-args", "youtube:client=ios,android,web",
@@ -56,9 +55,11 @@ class VideoScraper:
         ]
 
         try:
+            # 1. Try Direct first
             process = subprocess.Popen(base_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
             stdout, stderr = process.communicate(timeout=45)
 
+            # 2. Try WARP SOCKS5 if Direct fails
             if process.returncode != 0:
                 proxy_cmd = base_cmd[:3] + ["--proxy", "socks5h://127.0.0.1:40000"] + base_cmd[3:]
                 process = subprocess.Popen(proxy_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')

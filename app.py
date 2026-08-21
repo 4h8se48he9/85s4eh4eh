@@ -70,20 +70,22 @@ def proxy_media():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
         "Referer": referer,
         "Origin": referer.rstrip('/'),
-        "Accept-Encoding": "identity"
+        "Accept-Encoding": "identity" # Stops EOF 1-byte drops
     }
 
     range_header = request.headers.get("Range")
     if range_header: req_headers["Range"] = range_header
 
+    # Tunnel strict routing
+    proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"} if "googlevideo" in target else None
+
     try:
         try:
-            upstream = requests.get(target, headers=req_headers, stream=True, timeout=10)
+            upstream = requests.get(target, headers=req_headers, proxies=proxies, stream=True, timeout=15)
             upstream.raise_for_status()
-        except Exception as direct_err:
-            logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
-            active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
-            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
+        except Exception as e:
+            logging.warning(f"WARP Proxy failed, falling back to direct network: {e}")
+            upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
             upstream.raise_for_status()
 
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
@@ -116,7 +118,7 @@ def proxy_media():
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
 
     except Exception as e:
-        logging.error(f"Proxy failure for {target}: {e}")
+        logging.error(f"Proxy stream failure for {target}: {e}")
         return "Proxy stream failure", 502
 
 if __name__ == "__main__":
