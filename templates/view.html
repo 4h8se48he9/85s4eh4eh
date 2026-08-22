@@ -3,63 +3,76 @@
 {% block title %}Gateway | VexoStream{% endblock %}
 
 {% block content %}
-<div class="w-full flex-1 flex items-center justify-center p-6 min-h-[75vh] relative">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="w-full flex-1 flex items-center justify-center p-4 sm:p-6 min-h-[80vh] relative bg-[#fafafa] font-sans antialiased">
+    <!-- Fluent Background Gradient & Subtle Grid Accent -->
+    <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.6px,transparent_0.6px)] [background-size:24px_24px] opacity-[0.08] pointer-events-none"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] bg-gradient-to-tr from-sky-100/50 via-blue-50/40 to-slate-100/50 rounded-full blur-[100px] pointer-events-none"></div>
 
-    <div class="w-full max-w-xl glass-panel rounded-[2.5rem] p-10 shadow-2xl relative z-10 border border-zinc-800/80 backdrop-blur-xl">
+    <!-- Fluent Dialog / Panel Card -->
+    <div class="w-full max-w-lg bg-white rounded-2xl p-8 sm:p-10 shadow-fluent relative z-10 border border-black/[0.08]">
         
-        <div class="text-center mb-10">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 mb-6 shadow-lg">
-                <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+        <!-- Header Section -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#f0f6fc] border border-[#0067b8]/20 mb-4 text-[#0067b8] shadow-sm">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                </svg>
             </div>
-            <h2 class="text-4xl font-bold text-white tracking-tight mb-3">Target Terminal</h2>
-            <p class="text-zinc-400 text-sm font-medium leading-relaxed max-w-xs mx-auto">
-                Input a video URL from Pornhub, XNXX, or XVideos. The engine will locate the media chunks.
+            <h2 class="text-2xl sm:text-3xl font-bold text-[#1b1b1b] tracking-tight mb-2">Target Terminal</h2>
+            <p class="text-[#5e5e5e] text-xs sm:text-sm leading-relaxed max-w-sm mx-auto">
+                Input a video stream URL. The gateway engine will resolve manifest lines and proxy downstream chunks.
             </p>
         </div>
 
+        <!-- Error Notification Banner (Fluent Error Style) -->
         {% if error %}
-        <div class="bg-red-500/10 border border-red-500/20 text-red-400 px-5 py-4 rounded-xl mb-8 text-sm font-bold shadow-inner flex items-start gap-3 animate-pulse">
-            <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-xs font-semibold flex items-start gap-2.5 shadow-sm">
+            <svg class="w-4 h-4 shrink-0 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
             <span class="break-all">{{ error }}</span>
         </div>
         {% endif %}
 
-        <form action="/extract" method="POST" class="space-y-6" onsubmit="handleExtract(this)">
-            <div class="relative group">
-                <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
-                <div class="relative flex items-center bg-zinc-950 border border-zinc-800 rounded-2xl focus-within:border-zinc-600 focus-within:ring-1 focus-within:ring-zinc-600/50 transition-all shadow-inner">
-                    <div class="pl-5 pr-4 text-zinc-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+        <!-- Form Section -->
+        <form action="/extract" method="POST" class="space-y-4" onsubmit="handleExtract(this)">
+            <div class="relative">
+                <div class="flex items-center bg-neutral-50 hover:bg-neutral-100/80 focus-within:bg-white border border-black/15 focus-within:border-[#0067b8] focus-within:ring-2 focus-within:ring-[#0067b8]/20 rounded-lg transition-all shadow-sm">
+                    <div class="pl-3.5 pr-2 text-neutral-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                        </svg>
                     </div>
                     <input type="url" name="url" required placeholder="https://..." 
-                           class="w-full bg-transparent border-none py-5 pr-5 text-white placeholder-zinc-600 focus:outline-none text-lg font-medium tracking-wide">
+                           class="w-full bg-transparent border-none py-3.5 pr-4 text-sm text-[#1b1b1b] placeholder-neutral-400 focus:outline-none font-medium">
                 </div>
             </div>
 
             <button type="submit" id="submit-btn"
-                    class="group relative w-full bg-white text-black hover:bg-zinc-200 font-bold py-5 px-6 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98] overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                <span id="btn-text" class="relative z-10 flex items-center justify-center gap-2 uppercase tracking-wider text-sm">
+                    class="w-full bg-[#0067b8] hover:bg-[#005da6] text-white font-semibold py-3 px-5 rounded-md shadow-sm transition-all duration-150 active:scale-[0.99] flex items-center justify-center gap-2 text-sm">
+                <span id="btn-text" class="flex items-center gap-2">
                     Execute Extraction
-                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
                 </span>
-                <span id="btn-loading" class="hidden relative z-10 flex items-center justify-center gap-2 uppercase tracking-wider text-sm">
-                    <svg class="animate-spin h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <span id="btn-loading" class="hidden flex items-center gap-2">
+                    <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Processing...
+                    Processing Payload...
                 </span>
             </button>
         </form>
 
-        <div class="mt-10 pt-6 border-t border-zinc-800/50">
-            <p class="text-center text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-4">Supported Protocols</p>
-            <div class="flex justify-center gap-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-orange-500/50 hover:text-orange-500 transition-colors">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-                </div>
+        <!-- Footer / Supported Providers -->
+        <div class="mt-8 pt-5 border-t border-black/5 flex flex-col items-center">
+            <p class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-3">Supported Extraction Protocols</p>
+            <div class="flex items-center justify-center gap-3">
+                <span class="px-2.5 py-1 bg-neutral-100 rounded-md text-[11px] font-medium text-neutral-600 border border-black/5">Pornhub</span>
+                <span class="px-2.5 py-1 bg-neutral-100 rounded-md text-[11px] font-medium text-neutral-600 border border-black/5">XNXX</span>
+                <span class="px-2.5 py-1 bg-neutral-100 rounded-md text-[11px] font-medium text-neutral-600 border border-black/5">XVideos</span>
             </div>
         </div>
     </div>
