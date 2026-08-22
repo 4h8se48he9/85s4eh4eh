@@ -3,107 +3,105 @@
 {% block title %}Abilities | VexoStream{% endblock %}
 
 {% block content %}
-<!-- Microsoft Fluent Canvas Background -->
-<div class="relative min-h-screen w-full bg-[#f8f9fa] py-20 text-[#242424] antialiased overflow-hidden font-sans">
+<div class="relative min-h-screen w-full py-16 text-fluent-text antialiased overflow-hidden">
     
-    <!-- Subtle Fluent Background Mesh -->
-    <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.6px,transparent_0.6px)] [background-size:20px_20px] opacity-[0.12] pointer-events-none"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.65px,transparent_0.65px)] [background-size:20px_20px] opacity-[0.06] pointer-events-none"></div>
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <!-- Header / Hero Segment -->
-        <div class="text-center mb-16 space-y-4">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-black/10 shadow-[0_2px_6px_rgba(0,0,0,0.04)] text-xs font-semibold text-[#0067b8]">
+        <!-- Header -->
+        <div class="text-center mb-16 space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-black/[0.08] shadow-fluent-card text-xs font-semibold text-fluent-blue">
                 <span class="flex h-2 w-2 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0067b8] opacity-60"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-[#0067b8]"></span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-fluent-blue opacity-60"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-fluent-blue"></span>
                 </span>
                 Core Infrastructure
             </div>
             
-            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#1b1b1b]">
+            <h2 class="text-4xl sm:text-5xl font-bold tracking-tight text-fluent-text">
                 System Architecture
             </h2>
             
-            <p class="text-[#5e5e5e] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            <p class="text-fluent-subtext text-base max-w-2xl mx-auto leading-relaxed">
                 VexoStream operates as a high-performance edge proxy, bridging restricted CDNs and local networks through advanced evasion protocols.
             </p>
         </div>
 
-        <!-- Fluent Bento Grid -->
+        <!-- Fluent Bento Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 auto-rows-[minmax(180px,auto)]">
             
-            <!-- Feature 1: Zero-Config VPN (2x2 Hero Tile) -->
-            <div class="group relative col-span-1 md:col-span-2 row-span-2 p-8 rounded-2xl bg-white border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.09)] hover:border-[#0067b8]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-                <div class="absolute top-0 left-0 right-0 h-1 bg-[#0067b8] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <!-- Hero Tile (2x2) -->
+            <div class="group relative col-span-1 md:col-span-2 row-span-2 p-8 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-fluent-blue opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div>
-                    <div class="w-12 h-12 rounded-xl bg-[#f0f6fc] border border-[#0067b8]/20 flex items-center justify-center mb-6 text-[#0067b8] group-hover:scale-105 transition-transform">
+                    <div class="w-12 h-12 rounded-xl bg-fluent-blue-light border border-fluent-blue/20 flex items-center justify-center mb-6 text-fluent-blue group-hover:scale-105 transition-transform">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
                     </div>
-                    <span class="text-xs font-semibold text-[#0067b8] uppercase tracking-wider">Gateway Engine</span>
-                    <h3 class="text-2xl font-bold text-[#1b1b1b] mt-1 mb-3">Zero-Config VPN</h3>
-                    <p class="text-[#5e5e5e] text-sm leading-relaxed max-w-md">
-                        Backend handles all routing and proxy networking. Your device connects only to the gateway, completely sidestepping ISP-level blocks.
+                    <span class="text-xs font-semibold text-fluent-blue uppercase tracking-wider">Gateway Engine</span>
+                    <h3 class="text-2xl font-bold text-fluent-text mt-1 mb-3">Zero-Config VPN</h3>
+                    <p class="text-fluent-subtext text-sm leading-relaxed max-w-md">
+                        Backend handles all routing and proxy networking. Your client device connects strictly to the gateway, completely bypassing ISP-level domain filters.
                     </p>
                 </div>
-                <div class="pt-6 flex items-center text-xs font-semibold text-[#0067b8] group-hover:translate-x-1 transition-transform">
+                <div class="pt-6 flex items-center text-xs font-semibold text-fluent-blue group-hover:translate-x-1 transition-transform">
                     <span>Explore routing layer</span>
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </div>
             </div>
 
-            <!-- Feature 2: Multi-Provider Scraper -->
-            <div class="group relative col-span-1 md:col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.09)] hover:border-[#8661c5]/40 transition-all duration-300 flex flex-col justify-between">
+            <!-- Multi-Provider Scraper -->
+            <div class="group col-span-1 md:col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between">
                 <div>
                     <div class="w-10 h-10 rounded-lg bg-[#f8f5fc] border border-[#8661c5]/20 flex items-center justify-center mb-4 text-[#8661c5] group-hover:scale-105 transition-transform">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <h3 class="text-base font-bold text-[#1b1b1b] mb-1">Multi-Provider Scraper</h3>
-                    <p class="text-[#5e5e5e] text-xs leading-relaxed">Optimized parsers for Pornhub, XNXX, and XVideos to extract direct MP4 lines and HLS streams.</p>
+                    <h3 class="text-base font-bold text-fluent-text mb-1">Multi-Provider Scraper</h3>
+                    <p class="text-fluent-subtext text-xs leading-relaxed">Optimized parsers for Pornhub, XNXX, and XVideos to extract direct MP4 lines and HLS streams.</p>
                 </div>
             </div>
 
-            <!-- Feature 3: Adaptive HLS -->
-            <div class="group relative col-span-1 md:col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.09)] hover:border-[#e3008c]/40 transition-all duration-300 flex flex-col justify-between">
+            <!-- Adaptive HLS -->
+            <div class="group col-span-1 md:col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between">
                 <div>
                     <div class="w-10 h-10 rounded-lg bg-[#fdf2f8] border border-[#e3008c]/20 flex items-center justify-center mb-4 text-[#e3008c] group-hover:scale-105 transition-transform">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     </div>
-                    <h3 class="text-base font-bold text-[#1b1b1b] mb-1">Adaptive HLS</h3>
-                    <p class="text-[#5e5e5e] text-xs leading-relaxed">Extracts dynamic HLS manifests and rewrites chunk URIs on the fly with automatic resolution scaling.</p>
+                    <h3 class="text-base font-bold text-fluent-text mb-1">Adaptive HLS</h3>
+                    <p class="text-fluent-subtext text-xs leading-relaxed">Extracts dynamic HLS manifests and rewrites chunk URIs on the fly with automatic resolution scaling.</p>
                 </div>
             </div>
 
-            <!-- Feature 4: In-Memory Tunnel (Wide 2-col) -->
-            <div class="group relative col-span-1 md:col-span-2 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.09)] hover:border-[#107c41]/40 transition-all duration-300 flex items-center gap-5">
+            <!-- In-Memory Tunnel -->
+            <div class="group col-span-1 md:col-span-2 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex items-center gap-5">
                 <div class="w-12 h-12 shrink-0 rounded-xl bg-[#f1f9f4] border border-[#107c41]/20 flex items-center justify-center text-[#107c41] group-hover:scale-105 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-[#1b1b1b] mb-1">In-Memory Tunnel</h3>
-                    <p class="text-[#5e5e5e] text-xs sm:text-sm leading-relaxed">Streams pass directly via byte-range requests. Data hits your browser without ever touching the server's disk storage.</p>
+                    <h3 class="text-base font-bold text-fluent-text mb-1">In-Memory Tunnel</h3>
+                    <p class="text-fluent-subtext text-xs sm:text-sm leading-relaxed">Streams pass directly via byte-range requests. Data hits your browser without touching disk storage.</p>
                 </div>
             </div>
 
-            <!-- Feature 5: WAF Bypass -->
-            <div class="group relative col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.09)] hover:border-[#0078d4]/40 transition-all duration-300 flex flex-col justify-between">
+            <!-- WAF Bypass -->
+            <div class="group col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between">
                 <div>
                     <div class="w-10 h-10 rounded-lg bg-[#eff6fc] border border-[#0078d4]/20 flex items-center justify-center mb-4 text-[#0078d4] group-hover:scale-105 transition-transform">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
                     </div>
-                    <h3 class="text-base font-bold text-[#1b1b1b] mb-1">WAF Bypass</h3>
-                    <p class="text-[#5e5e5e] text-xs leading-relaxed">Dynamically injects precise Origin and Referer headers to bypass strict hotlink protections.</p>
+                    <h3 class="text-base font-bold text-fluent-text mb-1">WAF Bypass</h3>
+                    <p class="text-fluent-subtext text-xs leading-relaxed">Dynamically injects verified Origin and Referer headers to evade strict hotlink protection blocks.</p>
                 </div>
             </div>
 
-            <!-- Feature 6: Cloud Native -->
-            <div class="group relative col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.09)] hover:border-[#d83b01]/40 transition-all duration-300 flex flex-col justify-between">
+            <!-- Cloud Native -->
+            <div class="group col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between">
                 <div>
                     <div class="w-10 h-10 rounded-lg bg-[#fdf3ef] border border-[#d83b01]/20 flex items-center justify-center mb-4 text-[#d83b01] group-hover:scale-105 transition-transform">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
-                    <h3 class="text-base font-bold text-[#1b1b1b] mb-1">Cloud Native</h3>
-                    <p class="text-[#5e5e5e] text-xs leading-relaxed">Stateless WSGI application optimized for Railway Nixpacks to ensure maximum upstream bandwidth utilization.</p>
+                    <h3 class="text-base font-bold text-fluent-text mb-1">Cloud Native</h3>
+                    <p class="text-fluent-subtext text-xs leading-relaxed">Stateless WSGI app optimized for Railway Nixpacks to ensure maximum upstream bandwidth utilization.</p>
                 </div>
             </div>
 

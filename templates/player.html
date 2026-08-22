@@ -5,9 +5,8 @@
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
-    /* Microsoft Media Player Custom Styling */
     video::-webkit-media-controls-panel { 
-        background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.4) 60%, transparent) !important; 
+        background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.3) 60%, transparent) !important; 
     }
     
     .quality-btn {
@@ -15,7 +14,7 @@
     }
     .quality-btn.active { 
         border-color: #0067b8 !important; 
-        background: #f0f6fc !important; 
+        background: #eff6fc !important; 
         color: #0067b8 !important; 
         font-weight: 600;
     }
@@ -27,7 +26,7 @@
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: #5e5e5e;
+        color: #605e5c;
         font-weight: 700;
         margin-bottom: 8px;
         display: flex;
@@ -38,23 +37,23 @@
         content: '';
         flex: 1;
         height: 1px;
-        background: rgba(0, 0, 0, 0.08);
+        background: rgba(0, 0, 0, 0.06);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-[1700px] mx-auto w-full p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 relative font-sans text-[#1b1b1b]">
+<div class="max-w-[1700px] mx-auto w-full p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 relative text-fluent-text">
 
-    <!-- Main Media Stream Section -->
+    <!-- Player Main Area -->
     <div class="xl:col-span-9 flex flex-col gap-6">
         
-        <!-- Fluent Video Stage -->
-        <div id="player-container" class="bg-black rounded-2xl overflow-hidden shadow-fluent border border-black/10 relative aspect-video group flex items-center justify-center cursor-pointer transition-all duration-300">
+        <!-- Video Container -->
+        <div id="player-container" class="bg-black rounded-2xl overflow-hidden shadow-fluent-card border border-black/10 relative aspect-video group flex items-center justify-center cursor-pointer transition-all duration-300">
             
-            <!-- Play Overlay (Initial State) -->
+            <!-- Play Overlay -->
             <div id="play-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm z-10 transition-opacity duration-300">
-                <div class="w-16 h-16 rounded-full bg-white text-[#0067b8] shadow-lg flex items-center justify-center mb-3 hover:scale-105 transition-transform duration-200 cursor-pointer" onclick="handleInitialPlay()">
+                <div class="w-16 h-16 rounded-full bg-white text-fluent-blue shadow-fluent-elevated flex items-center justify-center mb-3 hover:scale-105 transition-transform duration-200 cursor-pointer" onclick="handleInitialPlay()">
                     <svg class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </div>
                 <span class="text-white text-xs font-semibold tracking-wide">Initialize Stream</span>
@@ -62,27 +61,25 @@
 
             <video id="main-player" controls controlsList="nodownload" disablePictureInPicture oncontextmenu="return false;" poster="{{ data.thumbnail }}" preload="metadata" playsinline class="w-full h-full object-contain outline-none bg-black relative z-0"></video>
             
-            <!-- Fullscreen Action Button -->
             <button onclick="toggleFullscreen()" class="absolute bottom-4 right-4 z-20 p-2.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/20 text-white hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100 hidden md:block" aria-label="Toggle Fullscreen">
                 <svg id="fs-icon-enter" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                 <svg id="fs-icon-exit" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5"></path></svg>
             </button>
         </div>
 
-        <!-- Metadata & Status Card -->
-        <div class="bg-white rounded-2xl p-6 sm:p-8 border border-black/[0.08] shadow-fluent flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
-            <div class="absolute top-0 left-0 bottom-0 w-1 bg-[#0067b8]"></div>
+        <!-- Metadata Card -->
+        <div class="bg-white rounded-2xl p-6 sm:p-8 border border-black/[0.08] shadow-fluent-card flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+            <div class="absolute top-0 left-0 bottom-0 w-1 bg-fluent-blue"></div>
             
             <div class="flex-1 pl-2">
-                <h1 class="text-xl sm:text-2xl font-bold tracking-tight mb-3 text-[#1b1b1b] leading-snug">{{ data.title }}</h1>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight mb-3 text-fluent-text leading-snug">{{ data.title }}</h1>
                 
                 <div class="flex flex-wrap items-center gap-2.5">
-                    <span class="px-2.5 py-1 bg-[#f0f6fc] border border-[#0067b8]/20 rounded-md text-xs font-semibold text-[#0067b8] flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-[#0067b8]"></span>
+                    <span class="px-2.5 py-1 bg-fluent-blue-light border border-fluent-blue/20 rounded-md text-xs font-semibold text-fluent-blue flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-fluent-blue"></span>
                         Secure Edge Proxy
                     </span>
                     
-                    <!-- Dynamic Platform Tag -->
                     {% if 'pornhub' in data.url %}
                     <span class="px-2.5 py-1 bg-amber-50 border border-amber-500/20 rounded-md text-xs font-semibold text-amber-700 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -100,20 +97,19 @@
                     </span>
                     {% endif %}
 
-                    <span class="px-2.5 py-1 bg-neutral-100 border border-black/5 rounded-md text-xs font-medium text-neutral-600">
-                        Tokenized Payload
+                    <span class="px-2.5 py-1 bg-black/[0.03] border border-black/5 rounded-md text-xs font-medium text-fluent-subtext">
+                        Tokenized Gateway Payload
                     </span>
                 </div>
             </div>
             
-            <!-- Quick Diagnostics -->
             <div class="hidden md:flex items-center gap-8 pl-4 border-l border-black/5 text-right">
                 <div>
-                    <div class="text-[11px] text-[#5e5e5e] font-semibold uppercase tracking-wider mb-0.5">Source</div>
-                    <div class="text-sm text-[#1b1b1b] font-bold">{{ data.source|upper if data.source else 'UNKNOWN' }}</div>
+                    <div class="text-[11px] text-fluent-subtext font-semibold uppercase tracking-wider mb-0.5">Source</div>
+                    <div class="text-sm text-fluent-text font-bold">{{ data.source|upper if data.source else 'UNKNOWN' }}</div>
                 </div>
                 <div>
-                    <div class="text-[11px] text-[#5e5e5e] font-semibold uppercase tracking-wider mb-0.5">Gateway</div>
+                    <div class="text-[11px] text-fluent-subtext font-semibold uppercase tracking-wider mb-0.5">Gateway</div>
                     <div class="text-sm text-emerald-600 font-bold flex items-center gap-1.5 justify-end">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                         Online
@@ -123,39 +119,37 @@
         </div>
     </div>
 
-    <!-- Fluent Sidebar Controls -->
+    <!-- Sidebar Stream Selector -->
     <div class="xl:col-span-3">
-        <div class="bg-white rounded-2xl p-6 sticky top-24 border border-black/[0.08] shadow-fluent max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <div class="bg-white rounded-2xl p-6 sticky top-24 border border-black/[0.08] shadow-fluent-card max-h-[calc(100vh-8rem)] overflow-y-auto">
             
             <div class="flex flex-col gap-6">
                 
-                <!-- Adaptive HLS Selection -->
                 {% if data.streams.qualities %}
                     <div>
                         <h3 class="section-header">Adaptive Streams (HLS)</h3>
                         <div class="flex flex-col gap-1.5">
                             {% for q in data.streams.qualities %}
                             <button onclick="loadQuality('{{ q.url }}', this)" 
-                                    class="quality-btn w-full py-2.5 px-3.5 bg-neutral-50 hover:bg-neutral-100 border border-black/[0.06] rounded-lg text-xs font-medium transition-all flex justify-between items-center text-neutral-700">
+                                    class="quality-btn w-full py-2.5 px-3.5 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-xs font-medium transition-all flex justify-between items-center text-fluent-text">
                                 <span class="flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-[#0067b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <svg class="w-4 h-4 text-fluent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     {{ q.quality }}
                                 </span>
-                                <svg class="check-icon w-4 h-4 text-[#0067b8] opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <svg class="check-icon w-4 h-4 text-fluent-blue opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             </button>
                             {% endfor %}
                         </div>
                     </div>
                 {% endif %}
 
-                <!-- Direct MP4 -->
                 {% if data.streams.direct_mp4 %}
                     <div>
                         <h3 class="section-header">Direct Progressive (MP4)</h3>
                         <div class="flex flex-col gap-1.5">
                             {% for label, url in data.streams.direct_mp4.items() %}
                             <button onclick="loadQuality('{{ url }}', this)" 
-                                    class="quality-btn w-full py-2.5 px-3.5 bg-neutral-50 hover:bg-neutral-100 border border-black/[0.06] rounded-lg text-xs font-medium transition-all flex justify-between items-center text-neutral-700">
+                                    class="quality-btn w-full py-2.5 px-3.5 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-xs font-medium transition-all flex justify-between items-center text-fluent-text">
                                 <span class="flex items-center gap-2">
                                     <svg class="w-4 h-4 text-[#0078d4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     {{ label }}
@@ -167,32 +161,30 @@
                     </div>
                 {% endif %}
 
-                <!-- Video-Only Tracks -->
                 {% if data.streams.video_only %}
                     <div>
-                        <h3 class="section-header">Video Streams</h3>
+                        <h3 class="section-header">Video Feeds</h3>
                         <div class="flex flex-col gap-1.5">
                             {% for label, url in data.streams.video_only.items() %}
                             <button onclick="loadQuality('{{ url }}', this)" 
-                                    class="quality-btn w-full py-2 px-3 bg-neutral-50 hover:bg-neutral-100 border border-black/[0.06] rounded-lg text-[11px] font-medium transition-all flex justify-between items-center text-neutral-600">
+                                    class="quality-btn w-full py-2 px-3 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-[11px] font-medium transition-all flex justify-between items-center text-fluent-subtext">
                                 <span class="truncate pr-2">{{ label }}</span>
-                                <svg class="check-icon w-3.5 h-3.5 text-neutral-600 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <svg class="check-icon w-3.5 h-3.5 text-fluent-subtext opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             </button>
                             {% endfor %}
                         </div>
                     </div>
                 {% endif %}
 
-                <!-- Audio Only -->
                 {% if data.streams.audio_only %}
                     <div>
                         <h3 class="section-header">Audio Feeds</h3>
                         <div class="flex flex-col gap-1.5">
                             {% for label, url in data.streams.audio_only.items() %}
                             <button onclick="loadQuality('{{ url }}', this)" 
-                                    class="quality-btn w-full py-2 px-3 bg-neutral-50 hover:bg-neutral-100 border border-black/[0.06] rounded-lg text-[11px] font-medium transition-all flex justify-between items-center text-neutral-600">
+                                    class="quality-btn w-full py-2 px-3 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-[11px] font-medium transition-all flex justify-between items-center text-fluent-subtext">
                                 <span class="truncate pr-2">{{ label }}</span>
-                                <svg class="check-icon w-3.5 h-3.5 text-neutral-600 opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <svg class="check-icon w-3.5 h-3.5 text-fluent-subtext opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             </button>
                             {% endfor %}
                         </div>
@@ -201,9 +193,8 @@
 
             </div>
 
-            <!-- Bottom Reset Action -->
             <div class="mt-8 pt-4 border-t border-black/5">
-                <a href="/view" class="w-full text-center block bg-neutral-100 hover:bg-neutral-200 text-[#1b1b1b] font-semibold py-2.5 rounded-md transition-colors text-xs border border-black/5">
+                <a href="/view" class="w-full text-center block bg-black/[0.04] hover:bg-black/[0.08] text-fluent-text font-semibold py-2.5 rounded-md transition-colors text-xs">
                     Process New Media URL
                 </a>
             </div>
@@ -222,10 +213,8 @@
     let isUserInitiated = false;
     let currentUrl = "";
 
-    // Context menu prevention
     video.addEventListener('contextmenu', e => e.preventDefault());
 
-    // Fullscreen Controls
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
             if (playerContainer.requestFullscreen) {
@@ -261,7 +250,6 @@
         }
     }
 
-    // Playback Initialization
     function handleInitialPlay() {
         if (overlay) overlay.style.display = 'none';
         isUserInitiated = true;
