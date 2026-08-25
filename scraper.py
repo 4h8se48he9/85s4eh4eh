@@ -123,7 +123,7 @@ class VideoScraper:
         page = resp.text
         tree = html.fromstring(resp.content)
         
-        # 1. Extract Title
+        # Extract Title
         title_raw = tree.xpath('//meta[@property="og:title"]/@content')
         title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
         if title == "Unknown Title":
@@ -131,7 +131,7 @@ class VideoScraper:
             if title_tag:
                 title = title_tag[0].split('|')[0].split('-')[0].strip()
 
-        # 2. Extract Thumbnail
+        # Extract Thumbnail
         thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
         thumbnail = thumb_raw[0] if thumb_raw else ""
         if not thumbnail:
@@ -142,62 +142,71 @@ class VideoScraper:
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
         sources = []
         
-        # Method A: Look for <source> elements in the HTML natively used by Fluid Player
-        for src in tree.xpath('//source/@src'):
-            sources.append(src)
+        # 1. Primary Method: Parse Fluid Player <source> tags which contain the 'title' (quality)
+        for source in tree.xpath('//source'):
+            src = source.get('src')
+            if src:
+                # 3movs stores the quality in 'title' or 'label'
+                qual_hint = source.get('title') or source.get('label') or source.get('res')
+                sources.append({'url': src.replace('\\/', '/'), 'qual': qual_hint})
             
-        # Method B: Parse configuration dictionaries / FlashVars using Regex
-        for match in re.finditer(r'(?:video_url|video_alt_url\d*|src|file)\s*[:=]\s*["\'](https?://[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
-            sources.append(match.group(1).replace('\\/', '/'))
-            
-        # Method C: Aggressive fallback catching raw URLs pointing to media files in the page source
+        # 2. Fallback Method: Raw Regex for JS configurations
         for match in re.finditer(r'["\'](https?://[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
-            sources.append(match.group(1).replace('\\/', '/'))
+            sources.append({'url': match.group(1).replace('\\/', '/'), 'qual': None})
 
         seen_q = set()
         seen_urls = set()
         
-        for src in sources:
+        for item in sources:
+            src = item['url']
             if not src or src in seen_urls: continue
             
-            # Filter out ads, thumbnails, preview chunks, and sprite sheets
+            # Filter out ads, previews, and banners
             if any(x in src.lower() for x in ['ad.', 'ads.', 'banner', 'sprite', 'thumb', 'preview', 'timeline']): 
                 continue
                 
             seen_urls.add(src)
             
-            # Sort as HLS/M3U8
+            # Parse HLS streams dynamically
             if '.m3u8' in src:
                 for pq in self.parse_hls_qualities(src):
                     if pq["quality"] not in seen_q:
                         seen_q.add(pq["quality"])
                         stream_data["qualities"].append(pq)
                         
-            # Sort as MP4
+            # Parse MP4 streams
             elif '.mp4' in src:
                 qual = "auto"
-                q_match = re.search(r'(\d{3,4})p', src, re.I)
                 
-                if q_match:
-                    qual = f"{q_match.group(1)}p"
-                else:
-                    q_match2 = re.search(r'_(high|low|medium|hq|lq)_', src, re.I)
-                    if q_match2:
-                        qual = q_match2.group(1).capitalize()
+                # Check explicit HTML tag first
+                if item['qual']:
+                    qual = item['qual'].lower().replace('hd', '').strip()
+                    if qual.isdigit(): qual += "p"
                 
-                # Assign to MP4 streams if it hasn't been added yet
+                # Smart Regex fallback if no HTML attribute exists
+                if qual == "auto":
+                    q_match = re.search(r'(?:[-_/]|(?<=[a-zA-Z]))(\d{3,4})[pP]?(?:[-_./]|\.mp4)', src)
+                    if q_match:
+                        qual = f"{q_match.group(1)}p"
+                    else:
+                        q_match2 = re.search(r'_(high|low|medium|hq|lq)_', src, re.I)
+                        if q_match2:
+                            qual = q_match2.group(1).capitalize()
+                
+                # Final formatting
+                if qual.isdigit(): qual += "p"
+                
+                # Prevent auto from overwriting actual qualities
                 if qual != "auto" or "auto" not in stream_data["direct_mp4"]:
                     stream_data["direct_mp4"][qual] = src
 
         return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "streams": stream_data, "url": url}
 
     def extract(self, url):
-        # Optional: Normalize shortened tags to XNXX URLs
         m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
         if m: 
             url = f"https://www.xnxx.com/video-{m.group(1)}/x"
 
-        # Routing Logic
         if 'pornhub' in url:
             return self._scrape_pornhub(url)
         elif 'xnxx' in url or 'xvideos' in url:
