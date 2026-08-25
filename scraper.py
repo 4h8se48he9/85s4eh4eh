@@ -15,6 +15,23 @@ class VideoScraper:
             'Accept-Language': 'en-US,en;q=0.9',
             'Referer': 'https://www.google.com/'
         }
+        # Use WARP proxy to bypass Cloudflare/IP bans during scraping
+        self.proxies = {
+            "http": "socks5h://127.0.0.1:40000",
+            "https": "socks5h://127.0.0.1:40000"
+        }
+
+    def _fetch_page(self, url):
+        """Fetches a page directly first, and falls back to WARP proxy if it times out or blocks."""
+        try:
+            resp = requests.get(url, headers=self.headers, timeout=8)
+            if resp.status_code == 200:
+                return resp
+        except Exception:
+            pass # Drop to proxy on timeout
+            
+        # Fallback to WARP Tunnel
+        return requests.get(url, headers=self.headers, proxies=self.proxies, timeout=20)
 
     def title_case(self, text):
         return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
@@ -22,7 +39,7 @@ class VideoScraper:
     def parse_hls_qualities(self, master_m3u8_url):
         qualities = []
         try:
-            resp = requests.get(master_m3u8_url, headers=self.headers, timeout=15)
+            resp = self._fetch_page(master_m3u8_url)
             if resp.status_code != 200: return qualities
             lines = resp.text.splitlines()
             base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
@@ -50,7 +67,7 @@ class VideoScraper:
         thumbs = set()
 
         try:
-            resp = requests.get(geo_url, headers=self.headers, timeout=15)
+            resp = self._fetch_page(geo_url)
             if resp.status_code == 200:
                 fv_match = re.search(r'flashvars(?:_\d+)?\s*=\s*(\{.*?\});', resp.text, re.DOTALL)
                 if fv_match:
@@ -59,7 +76,6 @@ class VideoScraper:
                     title = data.get('video_title') or title
                     poster = data.get('image_url') or data.get('thumb_url') or poster
                     
-                    # Extract all thumbnails from flashvars
                     if poster and poster.startswith('http'): thumbs.add(poster)
                     for k, v in data.items():
                         if isinstance(v, str) and v.startswith('http') and any(ext in v.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
@@ -104,7 +120,7 @@ class VideoScraper:
 
     def _scrape_xnxx_xvideos(self, url):
         try:
-            resp = requests.get(url, headers=self.headers, timeout=15)
+            resp = self._fetch_page(url)
             if resp.status_code != 200: return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
         except Exception as e: return {"status": "error", "error": str(e), "url": url}
 
@@ -117,7 +133,6 @@ class VideoScraper:
 
         thumbs = set()
         if thumbnail and thumbnail.startswith('http'): thumbs.add(thumbnail)
-        # Extract multiple thumb sizes from JS configs
         for m in re.finditer(r'setThumbUrl(?:169|Slide|)?\(\s*[\'"](https?://[^\'"]+)[\'"]\s*\)', page):
             thumbs.add(m.group(1))
 
@@ -134,7 +149,7 @@ class VideoScraper:
 
     def _scrape_3movs(self, url):
         try:
-            resp = requests.get(url, headers=self.headers, timeout=15)
+            resp = self._fetch_page(url)
             if resp.status_code != 200: 
                 return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
         except Exception as e: 
@@ -151,42 +166,54 @@ class VideoScraper:
             if title_tag:
                 title = title_tag[0].split('|')[0].split('-')[0].strip()
 
-        # Extract Thumbnails
+        # Extract Multiple Thumbnails Safely
         thumbs = set()
-        thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
-        thumbnail = thumb_raw[0] if thumb_raw else ""
         
-        # Scrape all image tags across page
-        for m in re.finditer(r'(?:poster|image|thumb|url)\s*[:=]\s*["\']([^"\']+\.(?:jpg|jpeg|png|webp)[^"\']*)["\']', page, re.I):
-            t_url = m.group(1).replace('\\/', '/')
-            if t_url.startswith('//'): t_url = "https:" + t_url
-            elif t_url.startswith('/'): t_url = urljoin(url, t_url)
-            if t_url.startswith('http'): thumbs.add(t_url)
+        # Method 1: OG Image
+        thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
+        if thumb_raw: thumbs.add(thumb_raw[0])
             
-        for meta in tree.xpath('//meta[contains(@property, "image") or contains(@name, "image")]/@content'):
-            if meta.startswith('//'): meta = "https:" + meta
-            elif meta.startswith('/'): meta = urljoin(url, meta)
-            if meta.startswith('http'): thumbs.add(meta)
+        # Method 2: Fluid Player Config Poster
+        for m in re.finditer(r'posterImage\s*:\s*["\']([^"\']+)["\']', page, re.I):
+            thumbs.add(m.group(1))
+            
+        # Method 3: Generic Image Tags Search
+        for m in re.finditer(r'(?:poster|image|thumb|url)\s*[:=]\s*["\']([^"\']+\.(?:jpg|jpeg|png|webp)[^"\']*)["\']', page, re.I):
+            thumbs.add(m.group(1))
 
-        if thumbnail:
-            if thumbnail.startswith('//'): thumbnail = "https:" + thumbnail
-            thumbs.add(thumbnail)
-        elif thumbs:
-            thumbnail = list(thumbs)[0]
+        # Format and filter dirty thumbnails
+        clean_thumbs = []
+        for t in thumbs:
+            t = t.replace('\\/', '/').strip()
+            if t.startswith('//'): t = "https:" + t
+            elif t.startswith('/'): t = urljoin(url, t)
+            
+            # Avoid picking up UI elements like favicons or blank placeholder images
+            if t.startswith('http') and not any(x in t.lower() for x in ['favicon', 'logo', 'icon', 'banner', 'avatar', 'blank']):
+                clean_thumbs.append(t)
+
+        # Main thumbnail fallback assignment
+        thumbnail = ""
+        if thumb_raw and thumb_raw[0] in clean_thumbs:
+            thumbnail = thumb_raw[0]
+        elif clean_thumbs:
+            thumbnail = clean_thumbs[0]
 
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
         sources = []
         
-        # Source collection
+        # Parse `<source>`
         for source in tree.xpath('//source'):
             src = source.get('src')
             if src:
                 qual_hint = source.get('title') or source.get('label') or source.get('res')
                 sources.append({'url': src, 'qual': qual_hint})
-                
+
+        # Regex JS Variables for MP4s/M3U8s
         for match in re.finditer(r'(?:video_url|video_alt_url\d*|src|file)\s*[:=]\s*["\']([^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
             sources.append({'url': match.group(1), 'qual': None})
-
+            
+        # Regex generic URLs
         for match in re.finditer(r'["\']((?:https?:)?//[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
             sources.append({'url': match.group(1), 'qual': None})
 
@@ -228,13 +255,17 @@ class VideoScraper:
                 
                 mp4_candidates.append((res, src))
 
-        # Explicitly force High Quality and Low Quality naming for 3movs MP4s
+        # Force High Quality and Low Quality assignment
         if mp4_candidates:
-            mp4_candidates.sort(key=lambda x: x[0], reverse=True) # Sort highest resolution first
-            stream_data["direct_mp4"]["High Quality"] = mp4_candidates[0][1] # Best available
-            stream_data["direct_mp4"]["Low Quality"] = mp4_candidates[-1][1] # Worst available
+            mp4_candidates.sort(key=lambda x: x[0], reverse=True) 
+            stream_data["direct_mp4"]["High Quality"] = mp4_candidates[0][1] 
+            if len(mp4_candidates) > 1:
+                stream_data["direct_mp4"]["Low Quality"] = mp4_candidates[-1][1] 
+            elif len(mp4_candidates) == 1:
+                # If only 1 resolution was found, mark it as High Quality and skip Low Quality
+                pass 
 
-        return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "thumbnails": list(thumbs), "streams": stream_data, "url": url}
+        return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "thumbnails": clean_thumbs, "streams": stream_data, "url": url}
 
     def extract(self, url):
         m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
