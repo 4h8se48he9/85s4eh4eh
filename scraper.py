@@ -181,12 +181,14 @@ class VideoScraper:
                 # Check explicit HTML tag first
                 if item['qual']:
                     q_text = item['qual'].strip().lower()
+                    res_match = re.search(r'(\d{3,4})', q_text)
+                    
                     if 'high' in q_text:
                         qual = 'High'
                     elif 'low' in q_text:
                         qual = 'Low'
-                    elif re.search(r'(\d{3,4})', q_text):
-                        qual = f"{re.search(r'(\d{3,4})', q_text).group(1)}p"
+                    elif res_match:
+                        qual = f"{res_match.group(1)}p"
                     else:
                         qual = item['qual'].strip().title()
                 
