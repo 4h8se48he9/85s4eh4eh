@@ -1,6 +1,7 @@
 import os
 import logging
 import re
+import hashlib
 from urllib.parse import urlparse, urljoin, quote
 from flask import Flask, request, render_template, Response
 import requests
@@ -13,13 +14,24 @@ app.secret_key = os.urandom(24)
 
 scraper = VideoScraper()
 
+# In-memory cryptographic hash mapping store for secure routing
+URL_HASH_STORE = {}
+
+def generate_video_hash(target_url):
+    """Generates a secure 16-character SHA-256 hash for masking source media URLs."""
+    h = hashlib.sha256(target_url.encode('utf-8')).hexdigest()[:16]
+    URL_HASH_STORE[h] = target_url
+    return h
+
 def rewrite_playlist(playlist, base_url, provider):
     def build_proxy_uri(raw_uri):
         clean_uri = raw_uri.strip().strip("'\"")
         if clean_uri.startswith("data:"):
             return clean_uri
         resolved = urljoin(base_url, clean_uri)
-        return f"/proxy?url={quote(resolved, safe='')}&provider={provider}"
+        # Map through hashed video routing instead of exposing parameters directly
+        h_key = generate_video_hash(resolved)
+        return f"/video?{h_key}&provider={provider}"
 
     out_lines = []
     for line in playlist.splitlines():
@@ -58,19 +70,47 @@ def extract():
     if not data or data.get("status") == "error":
         return render_template("view.html", error=data.get("error", "Extraction failed."))
 
+    # Hash and obscure all direct/HLS streams to match /video?[hashed url] routing format
+    provider = data.get("provider", "ph")
+    
+    if "qualities" in data["streams"]:
+        for q in data["streams"]["qualities"]:
+            raw_u = q["url"]
+            h_key = generate_video_hash(raw_u)
+            q["url"] = f"/video?{h_key}&provider={provider}"
+
+    if "direct_mp4" in data["streams"]:
+        hashed_mp4 = {}
+        for label, raw_u in data["streams"]["direct_mp4"].items():
+            h_key = generate_video_hash(raw_u)
+            hashed_mp4[label] = f"/video?{h_key}&provider={provider}"
+        data["streams"]["direct_mp4"] = hashed_mp4
+
     return render_template("player.html", data=data)
 
-@app.route("/proxy")
-def proxy_media():
-    target = request.args.get("url")
+@app.route("/video", methods=["GET"])
+def serve_hashed_video():
+    # Anti-YT-DLP & Automation Tool Blocking
+    ua = request.headers.get("User-Agent", "").lower()
+    blocked_clients = ["yt-dlp", "python-requests", "wget", "curl", "aria2", "ffmpeg", "libwww-perl"]
+    if any(client in ua for client in blocked_clients):
+        return "Access denied: automated extraction tools are strictly restricted.", 403
+
+    # Extract hash identifier from query string parameters
+    query_string = request.args.get("url") # Fallback lookups
+    if not query_string:
+        # Get raw query string key (e.g. /video?abcdef1234567890 -> abcdef1234567890)
+        query_string = request.query_string.decode('utf-8').split('&')[0]
+
+    target = URL_HASH_STORE.get(query_string)
+    if not target:
+        return "Invalid or expired session hash link.", 404
+
     provider = request.args.get("provider", "")
     
-    # STRICT BLOCK: Completely prevent downloads or binary file exfiltration through the proxy
+    # Strict block on direct full-file binary exfiltration via download flags
     if request.args.get("dl") == "1":
         return "Direct content downloads are restricted by security policy.", 403
-
-    if not target:
-        return "Missing URL", 400
 
     parsed_url = urlparse(target)
     netloc = parsed_url.netloc.lower()
@@ -135,7 +175,7 @@ def proxy_media():
 
         def generate():
             try:
-                for chunk in upstream.iter_content(chunk_size=1048576):
+                for chunk in upstream.iter_content(chunk_size=524880): # Obfuscated chunk chunking size
                     if chunk:
                         yield chunk
             except Exception as stream_err:
@@ -144,7 +184,7 @@ def proxy_media():
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=False)
 
     except Exception as e:
-        logging.error(f"Proxy failure for {target}: {e}")
+        logging.error(f"Proxy failure for target mapping: {e}")
         return f"Proxy stream failure: {str(e)}", 502
 
 if __name__ == "__main__":

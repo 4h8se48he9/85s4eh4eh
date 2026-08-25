@@ -1345,6 +1345,42 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
       6aa90af146142f12781584a66c3f29155fbd391d 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667797 +0330	commit: UI overhaul and new routing
       3dfc52c0f46aa39077a04f24da8f181cf23f3095 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787667797 +0330	Branch: renamed refs/heads/main to refs/heads/main
       3dfc52c0f46aa39077a04f24da8f181cf23f3095 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667797 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3dfc52c0f46aa39077a04f24da8f181cf23f3095 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697535 +0330	commit: UI overhaul and new routing
+      862b4dd34a7b29f13d7082d83c4a336c5b474503 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787697535 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      862b4dd34a7b29f13d7082d83c4a336c5b474503 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697535 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      862b4dd34a7b29f13d7082d83c4a336c5b474503 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698320 +0330	commit: UI overhaul and new routing
+      5cae00321e4287227c0d432e5630f6dc353deb0e 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787698320 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      5cae00321e4287227c0d432e5630f6dc353deb0e 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698320 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      5cae00321e4287227c0d432e5630f6dc353deb0e 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698761 +0330	commit: UI overhaul and new routing
+      576160ec1953aa228299748671177cf0ff0ade1f 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787698761 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      576160ec1953aa228299748671177cf0ff0ade1f 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698761 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      576160ec1953aa228299748671177cf0ff0ade1f 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699198 +0330	commit: UI overhaul and new routing
+      087fb2aa782673091bebbb655dea7a0880760742 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787699198 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      087fb2aa782673091bebbb655dea7a0880760742 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699198 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      087fb2aa782673091bebbb655dea7a0880760742 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699589 +0330	commit: UI overhaul and new routing
+      653512de169290cc1166924c3130775f8586dc4c 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787699589 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      653512de169290cc1166924c3130775f8586dc4c 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699589 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      653512de169290cc1166924c3130775f8586dc4c fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699904 +0330	commit: UI overhaul and new routing
+      fb1b4b54c73c733124b2b869f6d0def88ecad9d4 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787699904 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      fb1b4b54c73c733124b2b869f6d0def88ecad9d4 fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699904 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      fb1b4b54c73c733124b2b869f6d0def88ecad9d4 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700194 +0330	commit: UI overhaul and new routing
+      1161e141ccdc2a80eb2236170af16f32752ba6a0 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787700194 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      1161e141ccdc2a80eb2236170af16f32752ba6a0 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700194 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      1161e141ccdc2a80eb2236170af16f32752ba6a0 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700428 +0330	commit: UI overhaul and new routing
+      4813a14bd7837188019799d0bb30de9500147685 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787700428 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      4813a14bd7837188019799d0bb30de9500147685 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700428 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      4813a14bd7837188019799d0bb30de9500147685 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700685 +0330	commit: UI overhaul and new routing
+      269cc86bdc763cf4df6f9344efac747183f9db19 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787700685 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      269cc86bdc763cf4df6f9344efac747183f9db19 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700685 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      269cc86bdc763cf4df6f9344efac747183f9db19 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700917 +0330	commit: UI overhaul and new routing
+      a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787700917 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700917 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701361 +0330	commit: UI overhaul and new routing
+      f509b63f6b406e8af914cb33da6fbecbf6fe17f9 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787701361 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      f509b63f6b406e8af914cb33da6fbecbf6fe17f9 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701361 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      f509b63f6b406e8af914cb33da6fbecbf6fe17f9 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701605 +0330	commit: UI overhaul and new routing
+      b93d76805652ff39ea3799ece7f178e5eecfabf3 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787701605 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      b93d76805652ff39ea3799ece7f178e5eecfabf3 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701605 +0330	Branch: renamed refs/heads/main to refs/heads/main
 
 
 
@@ -1496,6 +1532,30 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
           6aa90af146142f12781584a66c3f29155fbd391d 6aa90af146142f12781584a66c3f29155fbd391d muvixo <godarshia20@gmail.com> 1787667484 +0330	Branch: renamed refs/heads/main to refs/heads/main
           6aa90af146142f12781584a66c3f29155fbd391d 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667797 +0330	commit: UI overhaul and new routing
           3dfc52c0f46aa39077a04f24da8f181cf23f3095 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667797 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          3dfc52c0f46aa39077a04f24da8f181cf23f3095 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697535 +0330	commit: UI overhaul and new routing
+          862b4dd34a7b29f13d7082d83c4a336c5b474503 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697535 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          862b4dd34a7b29f13d7082d83c4a336c5b474503 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698320 +0330	commit: UI overhaul and new routing
+          5cae00321e4287227c0d432e5630f6dc353deb0e 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698320 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          5cae00321e4287227c0d432e5630f6dc353deb0e 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698761 +0330	commit: UI overhaul and new routing
+          576160ec1953aa228299748671177cf0ff0ade1f 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698761 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          576160ec1953aa228299748671177cf0ff0ade1f 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699198 +0330	commit: UI overhaul and new routing
+          087fb2aa782673091bebbb655dea7a0880760742 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699198 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          087fb2aa782673091bebbb655dea7a0880760742 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699589 +0330	commit: UI overhaul and new routing
+          653512de169290cc1166924c3130775f8586dc4c 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699589 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          653512de169290cc1166924c3130775f8586dc4c fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699904 +0330	commit: UI overhaul and new routing
+          fb1b4b54c73c733124b2b869f6d0def88ecad9d4 fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699904 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          fb1b4b54c73c733124b2b869f6d0def88ecad9d4 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700194 +0330	commit: UI overhaul and new routing
+          1161e141ccdc2a80eb2236170af16f32752ba6a0 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700194 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          1161e141ccdc2a80eb2236170af16f32752ba6a0 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700428 +0330	commit: UI overhaul and new routing
+          4813a14bd7837188019799d0bb30de9500147685 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700428 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          4813a14bd7837188019799d0bb30de9500147685 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700685 +0330	commit: UI overhaul and new routing
+          269cc86bdc763cf4df6f9344efac747183f9db19 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700685 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          269cc86bdc763cf4df6f9344efac747183f9db19 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700917 +0330	commit: UI overhaul and new routing
+          a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700917 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701361 +0330	commit: UI overhaul and new routing
+          f509b63f6b406e8af914cb33da6fbecbf6fe17f9 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701361 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          f509b63f6b406e8af914cb33da6fbecbf6fe17f9 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701605 +0330	commit: UI overhaul and new routing
+          b93d76805652ff39ea3799ece7f178e5eecfabf3 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701605 +0330	Branch: renamed refs/heads/main to refs/heads/main
 
 
 
@@ -1576,6 +1636,18 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
             c4357efd5744b5ce75f6e4ff61fb15e7315dedc6 a4054c3d95cd401edb35e50a32276ff62a2646eb muvixo <godarshia20@gmail.com> 1787664499 +0330	update by push
             a4054c3d95cd401edb35e50a32276ff62a2646eb 6aa90af146142f12781584a66c3f29155fbd391d muvixo <godarshia20@gmail.com> 1787667506 +0330	update by push
             6aa90af146142f12781584a66c3f29155fbd391d 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667807 +0330	update by push
+            3dfc52c0f46aa39077a04f24da8f181cf23f3095 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697553 +0330	update by push
+            862b4dd34a7b29f13d7082d83c4a336c5b474503 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698333 +0330	update by push
+            5cae00321e4287227c0d432e5630f6dc353deb0e 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698775 +0330	update by push
+            576160ec1953aa228299748671177cf0ff0ade1f 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699212 +0330	update by push
+            087fb2aa782673091bebbb655dea7a0880760742 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699599 +0330	update by push
+            653512de169290cc1166924c3130775f8586dc4c fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699914 +0330	update by push
+            fb1b4b54c73c733124b2b869f6d0def88ecad9d4 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700206 +0330	update by push
+            1161e141ccdc2a80eb2236170af16f32752ba6a0 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700438 +0330	update by push
+            4813a14bd7837188019799d0bb30de9500147685 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700694 +0330	update by push
+            269cc86bdc763cf4df6f9344efac747183f9db19 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700929 +0330	update by push
+            a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701378 +0330	update by push
+            f509b63f6b406e8af914cb33da6fbecbf6fe17f9 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701616 +0330	update by push
 
 
 
@@ -1695,6 +1767,32 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      99ee640b20941267f054e0e805e83e43fec718
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      f7a2bac6dcaeb19c0b7ec0bfcc1fd9d8e46e69
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     04
       0e8f91a8b325c606758f6afcf26b0ababc5601
         [Binary or unreadable file]
@@ -1710,6 +1808,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
       3a934b25509f226020c3724cbefd99b65b8f62
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      9454c3c29ce588bf7fb3945d9eca94589ead35
         [Binary or unreadable file]
 
 
@@ -1778,6 +1889,32 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
     08
       60db582db7881a85f951f4bcb5ecc1f0d4f4b8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      7fb2aa782673091bebbb655dea7a0880760742
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      e064895a489c805ca9700574acb1bc98a26b51
         [Binary or unreadable file]
 
 
@@ -1927,6 +2064,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     11
+      61e141ccdc2a80eb2236170af16f32752ba6a0
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       989f755818c4a734291cef6baaaf763e1f83b5
         [Binary or unreadable file]
 
@@ -2034,6 +2184,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      c58a4e2ba8f66317bf0ad9c9064196b3508b2a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       fe635c786280e1d49abe94a6b60339b401569c
         [Binary or unreadable file]
 
@@ -2102,6 +2265,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     19
+      0c945b8a444e5ea6dd08082c9e4946eac0815c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       a08b88f95f03ba2ba8425919fe51162fbfcb2d
         [Binary or unreadable file]
 
@@ -2143,6 +2319,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     1b
+      0f0ee4294f0b06454aca3853b130a9f1268900
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       851c301e3e3979517fa02a96d140b19d2e1970
         [Binary or unreadable file]
 
@@ -2170,6 +2359,20 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+    1e
+      23e91f9405781432660ea26b841ee73b464ee6
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     1f
       6d31a6bf647b3784413ebeb8dd102317d3a989
         [Binary or unreadable file]
@@ -2185,6 +2388,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     20
+      0fb666ef1e3d06268046b8eb05f6f92f26cd58
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       3a498bd728fb60f937c54817bbca8153a70da5
         [Binary or unreadable file]
 
@@ -2226,6 +2442,20 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+    24
+      f9e273d3ffe9562ab30377a0b37f94a39026b4
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     25
       44574db83fcb244b9d72da1a53a6e3790f6103
         [Binary or unreadable file]
@@ -2255,6 +2485,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
     26
       6f2806a36ed6d4f171c9aec0032b96b526b967
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      9cc86bdc763cf4df6f9344efac747183f9db19
         [Binary or unreadable file]
 
 
@@ -2404,6 +2647,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     2e
+      c499323d0b471aaa4a0dadb1927a5ca81c4bd9
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       f31207d896f28322fea66976dbe6e3e8c5f063
         [Binary or unreadable file]
 
@@ -2795,6 +3051,20 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+    3f
+      8ff062dcca44a4831e93f4de1222b1fd654af5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     40
       05953ed7dbd4260465df1c4be1315ae9bdd9da
         [Binary or unreadable file]
@@ -2864,6 +3134,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     45
+      ec64d121f712d5ff962772e85f3a5cafd435a0
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       f9133106ec560a9ad3e51e8c9b008db5b8461f
         [Binary or unreadable file]
 
@@ -2932,7 +3215,34 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     48
+      13a14bd7837188019799d0bb30de9500147685
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       8b4564a6780bdc015aac6242b8779db7c0b1b5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    4a
+      7004d5eb4cb96eb6c69bfb63849d482e723e1a
         [Binary or unreadable file]
 
 
@@ -3094,7 +3404,46 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      f6d708d8dc1e6025881c49581170d500a008c4
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     53
+      2590b6fb76b7e7d2b3e831593dc41c673dbf29
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      7feebbfd802893a3ee2c4314d3193b7cee87c3
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       de0279be81848dbc31dc24d803f9e19374ead9
         [Binary or unreadable file]
 
@@ -3122,6 +3471,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     56
+      24c5cf3f591bffc8a2e3b446cbd6fa6e58f5a7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       281cad2b6734971ec946324b5e92fffd3a9edf
         [Binary or unreadable file]
 
@@ -3149,6 +3511,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     57
+      6160ec1953aa228299748671177cf0ff0ade1f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       a38c548d5b267fc486c6643629c99ff0110a27
         [Binary or unreadable file]
 
@@ -3271,6 +3646,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
     5c
       9c65eb764df8ac10d44de680f1ac43eee6c5b3
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ae00321e4287227c0d432e5630f6dc353deb0e
         [Binary or unreadable file]
 
 
@@ -3418,7 +3806,33 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      3512de169290cc1166924c3130775f8586dc4c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       39d2adcc0503c5ec6b0650a36ae3431568add2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      4afc61b502a47fbbb4397ebb16b07efa74a485
         [Binary or unreadable file]
 
 
@@ -3634,6 +4048,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      e0cae0a5df9e5ada95e3ee144063374466bf60
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     70
       6e25791f258acefd439f1f0c3c5c622b6a32e9
         [Binary or unreadable file]
@@ -3758,6 +4185,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      9ae659954c6d2985086c285e51a55336793f39
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     7a
       8cd58c40ea8dcb13992c86e6e1e57177c54864
         [Binary or unreadable file]
@@ -3813,6 +4253,33 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
       e1542dde17b2c8383e8a530e626306c2c61279
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      e982f695dc1fdc3618af271e26609547eac8eb
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    7d
+      386edb66494c188535d24ae5064a4ec801442b
         [Binary or unreadable file]
 
 
@@ -3962,6 +4429,32 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      2b4dd34a7b29f13d7082d83c4a336c5b474503
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      9b3ad4f201411fb96f7fc3ec9cee23ad22c019
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     87
       47da72347eebd7d921d3e15501f3a287d41034
         [Binary or unreadable file]
@@ -3990,6 +4483,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     88
+      40b9bb5a1069853620dca56fc227d66655f63c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       5cd69abeb6993e3c16fc73ceb2134696fb7d6e
         [Binary or unreadable file]
 
@@ -4031,6 +4537,20 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
       dad579bf9e3a75e41a13b78278959bc226717c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    8c
+      1b37cf2ecbd44981a7bb8652e8f6672f38f0b5
         [Binary or unreadable file]
 
 
@@ -4125,6 +4645,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
       49b7d87cd12a5d62a5cda13b3afc691fdc9699
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ab63b50db39713efce7408b72e2c10a68da3e4
         [Binary or unreadable file]
 
 
@@ -4444,6 +4977,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      c370356d44b2e209d81ae6759eba825ce4e339
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       cd8d208f6f522ca9665650ca7a7a4ffab86e5a
         [Binary or unreadable file]
 
@@ -4472,6 +5018,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
       9f7bb878ab8086fc634bcdd7a2abb540a843e7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      e3f64e342aadd709ab8205284dd8530d60f47f
         [Binary or unreadable file]
 
 
@@ -4619,6 +5178,32 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      41d7c16dd4a690461a65256619907eb58ad641
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a00e468db584f0c8f6a8f80ac6ac018afcfd81
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     a4
       054c3d95cd401edb35e50a32276ff62a2646eb
         [Binary or unreadable file]
@@ -4729,6 +5314,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     ab
+      1cb025a41ef0c3b0e980fb2b33b61a4995d191
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       ae77f9b009df72766de1eea71a8030148347b2
         [Binary or unreadable file]
 
@@ -4743,6 +5341,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     ac
+      4ab77c51c22389ec7ed6296ef28e0f7bd52cca
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       88e7f4fa5c9babde7417ad2bd6d6a4441016dc
         [Binary or unreadable file]
 
@@ -4947,6 +5558,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      3d76805652ff39ea3799ece7f178e5eecfabf3
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       df70a0bdcdb9af912cf886cc787cbe2fdc7fcb
         [Binary or unreadable file]
 
@@ -5123,6 +5747,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
       68fed688a7e0d4d45acfbd5623470a270afba8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      6e54623c08afa7512c5e3f4da46944e2cf2f48
         [Binary or unreadable file]
 
 
@@ -5380,6 +6017,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      bd7a0d992313d328714d6b25159611d3e69870
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       ff09a0eb01db45a5f59a58bbac4cc001b5437f
         [Binary or unreadable file]
 
@@ -5462,6 +6112,32 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      6afd691486c9ba94bc915d3ea67e1fe099905d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c842a6b308eddf691b5217ba32107c12aec26c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     d1
       0aebb02663c153b60d69034a8fc4b3dc766609
         [Binary or unreadable file]
@@ -5504,6 +6180,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
     d2
       835c6de0435f711e4bf6e14c8fc4c9316fc062
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      d43780727648facd2b268e514d12ed6bed40f7
         [Binary or unreadable file]
 
 
@@ -5583,7 +6272,33 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      e41399395213a26ae0a3906d0aac11876f9145
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     d5
+      2d5237a20dbf9a178fec6fc9875f8f54aa1372
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       7838903e70393e1c7fbe724ec1faea34e1924f
         [Binary or unreadable file]
 
@@ -5653,6 +6368,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
     d8
       5694064a191cc50105abd01cc3a9f5a233b0d8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      73730b39986e526ad87540b3d009d4a893edec
         [Binary or unreadable file]
 
 
@@ -5949,6 +6677,33 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+    e5
+      954d1152913cd2a85f06be3e058657e60345cb
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      99e97e9ac214cf52fea8ff1086b82c89115152
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     e6
       c1de7e7fbcbbfd0418da4b93c4a0aaa9386664
         [Binary or unreadable file]
@@ -6031,6 +6786,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      b90868fef38ab8f3041b605618d7550bd7cdab
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       c6758495b3d9151a0639a2f8c3ba767dc13eed
         [Binary or unreadable file]
 
@@ -6098,6 +6866,19 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+      db3f420f7e8e19052499fd1e98ee69a53e4507
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     ef
       1edefdf9467f4bd1bdad10aefa619b7c1463a0
         [Binary or unreadable file]
@@ -6152,6 +6933,20 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+    f1
+      bd0f8b54e6ab50d0abe140cfffaa51216b5ea7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     f3
       cd4f5946bdbd85634d2c7b265d1d7579a118ad
         [Binary or unreadable file]
@@ -6181,7 +6976,34 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
     f5
+      09b63f6b406e8af914cb33da6fbecbf6fe17f9
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
       c22e0eb44dd096833ed1a3903b90c12f552972
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    f6
+      b238fa095f2bf36bc5ee11a7b0f9a3f7cdc5f2
         [Binary or unreadable file]
 
 
@@ -6248,8 +7070,35 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
 
 
 
+    fb
+      1b4b54c73c733124b2b869f6d0def88ecad9d4
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
     fd
       04c58b99e364e2f0f11c13290b83781fae0d73
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      826fc7e2efc04400edf8c102188d93c0f9024f
         [Binary or unreadable file]
 
 
@@ -6314,7 +7163,7 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
   refs
     heads
       main
-        3dfc52c0f46aa39077a04f24da8f181cf23f3095
+        b93d76805652ff39ea3799ece7f178e5eecfabf3
 
 
 
@@ -6329,7 +7178,7 @@ Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayVie
     remotes
       origin
         main
-          3dfc52c0f46aa39077a04f24da8f181cf23f3095
+          b93d76805652ff39ea3799ece7f178e5eecfabf3
 
 
 
@@ -6419,8 +7268,11 @@ app.py
   def proxy_media():
       target = request.args.get("url")
       provider = request.args.get("provider", "")
-      force_download = request.args.get("dl") == "1"
       
+      # STRICT BLOCK: Completely prevent downloads or binary file exfiltration through the proxy
+      if request.args.get("dl") == "1":
+          return "Direct content downloads are restricted by security policy.", 403
+  
       if not target:
           return "Missing URL", 400
   
@@ -6439,7 +7291,7 @@ app.py
           referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
   
       req_headers = {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
           "Referer": referer,
           "Origin": referer.rstrip('/'),
           "Accept": "*/*",
@@ -6452,7 +7304,6 @@ app.py
   
       try:
           try:
-              # allow_redirects=True ensures CDNs redirecting asset requests are resolved completely
               upstream = requests.get(target, headers=req_headers, stream=True, allow_redirects=True, timeout=15)
               upstream.raise_for_status()
           except Exception as direct_err:
@@ -6476,13 +7327,9 @@ app.py
           if "Content-Length" in upstream.headers:
               res_headers["Content-Length"] = upstream.headers["Content-Length"]
   
-          if force_download:
-              ext = "mp4" if ".mp4" in target.lower() else "jpg" if "image" in content_type else "bin"
-              res_headers["Content-Disposition"] = f'attachment; filename="download.{ext}"'
-  
           is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
   
-          if is_m3u8 and not force_download:
+          if is_m3u8:
               text = upstream.text
               final_base = upstream.url or target
               rewritten = rewrite_playlist(text, final_base, provider)
@@ -6497,7 +7344,6 @@ app.py
                           yield chunk
               except Exception as stream_err:
                   logging.warning(f"Stream dropped: {stream_err}")
-                  pass
   
           return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=False)
   
@@ -7928,6 +8774,42 @@ folder_structure.txt
         6aa90af146142f12781584a66c3f29155fbd391d 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667797 +0330	commit: UI overhaul and new routing
         3dfc52c0f46aa39077a04f24da8f181cf23f3095 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787667797 +0330	Branch: renamed refs/heads/main to refs/heads/main
         3dfc52c0f46aa39077a04f24da8f181cf23f3095 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667797 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        3dfc52c0f46aa39077a04f24da8f181cf23f3095 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697535 +0330	commit: UI overhaul and new routing
+        862b4dd34a7b29f13d7082d83c4a336c5b474503 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787697535 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        862b4dd34a7b29f13d7082d83c4a336c5b474503 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697535 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        862b4dd34a7b29f13d7082d83c4a336c5b474503 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698320 +0330	commit: UI overhaul and new routing
+        5cae00321e4287227c0d432e5630f6dc353deb0e 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787698320 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        5cae00321e4287227c0d432e5630f6dc353deb0e 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698320 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        5cae00321e4287227c0d432e5630f6dc353deb0e 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698761 +0330	commit: UI overhaul and new routing
+        576160ec1953aa228299748671177cf0ff0ade1f 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787698761 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        576160ec1953aa228299748671177cf0ff0ade1f 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698761 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        576160ec1953aa228299748671177cf0ff0ade1f 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699198 +0330	commit: UI overhaul and new routing
+        087fb2aa782673091bebbb655dea7a0880760742 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787699198 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        087fb2aa782673091bebbb655dea7a0880760742 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699198 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        087fb2aa782673091bebbb655dea7a0880760742 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699589 +0330	commit: UI overhaul and new routing
+        653512de169290cc1166924c3130775f8586dc4c 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787699589 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        653512de169290cc1166924c3130775f8586dc4c 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699589 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        653512de169290cc1166924c3130775f8586dc4c fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699904 +0330	commit: UI overhaul and new routing
+        fb1b4b54c73c733124b2b869f6d0def88ecad9d4 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787699904 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        fb1b4b54c73c733124b2b869f6d0def88ecad9d4 fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699904 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        fb1b4b54c73c733124b2b869f6d0def88ecad9d4 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700194 +0330	commit: UI overhaul and new routing
+        1161e141ccdc2a80eb2236170af16f32752ba6a0 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787700194 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        1161e141ccdc2a80eb2236170af16f32752ba6a0 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700194 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        1161e141ccdc2a80eb2236170af16f32752ba6a0 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700428 +0330	commit: UI overhaul and new routing
+        4813a14bd7837188019799d0bb30de9500147685 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787700428 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        4813a14bd7837188019799d0bb30de9500147685 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700428 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        4813a14bd7837188019799d0bb30de9500147685 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700685 +0330	commit: UI overhaul and new routing
+        269cc86bdc763cf4df6f9344efac747183f9db19 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787700685 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        269cc86bdc763cf4df6f9344efac747183f9db19 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700685 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        269cc86bdc763cf4df6f9344efac747183f9db19 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700917 +0330	commit: UI overhaul and new routing
+        a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787700917 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700917 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701361 +0330	commit: UI overhaul and new routing
+        f509b63f6b406e8af914cb33da6fbecbf6fe17f9 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787701361 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        f509b63f6b406e8af914cb33da6fbecbf6fe17f9 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701361 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        f509b63f6b406e8af914cb33da6fbecbf6fe17f9 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701605 +0330	commit: UI overhaul and new routing
+        b93d76805652ff39ea3799ece7f178e5eecfabf3 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787701605 +0330	Branch: renamed refs/heads/main to refs/heads/main
+        b93d76805652ff39ea3799ece7f178e5eecfabf3 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701605 +0330	Branch: renamed refs/heads/main to refs/heads/main
   
   
   
@@ -8079,6 +8961,30 @@ folder_structure.txt
             6aa90af146142f12781584a66c3f29155fbd391d 6aa90af146142f12781584a66c3f29155fbd391d muvixo <godarshia20@gmail.com> 1787667484 +0330	Branch: renamed refs/heads/main to refs/heads/main
             6aa90af146142f12781584a66c3f29155fbd391d 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667797 +0330	commit: UI overhaul and new routing
             3dfc52c0f46aa39077a04f24da8f181cf23f3095 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667797 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            3dfc52c0f46aa39077a04f24da8f181cf23f3095 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697535 +0330	commit: UI overhaul and new routing
+            862b4dd34a7b29f13d7082d83c4a336c5b474503 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697535 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            862b4dd34a7b29f13d7082d83c4a336c5b474503 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698320 +0330	commit: UI overhaul and new routing
+            5cae00321e4287227c0d432e5630f6dc353deb0e 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698320 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            5cae00321e4287227c0d432e5630f6dc353deb0e 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698761 +0330	commit: UI overhaul and new routing
+            576160ec1953aa228299748671177cf0ff0ade1f 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698761 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            576160ec1953aa228299748671177cf0ff0ade1f 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699198 +0330	commit: UI overhaul and new routing
+            087fb2aa782673091bebbb655dea7a0880760742 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699198 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            087fb2aa782673091bebbb655dea7a0880760742 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699589 +0330	commit: UI overhaul and new routing
+            653512de169290cc1166924c3130775f8586dc4c 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699589 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            653512de169290cc1166924c3130775f8586dc4c fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699904 +0330	commit: UI overhaul and new routing
+            fb1b4b54c73c733124b2b869f6d0def88ecad9d4 fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699904 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            fb1b4b54c73c733124b2b869f6d0def88ecad9d4 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700194 +0330	commit: UI overhaul and new routing
+            1161e141ccdc2a80eb2236170af16f32752ba6a0 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700194 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            1161e141ccdc2a80eb2236170af16f32752ba6a0 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700428 +0330	commit: UI overhaul and new routing
+            4813a14bd7837188019799d0bb30de9500147685 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700428 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            4813a14bd7837188019799d0bb30de9500147685 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700685 +0330	commit: UI overhaul and new routing
+            269cc86bdc763cf4df6f9344efac747183f9db19 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700685 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            269cc86bdc763cf4df6f9344efac747183f9db19 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700917 +0330	commit: UI overhaul and new routing
+            a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700917 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701361 +0330	commit: UI overhaul and new routing
+            f509b63f6b406e8af914cb33da6fbecbf6fe17f9 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701361 +0330	Branch: renamed refs/heads/main to refs/heads/main
+            f509b63f6b406e8af914cb33da6fbecbf6fe17f9 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701605 +0330	commit: UI overhaul and new routing
+            b93d76805652ff39ea3799ece7f178e5eecfabf3 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701605 +0330	Branch: renamed refs/heads/main to refs/heads/main
   
   
   
@@ -8159,6 +9065,18 @@ folder_structure.txt
               c4357efd5744b5ce75f6e4ff61fb15e7315dedc6 a4054c3d95cd401edb35e50a32276ff62a2646eb muvixo <godarshia20@gmail.com> 1787664499 +0330	update by push
               a4054c3d95cd401edb35e50a32276ff62a2646eb 6aa90af146142f12781584a66c3f29155fbd391d muvixo <godarshia20@gmail.com> 1787667506 +0330	update by push
               6aa90af146142f12781584a66c3f29155fbd391d 3dfc52c0f46aa39077a04f24da8f181cf23f3095 muvixo <godarshia20@gmail.com> 1787667807 +0330	update by push
+              3dfc52c0f46aa39077a04f24da8f181cf23f3095 862b4dd34a7b29f13d7082d83c4a336c5b474503 muvixo <godarshia20@gmail.com> 1787697553 +0330	update by push
+              862b4dd34a7b29f13d7082d83c4a336c5b474503 5cae00321e4287227c0d432e5630f6dc353deb0e muvixo <godarshia20@gmail.com> 1787698333 +0330	update by push
+              5cae00321e4287227c0d432e5630f6dc353deb0e 576160ec1953aa228299748671177cf0ff0ade1f muvixo <godarshia20@gmail.com> 1787698775 +0330	update by push
+              576160ec1953aa228299748671177cf0ff0ade1f 087fb2aa782673091bebbb655dea7a0880760742 muvixo <godarshia20@gmail.com> 1787699212 +0330	update by push
+              087fb2aa782673091bebbb655dea7a0880760742 653512de169290cc1166924c3130775f8586dc4c muvixo <godarshia20@gmail.com> 1787699599 +0330	update by push
+              653512de169290cc1166924c3130775f8586dc4c fb1b4b54c73c733124b2b869f6d0def88ecad9d4 muvixo <godarshia20@gmail.com> 1787699914 +0330	update by push
+              fb1b4b54c73c733124b2b869f6d0def88ecad9d4 1161e141ccdc2a80eb2236170af16f32752ba6a0 muvixo <godarshia20@gmail.com> 1787700206 +0330	update by push
+              1161e141ccdc2a80eb2236170af16f32752ba6a0 4813a14bd7837188019799d0bb30de9500147685 muvixo <godarshia20@gmail.com> 1787700438 +0330	update by push
+              4813a14bd7837188019799d0bb30de9500147685 269cc86bdc763cf4df6f9344efac747183f9db19 muvixo <godarshia20@gmail.com> 1787700694 +0330	update by push
+              269cc86bdc763cf4df6f9344efac747183f9db19 a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 muvixo <godarshia20@gmail.com> 1787700929 +0330	update by push
+              a3a00e468db584f0c8f6a8f80ac6ac018afcfd81 f509b63f6b406e8af914cb33da6fbecbf6fe17f9 muvixo <godarshia20@gmail.com> 1787701378 +0330	update by push
+              f509b63f6b406e8af914cb33da6fbecbf6fe17f9 b93d76805652ff39ea3799ece7f178e5eecfabf3 muvixo <godarshia20@gmail.com> 1787701616 +0330	update by push
   
   
   
@@ -8278,6 +9196,32 @@ folder_structure.txt
   
   
   
+        99ee640b20941267f054e0e805e83e43fec718
+          [Binary or unreadable file]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+        f7a2bac6dcaeb19c0b7ec0bfcc1fd9d8e46e69
+          [Binary or unreadable file]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
       04
         0e8f91a8b325c606758f6afcf26b0ababc5601
           [Binary or unreadable file]
@@ -8293,6 +9237,19 @@ folder_structure.txt
   
   
         3a934b25509f226020c3724cbefd99b65b8f62
+          [Binary or unreadable file]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+        9454c3c29ce588bf7fb3945d9eca94589ead35
           [Binary or unreadable file]
   
   
@@ -8361,6 +9318,32 @@ folder_structure.txt
   
       08
         60db582db7881a85f951f4bcb5ecc1f0d4f4b8
+          [Binary or unreadable file]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+        7fb2aa782673091bebbb655dea7a0880760742
+          [Binary or unreadable file]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+        e064895a489c805ca9700574acb1bc98a26b51
           [Binary or unreadable file]
   
   
@@ -8484,1659 +9467,6 @@ folder_structure.txt
   
         c07cb76d7834c6486925fdf5937ad76de27280
           [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      0f
-        dfc156206639c851b764a5fd6e33308732e8fa
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      11
-        989f755818c4a734291cef6baaaf763e1f83b5
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        a52a229e0af15dffeee2051a54bc7f0c216d72
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      12
-        53897df38cb7ccc1e7f70cf5865afb2ca1e562
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        d4cba2278754fa91bbc84f8db68a1c85aef3ab
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        fbefdb2f869dfce45f3ff2e8e9d2662060f350
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      14
-        77bcd1bad7c7613e36887151d571f4b35fec3f
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        e12fdbd192c1c39f8a28795805c74a8d93da38
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      15
-        841a0905245bfe159ffdac9b9667d1505efa88
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        fe635c786280e1d49abe94a6b60339b401569c
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      17
-        c8647b933a1993c5db893ec8724c95916a5caa
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      18
-        b47aab14e3438805116a4d5538f4184c4102e4
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        bc79e6d9d6d779f467a3c4e35c792e247b85ef
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        deccd7208d2dbe178d3768f4942e6cf740bfc2
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      19
-        a08b88f95f03ba2ba8425919fe51162fbfcb2d
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      1a
-        7ed5337294cf7a8b50fac36ea37c6213369249
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        c2985298f1f3b226aa2db6c0a79af943f69905
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      1b
-        851c301e3e3979517fa02a96d140b19d2e1970
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      1d
-        d04686d50ee06a6910f1b092613184228e9f72
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      1f
-        6d31a6bf647b3784413ebeb8dd102317d3a989
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      20
-        3a498bd728fb60f937c54817bbca8153a70da5
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      21
-        edd4a57b4650d1b89fc085e77da8ff0c02dc05
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      23
-        9d9810e8145406f65c91937c39cc5253f0da4f
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      25
-        44574db83fcb244b9d72da1a53a6e3790f6103
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        6fb461d924c1d4d12bebcf6431138082a53288
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      26
-        6f2806a36ed6d4f171c9aec0032b96b526b967
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        eb19b14a75247fbe005cff603661588ac5dec8
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      27
-        424b5c2475c26ffd42e24af2b38238d1f46e92
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      28
-        a16ea4755765c5e801e8b23cce82e725dffccc
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        b45962931d1cbc4843b1aab5a50bf40e237877
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        e05dfe035b5d50b202b4484dc48750a577fcca
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        f0dc4ad677c2038e22c1066effebbf66204df8
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      29
-        e9556a6c7d93f3a722ea9a9d29c54c5c146bff
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      2b
-        33e7320622ae84d842dc25feb62d9a2ee38ee4
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      2c
-        299adbb2e407197297874e540397b71990610c
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      2d
-        7803e56308bf44ef8e891d381dc90fe0c76d47
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      2e
-        f31207d896f28322fea66976dbe6e3e8c5f063
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      2f
-        5fbf7282b24e88d035e079c1a24917b219d638
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        7263bfbb890bb6df73b34031fee93ba8a5dd55
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      30
-        06a39f4392fdb937b3b2e12c3d84be90e27f29
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      32
-        4b66709a06e714d6c9967d9f4e41c58f3548b5
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      33
-        16f929f4a35bfa3b217007abc742403502dea5
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        eea3f45f007c12b5df2a0664902e64aba994fd
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      35
-        e1c07e7f4f72a52c74a1ae1de57c3b6d208717
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      36
-        bf3cafd2197c7ef5f6deec7131b6efd2ef6000
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      37
-        378e73b3f9b8d72037f189619df0c6203cbb8e
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        cc0f840abcf9c346d6b802208a4f1c4c21d890
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      38
-        8bef03aba0a2a95f4b2b77a6021ffd66cc263b
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      39
-        d8ff377c96ea26d834f2260111ad860d5ba33d
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        f98aac859bb2f860651f3adafe2f6358078df7
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      3a
-        99853f419413c44b822b11a96a48631f5362f2
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      3b
-        026e808e52d809c36554bbd68ea0d52794a974
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        38479ead57045bde1b72982ac3375c299c53d0
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        a0966bfd5e98107cde13785005b62fbc981563
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      3c
-        b1a6cdd3a017c2da69a339b961f342d9fa7634
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      3d
-        2678e21cb1607237ab005b6626546919510ad4
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        5f55e1f60182b5b6c46fe37d678bd645613fa5
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        9590350ad5231c70e4a0dd1c6b28686a205f59
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        b1717cfc73ea55c45a959b1c944211a231e915
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        b25371cb5adb780c3d5c5cc89b29bf03ffe5be
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        fc52c0f46aa39077a04f24da8f181cf23f3095
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        fc72e4e51621bd0ae33cc5997f5459aa87c406
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      3e
-        1e16ee2e15ef276f35ee1bc6388419f28e2f8e
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        2cb6ae9126d92577010261288ef046eadbe795
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        eee5ebfbad0a292a3d94d4f12fe71353ae0e44
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      40
-        05953ed7dbd4260465df1c4be1315ae9bdd9da
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        d07728b2e2fa3fcd16dec97abe3df9bd99d538
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        efadb2e5d9931cbde8a4b87970a2890640f5c5
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      42
-        8d9193bf50e54ad8d3f4e1e77b5516f59130cb
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      44
-        92ec5b00919297ad60f171d8b566924800252e
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      45
-        f9133106ec560a9ad3e51e8c9b008db5b8461f
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      46
-        758b3b55a4312ce67a0f2660aead50fb7eed25
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        c3ece9ac8bbbf876820d348b7edd8b68cc932f
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      47
-        12d9b4015faced58f9ca719256ef07f83fd6b5
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        449f9f8fa010363c298d7e8beadab7777e037e
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      48
-        8b4564a6780bdc015aac6242b8779db7c0b1b5
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      4b
-        f5f3aa0968155e70f488f7c30f92027f4ebc29
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      4d
-        15e8ad08943225c897743cdb4b85ab9e790234
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      4e
-        987ee6e3d2c7abfa04c618fd5f729932abf8b7
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        a03ea706ebfd8943f7992fd745c39bdddcf960
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        dcaa7904b44e854b993f8ad3de73adfb6616eb
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      4f
-        14f7ae36380ac60d678e1722d914940e9bd58c
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        6ea129bf36ff2ee9067241cd93e6cbdf5cd35b
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        da71b4841b227dca809a27fba95814b5bab12b
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      50
-        f9d05e0d1098f0970cd1d8837bae862451d8e9
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      51
-        23f9f49c28b86e987544e1f4648bcff22e7fc3
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        cb2f2b54e6106f88af7641521fcbf97919b78f
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      53
-        de0279be81848dbc31dc24d803f9e19374ead9
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        e53767ac5c53687f202a9719b4cdefc9099571
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      56
-        281cad2b6734971ec946324b5e92fffd3a9edf
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        ee9a162e30ce38939cc34a598f41a606e67dbd
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      57
-        a38c548d5b267fc486c6643629c99ff0110a27
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        fab1d9840937f13b4cb3c31fbb72b9aec90732
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      59
-        f2ccb1b9f8eb465904c805b92e4b4fd57460a6
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      5a
-        07d876e6427c019d6d39f0af5073854b42eeeb
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        4dfa296c1187e0b3a32a65d984ce4e121f4aab
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        ddd5bb94e5d68a2596455809fa4e27701ee61c
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      5b
-        97dd745613eb3d696dffd79896ccd9d737df07
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        c7bd5b29fc75aaa0a869d4a62ccda3d705ba8a
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        f8cc4b8549f9a99e2c252d64c30d29320e7e56
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      5c
-        9c65eb764df8ac10d44de680f1ac43eee6c5b3
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        b874b475fca5d2def51334f31c978834240a08
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        c518b805cae112edb78b0d59d77b5180d90c1b
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      5d
-        122d8228d1a4d57e488aafe101af73176623ab
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        40b05f30fc48fb87345365c06d7bed473e669d
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        69e2f7ad38c6aea973d1e8cb8f23133873de7e
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      61
-        56ef5ad28507ddd84ee762ef3692fbc0bd3aa7
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      62
-        0b07086ac6a2b562e23d5510793875e7d4940c
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      64
-        5dae18bcd4c161e62b4c1b3262722532696b69
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        d36947b11357eca79c40592ec961c21b3ce0ca
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      65
-        04882994fb75a162f7fccb9edd89be40c71da6
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        39d2adcc0503c5ec6b0650a36ae3431568add2
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        8d3cf0bb01ee76cfec6ef7a924277277f9c41f
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        da00b627bbc8c01ac7d5cdb6851d9a64ffea60
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      67
-        201c06b84a2848973a044a846af929c02dfec4
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        de40c542d4f8776542f788934e90b91fc449b4
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      68
-        1974b4d1a570b421b484403123778117157621
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      69
-        4ee62ebb985c7649890a3979d949e42569c90c
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        67ac7f3cf5074fc954222344d021d1363b11fa
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      6a
-        a90af146142f12781584a66c3f29155fbd391d
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-        a9afdd85dc919c5c34e5aafd7126392a2eba4f
-          [Binary or unreadable file]
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      6b
-        82290ecb7121f751c80d34a11cdf9806885e37
 
 
 
@@ -10319,24 +9649,32 @@ scraper.py
   class VideoScraper:
       def __init__(self):
           self.headers = {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
               'Accept-Language': 'en-US,en;q=0.9',
-              'Referer': 'https://www.google.com/'
+              'Cookie': 'has_accepted_cookie=1; age_verified=1; platform=pc; accessAgeDisclaimerPH=1; accessAgeDisclaimer=1;'
           }
           self.proxies = {
               "http": "socks5h://127.0.0.1:40000",
               "https": "socks5h://127.0.0.1:40000"
           }
   
-      def _fetch_page(self, url):
+      def _fetch_page(self, url, referer=None):
+          headers = self.headers.copy()
+          if referer:
+              headers['Referer'] = referer
+              headers['Origin'] = referer.rstrip('/')
+          else:
+              parsed = urlparse(url)
+              headers['Referer'] = f"{parsed.scheme}://{parsed.netloc}/"
+  
           try:
-              resp = requests.get(url, headers=self.headers, timeout=8)
+              resp = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
               if resp.status_code == 200:
                   return resp
           except Exception:
               pass
-          return requests.get(url, headers=self.headers, proxies=self.proxies, timeout=20)
+          return requests.get(url, headers=headers, proxies=self.proxies, timeout=25, allow_redirects=True)
   
       def title_case(self, text):
           return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
@@ -10347,7 +9685,7 @@ scraper.py
           for t in thumbs:
               if not t or not isinstance(t, str):
                   continue
-              t = t.replace('\\/', '/').strip().strip('\'"')
+              t = t.replace('\\/', '/').replace('&amp;', '&').strip().strip('\'"')
               if t.startswith('//'):
                   t = "https:" + t
               elif t.startswith('/'):
@@ -10365,26 +9703,34 @@ scraper.py
                       clean.append(t)
           return clean
   
-      def parse_hls_qualities(self, master_m3u8_url):
+      def parse_hls_qualities(self, master_m3u8_url, referer=None):
           qualities = []
           try:
-              resp = self._fetch_page(master_m3u8_url)
-              if resp.status_code != 200:
-                  return qualities
-              lines = resp.text.splitlines()
-              base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
-              for i, line in enumerate(lines):
-                  if line.startswith("#EXT-X-STREAM-INF:"):
-                      res_match = re.search(r"RESOLUTION=(\d+x\d+)", line)
-                      height = res_match.group(1).split("x")[1] if res_match and "x" in res_match.group(1) else "0"
-                      quality_label = f"{height}p" if height.isdigit() and int(height) > 0 else "auto"
-                      if i + 1 < len(lines) and not lines[i + 1].startswith("#"):
-                          stream_uri = lines[i + 1].strip()
-                          stream_url = stream_uri if stream_uri.startswith('http') else base_url + stream_uri
-                          qualities.append({"quality": quality_label, "url": stream_url})
+              resp = self._fetch_page(master_m3u8_url, referer)
+              if resp.status_code == 200:
+                  lines = resp.text.splitlines()
+                  base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
+                  for i, line in enumerate(lines):
+                      line_clean = line.strip()
+                      if line_clean.startswith("#EXT-X-STREAM-INF:"):
+                          res_match = re.search(r"RESOLUTION=(\d+x\d+)", line_clean)
+                          height = res_match.group(1).split("x")[1] if res_match and "x" in res_match.group(1) else "0"
+                          quality_label = f"{height}p" if height.isdigit() and int(height) > 0 else "Adaptive Auto"
+                          
+                          if i + 1 < len(lines) and not lines[i + 1].strip().startswith("#"):
+                              stream_uri = lines[i + 1].strip()
+                              stream_url = stream_uri if stream_uri.startswith('http') else urljoin(base_url, stream_uri)
+                              qualities.append({"quality": quality_label, "url": stream_url})
           except Exception:
               pass
+  
+          # Sort highest resolution to lowest
           qualities.sort(key=lambda x: int(re.search(r'(\d+)', x['quality']).group(1)) if re.search(r'(\d+)', x['quality']) else 0, reverse=True)
+          
+          # Fallback to master URL if sub-qualities couldn't be parsed
+          if not qualities:
+              qualities.append({"quality": "HLS Master (Auto)", "url": master_m3u8_url})
+              
           return qualities
   
       def _scrape_pornhub(self, url):
@@ -10394,59 +9740,77 @@ scraper.py
           elif 'embed/' in url:
               viewkey = url.split('embed/')[1].split('?')[0]
           if not viewkey:
-              return {"status": "error", "error": "Invalid viewkey", "url": url}
+              return {"status": "error", "error": "Invalid viewkey identifier", "url": url}
   
-          geo_url = url.replace("www.pornhub.com", "de.pornhub.com")
-          title, poster, media_defs = "Unknown Title", "", []
+          standard_url = f"https://www.pornhub.com/view_video.php?viewkey={viewkey}"
+          title, poster, media_defs = "Pornhub Video", "", []
           raw_thumbs = set()
+          page_text = ""
   
           try:
-              resp = self._fetch_page(geo_url)
+              resp = self._fetch_page(standard_url, referer="https://www.pornhub.com/")
               if resp.status_code == 200:
-                  fv_match = re.search(r'flashvars(?:_\d+)?\s*=\s*(\{.*?\});', resp.text, re.DOTALL)
+                  page_text = resp.text
+                  fv_match = re.search(r'var\s+flashvars_\d+\s*=\s*(\{.*?\});', page_text, re.DOTALL) or re.search(r'flashvars(?:_\d+)?\s*=\s*(\{.*?\});', page_text, re.DOTALL)
                   if fv_match:
-                      data = json.loads(fv_match.group(1))
-                      media_defs = data.get('mediaDefinitions', [])
-                      title = data.get('video_title') or title
-                      poster = data.get('image_url') or data.get('thumb_url') or poster
+                      try:
+                          data = json.loads(fv_match.group(1))
+                          media_defs = data.get('mediaDefinitions', [])
+                          title = data.get('video_title') or title
+                          poster = data.get('image_url') or data.get('thumb_url') or poster
   
-                      if poster:
-                          raw_thumbs.add(poster)
-                      for k, v in data.items():
-                          if isinstance(v, str) and v.startswith('http') and any(ext in v.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
-                              raw_thumbs.add(v)
-                          elif isinstance(v, list):
-                              for item in v:
-                                  if isinstance(item, str) and item.startswith('http') and any(ext in item.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
-                                      raw_thumbs.add(item)
-                                  elif isinstance(item, dict) and 'url' in item and isinstance(item['url'], str) and item['url'].startswith('http'):
-                                      raw_thumbs.add(item['url'])
-          except Exception:
-              pass
+                          if poster:
+                              raw_thumbs.add(poster)
+                          for k, v in data.items():
+                              if isinstance(v, str) and v.startswith('http') and any(ext in v.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+                                  raw_thumbs.add(v)
+                      except Exception:
+                          pass
   
-          clean_thumbs = self.clean_thumbnails(raw_thumbs, url)
+                  if not media_defs:
+                      md_match = re.search(r'"mediaDefinitions"\s*:\s*(\[\{.*?\}\])', page_text, re.DOTALL)
+                      if md_match:
+                          try:
+                              media_defs = json.loads(md_match.group(1))
+                          except Exception:
+                              pass
+          except Exception as e:
+              return {"status": "error", "error": str(e), "url": url}
+  
+          if title == "Pornhub Video":
+              og_match = re.search(r'<meta\s+property=["\']og:title["\']\s+content=["\']([^"\']+)["\']', page_text, re.I)
+              if og_match:
+                  title = og_match.group(1).strip()
+  
+          clean_thumbs = self.clean_thumbnails(raw_thumbs, standard_url)
           if clean_thumbs and not poster:
               poster = clean_thumbs[0]
   
           stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
           seen_q = set()
+  
           for m in media_defs:
               if not isinstance(m, dict):
                   continue
               v_url = m.get('videoUrl') or m.get('url')
               if not v_url or not isinstance(v_url, str):
                   continue
-              fmt = m.get('format', '')
+  
+              fmt = m.get('format', '').lower()
               qual_raw = m.get('quality')
               qual = str(qual_raw[0]) if isinstance(qual_raw, list) and qual_raw else str(qual_raw or "auto")
               if qual == "[]" or not qual:
                   qual = "auto"
   
-              if fmt == 'mp4' or 'mp4' in v_url:
+              # Direct Progressive MP4 extraction
+              if fmt == 'mp4' or ('.mp4' in v_url and 'm3u8' not in v_url):
                   q_label = f"{qual}p" if qual.isdigit() else qual.upper()
                   stream_data["direct_mp4"][q_label] = v_url
+  
+              # HLS Master & Renditions extraction
               if fmt == 'hls' or '.m3u8' in v_url:
-                  for pq in self.parse_hls_qualities(v_url):
+                  parsed_streams = self.parse_hls_qualities(v_url, referer=standard_url)
+                  for pq in parsed_streams:
                       if pq["quality"] not in seen_q:
                           seen_q.add(pq["quality"])
                           stream_data["qualities"].append(pq)
@@ -10490,11 +9854,11 @@ scraper.py
           low_match = re.search(r'(?:setVideoUrlLow|html5player\.setVideoUrlLow)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
   
           if hls_match:
-              stream_data["qualities"] = self.parse_hls_qualities(hls_match.group(1))
+              stream_data["qualities"] = self.parse_hls_qualities(hls_match.group(1), referer=url)
           if high_match:
-              stream_data["direct_mp4"]["High Quality"] = high_match.group(1)
+              stream_data["direct_mp4"]["High Quality (MP4)"] = high_match.group(1)
           if low_match:
-              stream_data["direct_mp4"]["Low Quality"] = low_match.group(1)
+              stream_data["direct_mp4"]["Low Quality (MP4)"] = low_match.group(1)
   
           return {
               "status": "success",
@@ -10503,7 +9867,7 @@ scraper.py
               "thumbnails": clean_thumbs,
               "streams": stream_data,
               "url": url,
-              "provider": "xnxx"
+              "provider": "xnxx" if "xnxx" in url else "xvideos"
           }
   
       def _scrape_3movs(self, url):
@@ -10531,8 +9895,6 @@ scraper.py
               raw_thumbs.add(poster)
           for m in re.finditer(r'poster(?:Image)?\s*[:=]\s*["\']([^"\']+)["\']', page, re.I):
               raw_thumbs.add(m.group(1))
-          for img in tree.xpath('//div[contains(@class, "screenshots") or contains(@class, "gallery")]//img/@src | //div[contains(@class, "screenshots") or contains(@class, "gallery")]//img/@data-src'):
-              raw_thumbs.add(img)
   
           clean_thumbs = self.clean_thumbnails(raw_thumbs, url)
           thumbnail = clean_thumbs[0] if clean_thumbs else ""
@@ -10540,19 +9902,16 @@ scraper.py
           stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
           candidates = []
   
-          # Gather all valid MP4 links from player source tags and script definitions
           player_source_elements = tree.xpath('//div[contains(@id, "player") or contains(@class, "player")]//video//source | //video//source')
           for s in player_source_elements:
               src = s.get('src')
-              if src and '.mp4' in src.lower():
+              if src:
                   candidates.append(src)
   
           if not candidates:
-              for m in re.finditer(r'(?:video_url|video_alt_url|src|file)\s*[:=]\s*["\']([^"\']+\.mp4[^"\']*)["\']', page):
+              for m in re.finditer(r'(?:video_url|video_alt_url|src|file)\s*[:=]\s*["\']([^"\']+)["\']', page):
                   candidates.append(m.group(1))
   
-          # Sort candidates numerically by resolution (e.g., 1080p over 720p over 360p)
-          scored_sources = []
           for raw_src in set(candidates):
               full_src = raw_src.replace('\\/', '/').strip()
               if full_src.startswith('//'):
@@ -10560,32 +9919,13 @@ scraper.py
               elif full_src.startswith('/'):
                   full_src = urljoin(url, full_src)
   
-              if any(bad in full_src.lower() for bad in ['preview', 'timeline', 'sprite', 'ad.']):
-                  continue
-  
-              # Extract numeric resolution score from URL or default to standard weight
-              res_match = re.search(r'(\d{3,4})[pP]?', full_src)
-              score = int(res_match.group(1)) if res_match else 480
-              if '1080' in full_src: score = 1080
-              elif '720' in full_src: score = 720
-              elif '480' in full_src: score = 480
-              elif '360' in full_src: score = 360
-  
-              scored_sources.append((score, full_src))
-  
-          # Sort descending so the highest resolution/score is first
-          scored_sources.sort(key=lambda x: x[0], reverse=True)
-  
-          for score, src in scored_sources:
-              label = f"{score}p" if score >= 360 else "Standard Quality"
-              # Ensure nice naming for top/bottom if clear
-              if label not in stream_data["direct_mp4"]:
-                  stream_data["direct_mp4"][label] = src
-  
-          # Ensure a default 'High Quality' pointer exists pointing to the absolute best source
-          if scored_sources:
-              best_url = scored_sources[0][1]
-              stream_data["direct_mp4"]["High Quality"] = best_url
+              if '.m3u8' in full_src:
+                  for q in self.parse_hls_qualities(full_src, referer=url):
+                      stream_data["qualities"].append(q)
+              elif '.mp4' in full_src:
+                  res_match = re.search(r'(\d{3,4})[pP]?', full_src)
+                  label = f"{res_match.group(1)}p" if res_match else "Direct MP4"
+                  stream_data["direct_mp4"][label] = full_src
   
           return {
               "status": "success",
@@ -10650,108 +9990,102 @@ templates
   abilities.html
     {% extends "layout.html" %}
     
-    {% block title %}Abilities | VexoStream{% endblock %}
+    {% block title %}Architecture | VexoStream{% endblock %}
     
     {% block content %}
-    <div class="relative min-h-screen w-full py-16 text-fluent-text antialiased overflow-hidden">
+    <div class="relative min-h-screen w-full py-16 text-gray-200 antialiased overflow-hidden">
         
-        <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.65px,transparent_0.65px)] [background-size:20px_20px] opacity-[0.06] pointer-events-none"></div>
-    
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Header -->
-            <div class="text-center mb-16 space-y-3">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-black/[0.08] shadow-fluent-card text-xs font-semibold text-fluent-blue">
+            <div class="text-center mb-16 space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-accent-cyan/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] text-xs font-semibold text-accent-cyan">
                     <span class="flex h-2 w-2 relative">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-fluent-blue opacity-60"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-fluent-blue"></span>
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-cyan opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-cyan"></span>
                     </span>
                     Core Infrastructure
                 </div>
                 
-                <h2 class="text-4xl sm:text-5xl font-bold tracking-tight text-fluent-text">
+                <h2 class="text-4xl sm:text-5xl font-bold tracking-tight text-white">
                     System Architecture
                 </h2>
                 
-                <p class="text-fluent-subtext text-base max-w-2xl mx-auto leading-relaxed">
+                <p class="text-gray-400 text-base max-w-2xl mx-auto leading-relaxed">
                     VexoStream operates as a high-performance edge proxy, bridging restricted CDNs and local networks through advanced evasion protocols.
                 </p>
             </div>
     
-            <!-- Fluent Bento Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 auto-rows-[minmax(180px,auto)]">
+            <!-- Glass Bento Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[minmax(180px,auto)]">
                 
                 <!-- Hero Tile (2x2) -->
-                <div class="group relative col-span-1 md:col-span-2 row-span-2 p-8 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-2...
-                    <div class="absolute top-0 left-0 right-0 h-1 bg-fluent-blue opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="group relative col-span-1 md:col-span-2 row-span-2 p-8 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg hover:bg-white/10 transition-all duration-300 fl...
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent-cyan to-accent-emerald opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div>
-                        <div class="w-12 h-12 rounded-xl bg-fluent-blue-light border border-fluent-blue/20 flex items-center justify-center mb-6 text-fluent-blue group-hover:scale-105 transition-transform...
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 ...
+                        <div class="w-14 h-14 rounded-2xl bg-accent-cyan/10 border border-accent-cyan/20 flex items-center justify-center mb-6 text-accent-cyan group-hover:scale-105 transition-transform">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 ...
                         </div>
-                        <span class="text-xs font-semibold text-fluent-blue uppercase tracking-wider">Gateway Engine</span>
-                        <h3 class="text-2xl font-bold text-fluent-text mt-1 mb-3">Zero-Config VPN</h3>
-                        <p class="text-fluent-subtext text-sm leading-relaxed max-w-md">
+                        <span class="text-xs font-bold text-accent-cyan uppercase tracking-widest">Gateway Engine</span>
+                        <h3 class="text-3xl font-bold text-white mt-2 mb-4">Zero-Config VPN</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed max-w-md">
                             Backend handles all routing and proxy networking. Your client device connects strictly to the gateway, completely bypassing ISP-level domain filters.
                         </p>
-                    </div>
-                    <div class="pt-6 flex items-center text-xs font-semibold text-fluent-blue group-hover:translate-x-1 transition-transform">
-                        <span>Explore routing layer</span>
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </div>
                 </div>
     
                 <!-- Multi-Provider Scraper -->
-                <div class="group col-span-1 md:col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col jus...
+                <div class="group col-span-1 md:col-span-1 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all duration-300 flex flex-col justify-between">
                     <div>
-                        <div class="w-10 h-10 rounded-lg bg-[#f8f5fc] border border-[#8661c5]/20 flex items-center justify-center mb-4 text-[#8661c5] group-hover:scale-105 transition-transform">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A...
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-5 text-purple-400 group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A...
                         </div>
-                        <h3 class="text-base font-bold text-fluent-text mb-1">Multi-Provider Scraper</h3>
-                        <p class="text-fluent-subtext text-xs leading-relaxed">Optimized parsers for Pornhub, XNXX, and XVideos to extract direct MP4 lines and HLS streams.</p>
+                        <h3 class="text-lg font-bold text-white mb-2">Multi-Provider Scraper</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed">Optimized parsers for Pornhub, XNXX, and XVideos to extract direct MP4 lines and HLS streams.</p>
                     </div>
                 </div>
     
                 <!-- Adaptive HLS -->
-                <div class="group col-span-1 md:col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col jus...
+                <div class="group col-span-1 md:col-span-1 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all duration-300 flex flex-col justify-between">
                     <div>
-                        <div class="w-10 h-10 rounded-lg bg-[#fdf2f8] border border-[#e3008c]/20 flex items-center justify-center mb-4 text-[#e3008c] group-hover:scale-105 transition-transform">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0...
+                        <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mb-5 text-pink-400 group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0...
                         </div>
-                        <h3 class="text-base font-bold text-fluent-text mb-1">Adaptive HLS</h3>
-                        <p class="text-fluent-subtext text-xs leading-relaxed">Extracts dynamic HLS manifests and rewrites chunk URIs on the fly with automatic resolution scaling.</p>
+                        <h3 class="text-lg font-bold text-white mb-2">Adaptive HLS</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed">Extracts dynamic HLS manifests and rewrites chunk URIs on the fly with automatic resolution scaling.</p>
                     </div>
                 </div>
     
                 <!-- In-Memory Tunnel -->
-                <div class="group col-span-1 md:col-span-2 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex items-center...
-                    <div class="w-12 h-12 shrink-0 rounded-xl bg-[#f1f9f4] border border-[#107c41]/20 flex items-center justify-center text-[#107c41] group-hover:scale-105 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a...
+                <div class="group col-span-1 md:col-span-2 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all duration-300 flex items-center gap-6">
+                    <div class="w-14 h-14 shrink-0 rounded-2xl bg-accent-emerald/10 border border-accent-emerald/20 flex items-center justify-center text-accent-emerald group-hover:scale-105 transition-tr...
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a...
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-fluent-text mb-1">In-Memory Tunnel</h3>
-                        <p class="text-fluent-subtext text-xs sm:text-sm leading-relaxed">Streams pass directly via byte-range requests. Data hits your browser without touching disk storage.</p>
+                        <h3 class="text-lg font-bold text-white mb-2">In-Memory Tunnel</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">Streams pass directly via byte-range requests. Data hits your browser without touching disk storage.</p>
                     </div>
                 </div>
     
                 <!-- WAF Bypass -->
-                <div class="group col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between">
+                <div class="group col-span-1 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all duration-300 flex flex-col justify-between">
                     <div>
-                        <div class="w-10 h-10 rounded-lg bg-[#eff6fc] border border-[#0078d4]/20 flex items-center justify-center mb-4 text-[#0078d4] group-hover:scale-105 transition-transform">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16...
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-5 text-blue-400 group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16...
                         </div>
-                        <h3 class="text-base font-bold text-fluent-text mb-1">WAF Bypass</h3>
-                        <p class="text-fluent-subtext text-xs leading-relaxed">Dynamically injects verified Origin and Referer headers to evade strict hotlink protection blocks.</p>
+                        <h3 class="text-lg font-bold text-white mb-2">WAF Bypass</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed">Dynamically injects verified Origin and Referer headers to evade strict hotlink protection blocks.</p>
                     </div>
                 </div>
     
                 <!-- Cloud Native -->
-                <div class="group col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between">
+                <div class="group col-span-1 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all duration-300 flex flex-col justify-between">
                     <div>
-                        <div class="w-10 h-10 rounded-lg bg-[#fdf3ef] border border-[#d83b01]/20 flex items-center justify-center mb-4 text-[#d83b01] group-hover:scale-105 transition-transform">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">...
+                        <div class="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-5 text-orange-400 group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">...
                         </div>
-                        <h3 class="text-base font-bold text-fluent-text mb-1">Cloud Native</h3>
-                        <p class="text-fluent-subtext text-xs leading-relaxed">Stateless WSGI app optimized for Railway Nixpacks to ensure maximum upstream bandwidth utilization.</p>
+                        <h3 class="text-lg font-bold text-white mb-2">Cloud Native</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed">Stateless WSGI app optimized for Railway Nixpacks to ensure maximum upstream bandwidth utilization.</p>
                     </div>
                 </div>
     
@@ -10776,50 +10110,42 @@ templates
     {% block title %}Home | VexoStream{% endblock %}
     
     {% block content %}
-    <div class="w-full flex-1 flex items-center justify-center p-6 min-h-[85vh] relative overflow-hidden">
-        <!-- Fluent Background Ambiance -->
-        <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.65px,transparent_0.65px)] [background-size:24px_24px] opacity-[0.07] pointer-events-none"></div>
-        <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-gradient-to-tr from-sky-200/50 via-blue-100/30 to-purple-100/40 rounded-full blur-[110px] pointer-eve...
-        
+    <div class="w-full flex-1 flex items-center justify-center p-6 min-h-[85vh]">
         <div class="relative z-10 max-w-5xl w-full text-center flex flex-col items-center py-12">
             
             <!-- Status Pill -->
-            <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-black/[0.08] text-fluent-subtext text-xs font-semibold tracking-wide mb-8 shadow-fluent-card">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
-                </span>
-                <span>Edge Infrastructure Operational</span>
+            <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/5 border border-accent-cyan/30 text-accent-cyan text-xs font-semibold tracking-wide mb-8 shadow-[0_0_15px_rgba(6,...
+                <span>Next-Generation Media Extraction</span>
             </div>
     
             <!-- Typography Heading -->
-            <h1 class="text-5xl sm:text-7xl lg:text-8xl font-bold text-fluent-text tracking-tight mb-6 leading-[1.05]">
+            <h1 class="text-5xl sm:text-7xl lg:text-8xl font-bold text-white tracking-tight mb-6 leading-[1.1]">
                 Stream Without <br/>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-fluent-blue via-[#0078d4] to-[#8661c5]">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-cyan to-accent-emerald">
                     Boundaries.
                 </span>
             </h1>
     
             <!-- Subheading -->
-            <p class="text-base sm:text-lg text-fluent-subtext font-normal max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p class="text-base sm:text-lg text-gray-400 font-normal max-w-2xl mx-auto mb-10 leading-relaxed">
                 A high-velocity proxy gateway specialized in dynamic media extraction and edge streaming. 
-                <span class="text-fluent-text font-medium">Zero local VPN setup required.</span>
+                <span class="text-gray-200 font-medium">Zero local VPN setup required.</span>
             </p>
     
             <!-- CTA Hub -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full max-w-md sm:max-w-none">
-                <a href="/view" class="group w-full sm:w-auto bg-fluent-blue hover:bg-fluent-blue-hover active:bg-fluent-blue-pressed text-white font-semibold py-3.5 px-8 rounded-md shadow-fluent-card hov...
-                    <span>Launch Gateway Terminal</span>
-                    <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md sm:max-w-none">
+                <a href="/view" class="w-full sm:w-auto bg-gradient-to-r from-accent-cyan to-accent-emerald hover:opacity-90 active:scale-[0.98] text-gray-950 font-bold py-3.5 px-8 rounded-xl shadow-[0_0_...
+                    Launch Gateway Terminal
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
                 
-                <a href="/abilities" class="group w-full sm:w-auto bg-white hover:bg-black/[0.02] text-fluent-text font-semibold py-3.5 px-8 rounded-md border border-black/10 shadow-fluent-card hover:shad...
-                    <svg class="w-4 h-4 text-fluent-subtext group-hover:text-fluent-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="/abilities" class="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-gray-300 font-semibold py-3.5 px-8 rounded-xl border border-white/10 backdrop-blur-sm shadow-lg transition-al...
+                    <svg class="w-4 h-4 text-gray-400 group-hover:text-accent-cyan transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                     </svg>
-                    <span>View Architecture</span>
+                    View Architecture
                 </a>
             </div>
         </div>
@@ -10838,93 +10164,69 @@ templates
 
   layout.html
     <!DOCTYPE html>
-    <html lang="en" class="scroll-smooth">
+    <html lang="en" class="scroll-smooth dark">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}VexoStream{% endblock %}</title>
         
-        <!-- Tailwind CSS CDN -->
         <script src="https://cdn.tailwindcss.com"></script>
         
-        <!-- Microsoft Segoe UI Variable & Aptos Variable Typography Stack -->
+        <!-- Google Fonts: Inter & Vazirmatn -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         
         <script>
             tailwind.config = {
+                darkMode: 'class',
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: [
-                                '"Segoe UI Variable Display"',
-                                '"Segoe UI Variable Text"',
-                                '"Segoe UI"',
-                                '"Plus Jakarta Sans"',
-                                '-apple-system',
-                                'BlinkMacSystemFont',
-                                'Roboto',
-                                'sans-serif'
-                            ],
-                            mono: ['"JetBrains Mono"', 'Consolas', 'monospace'],
+                            sans: ['Inter', 'Vazirmatn', 'ui-sans-serif', 'system-ui', 'sans-serif'],
                         },
                         colors: {
-                            fluent: {
-                                blue: '#0067b8',
-                                'blue-hover': '#005da6',
-                                'blue-pressed': '#005293',
-                                'blue-light': '#eff6fc',
-                                canvas: '#f3f3f3',
-                                card: '#ffffff',
-                                'card-hover': '#fbfbfb',
-                                text: '#202020',
-                                subtext: '#605e5c',
-                                border: 'rgba(0, 0, 0, 0.08)',
-                                divider: 'rgba(0, 0, 0, 0.06)'
+                            accent: {
+                                cyan: '#06b6d4',
+                                emerald: '#10b981'
                             }
-                        },
-                        boxShadow: {
-                            'fluent-card': '0 2px 4px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.04)',
-                            'fluent-elevated': '0 4px 8px rgba(0, 0, 0, 0.04), 0 12px 28px rgba(0, 0, 0, 0.08)',
-                            'fluent-dialog': '0 16px 48px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08)',
                         }
                     }
                 }
             };
         </script>
         <style>
-            /* Smooth Fluent Scrollbar */
-            ::-webkit-scrollbar { width: 6px; height: 6px; }
-            ::-webkit-scrollbar-track { background: transparent; }
-            ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 9999px; }
-            ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.35); }
+            body { background-color: #09090b; }
+            ::-webkit-scrollbar { width: 8px; height: 8px; }
+            ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+            ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.5); }
         </style>
         {% block head %}{% endblock %}
     </head>
-    <body class="min-h-screen flex flex-col relative overflow-x-hidden bg-fluent-canvas text-fluent-text font-sans antialiased selection:bg-fluent-blue selection:text-white">
+    <body class="min-h-screen flex flex-col relative overflow-x-hidden text-gray-200 font-sans antialiased selection:bg-accent-cyan selection:text-white">
     
-        <!-- Fluent Layered Age Modal -->
-        <div id="age-modal" class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
-            <div class="bg-white/95 backdrop-blur-xl border border-black/10 p-8 sm:p-10 rounded-2xl max-w-md w-full text-center shadow-fluent-dialog relative overflow-hidden">
-                <div class="absolute top-0 left-0 right-0 h-1 bg-fluent-blue"></div>
+        <!-- Ambient Lighting -->
+        <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+            <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent-cyan/10 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent-emerald/10 rounded-full blur-[120px]"></div>
+        </div>
+    
+        <!-- Age Verification Modal -->
+        <div id="age-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
+            <div class="bg-[#09090b]/95 backdrop-blur-2xl border border-white/10 p-8 sm:p-10 rounded-3xl max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent-cyan to-accent-emerald"></div>
                 
-                <div class="w-16 h-16 bg-fluent-blue-light text-fluent-blue rounded-2xl flex items-center justify-center mx-auto mb-6 border border-fluent-blue/15 shadow-sm">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></pat...
-                    </svg>
-                </div>
-                
-                <h2 class="text-2xl font-bold text-fluent-text mb-2 tracking-tight">Access Control</h2>
-                <p class="text-fluent-subtext text-sm mb-8 leading-relaxed">
-                    This gateway proxies unfiltered media streams. By proceeding, you confirm you are 18+ and agree to our terms.
+                <h2 class="text-2xl font-bold text-white mb-3 tracking-tight">Access Control</h2>
+                <p class="text-gray-400 text-sm mb-8 leading-relaxed">
+                    This gateway proxies streaming media. By proceeding, you confirm you are 18+ and agree to our terms.
                 </p>
                 
-                <div class="flex flex-col gap-2.5">
-                    <button onclick="acceptAge()" class="bg-fluent-blue hover:bg-fluent-blue-hover active:bg-fluent-blue-pressed text-white font-semibold py-3 px-6 rounded-md shadow-sm transition-colors t...
+                <div class="flex flex-col gap-3">
+                    <button onclick="acceptAge()" class="bg-gradient-to-r from-accent-cyan to-accent-emerald hover:opacity-90 text-gray-950 font-bold py-3.5 px-6 rounded-xl transition-all text-sm">
                         Confirm Age & Enter
                     </button>
-                    <a href="https://www.bing.com" class="bg-black/[0.04] hover:bg-black/[0.08] text-fluent-text font-semibold py-3 px-6 rounded-md transition-colors text-sm">
+                    <a href="https://www.google.com" class="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold py-3.5 px-6 rounded-xl transition-colors text-sm">
                         Exit Gateway
                     </a>
                 </div>
@@ -10944,58 +10246,49 @@ templates
             }
         </script>
     
-        <!-- Acrylic Navbar -->
-        <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/[0.06] shadow-sm">
+        <!-- Header Navbar -->
+        <header class="sticky top-0 z-50 bg-[#09090b]/60 backdrop-blur-xl border-b border-white/5 shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                
-                <!-- Brand -->
-                <a href="/" class="flex items-center gap-3">
-                    <div class="grid grid-cols-2 gap-0.5 w-5 h-5">
-                        <span class="bg-[#f25022] w-2.5 h-2.5"></span>
-                        <span class="bg-[#7fba00] w-2.5 h-2.5"></span>
-                        <span class="bg-[#00a4ef] w-2.5 h-2.5"></span>
-                        <span class="bg-[#ffb900] w-2.5 h-2.5"></span>
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-emerald flex items-center justify-center text-gray-900 font-bold shadow-md transition-transform group-hover:...
+                        V
                     </div>
-                    <span class="text-lg font-bold tracking-tight text-neutral-800">
-                        Vexo<span class="text-fluent-blue">Stream</span>
+                    <span class="text-lg font-bold tracking-tight text-white">
+                        Vexo<span class="text-accent-cyan">Stream</span>
                     </span>
                 </a>
     
-                <!-- Nav Links -->
-                <nav class="hidden md:flex items-center space-x-7 text-sm font-medium text-fluent-subtext">
-                    <a href="/" class="hover:text-fluent-blue hover:underline underline-offset-8 transition-colors">Home</a>
-                    <a href="/abilities" class="hover:text-fluent-blue hover:underline underline-offset-8 transition-colors">Abilities</a>
-                    <a href="/view" class="hover:text-fluent-blue hover:underline underline-offset-8 transition-colors">Viewer</a>
+                <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-400">
+                    <a href="/" class="hover:text-accent-cyan transition-colors">Home</a>
+                    <a href="/abilities" class="hover:text-accent-cyan transition-colors">Architecture</a>
+                    <a href="/view" class="hover:text-accent-cyan transition-colors">Terminal</a>
                 </nav>
     
-                <!-- Status Indicator -->
-                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] border border-black/5 text-xs font-semibold text-neutral-700">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
                     <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-70"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-emerald"></span>
                     </span>
-                    <span class="hidden sm:inline">Tunnel Online</span>
+                    <span class="hidden sm:inline">Edge Online</span>
                 </div>
             </div>
         </header>
     
-        <!-- Main Viewport Target -->
         <main class="flex-1 flex flex-col items-center w-full z-10 relative">
             {% block content %}{% endblock %}
         </main>
     
-        <!-- Clean Footer -->
-        <footer class="bg-white/80 border-t border-black/[0.06] mt-auto w-full py-8 px-6 lg:px-8 text-xs text-fluent-subtext">
+        <footer class="bg-[#09090b]/80 border-t border-white/5 mt-auto w-full py-8 px-6 lg:px-8 text-xs text-gray-500 z-10 relative">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex flex-wrap items-center justify-center gap-3 font-medium">
                     <span>System Operational</span>
                     <span>•</span>
-                    <span>Railway Deployed</span>
+                    <span>Cloud Native</span>
                     <span>•</span>
-                    <span>VexoStream Architecture</span>
+                    <span>VexoStream Protocol</span>
                 </div>
                 <div class="font-medium">
-                    © 2026 VexoStream • Created by Muvixo
+                    © 2026 VexoStream • Edge Proxy
                 </div>
             </div>
         </footer>
@@ -11022,125 +10315,87 @@ templates
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         video::-webkit-media-controls-panel { 
-            background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.3) 60%, transparent) !important; 
+            background: linear-gradient(to top, rgba(9,9,11,0.9), transparent) !important; 
         }
-        
         .quality-btn {
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .quality-btn.active { 
-            border-color: #0067b8 !important; 
-            background: #eff6fc !important; 
-            color: #0067b8 !important; 
-            font-weight: 600;
+            border-color: #06b6d4 !important; 
+            background: rgba(6, 182, 212, 0.1) !important; 
+            color: #06b6d4 !important; 
         }
         .quality-btn.active svg.check-icon { 
             opacity: 1 !important; 
-        }
-        
-        .section-header {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #605e5c;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-header::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(0, 0, 0, 0.06);
         }
     </style>
     {% endblock %}
     
     {% block content %}
-    <div class="max-w-[1700px] mx-auto w-full p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 relative text-fluent-text">
+    <div class="max-w-[1700px] mx-auto w-full p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 relative text-gray-200">
     
-        <div class="xl:col-span-9 flex flex-col gap-6">
+        <!-- Left / Center: Protected Video Player & Metadata -->
+        <div class="xl:col-span-8 flex flex-col gap-6">
             
-            <div id="player-container" class="bg-black rounded-2xl overflow-hidden shadow-fluent-card border border-black/10 relative aspect-video group flex items-center justify-center cursor-pointer tra...
-                <div id="play-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm z-10 transition-opacity duration-300">
-                    <div class="w-16 h-16 rounded-full bg-white text-fluent-blue shadow-fluent-elevated flex items-center justify-center mb-3 hover:scale-105 transition-transform duration-200 cursor-point...
+            <!-- Player Container (Protected against right-click & pip save) -->
+            <div id="player-container" class="bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10 relative aspect-video group flex items-center justify-center cursor-pointer transition-...
+                
+                <div id="play-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-10 transition-opacity duration-300">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-r from-accent-cyan to-accent-emerald text-gray-950 shadow-[0_0_25px_rgba(6,182,212,0.4)] flex items-center justify-center mb-4 hover:s...
                         <svg class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </div>
-                    <span class="text-white text-xs font-semibold tracking-wide">Initialize Stream</span>
+                    <span class="text-white text-xs font-semibold tracking-widest uppercase">Initialize Secure Stream</span>
                 </div>
     
-                <video id="main-player" controls controlsList="nodownload" disablePictureInPicture oncontextmenu="return false;" poster="/proxy?url={{ data.thumbnail|urlencode }}&provider={{ data.provider...
+                <video id="main-player" controls controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false;" poster="/proxy?url={{ data.thumbnail|urlencode }}&provider={...
                 
-                <button onclick="toggleFullscreen()" class="absolute bottom-4 right-4 z-20 p-2.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/20 text-white hover:bg-black/80 transition-all ...
+                <button onclick="toggleFullscreen()" class="absolute bottom-4 right-4 z-20 p-2.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-white hover:bg-black/80 hover:border-ac...
                     <svg id="fs-icon-enter" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l...
                     <svg id="fs-icon-exit" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v4m0 0...
                 </button>
             </div>
     
-            <div class="bg-white rounded-2xl p-6 sm:p-8 border border-black/[0.08] shadow-fluent-card flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
-                <div class="absolute top-0 left-0 bottom-0 w-1 bg-fluent-blue"></div>
+            <!-- Details Card -->
+            <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-ce...
+                <div class="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-accent-cyan to-accent-emerald"></div>
                 
                 <div class="flex-1 pl-2">
-                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight mb-3 text-fluent-text leading-snug">{{ data.title }}</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight mb-4 text-white leading-snug">{{ data.title }}</h1>
                     
-                    <div class="flex flex-wrap items-center gap-2.5">
-                        <span class="px-2.5 py-1 bg-fluent-blue-light border border-fluent-blue/20 rounded-md text-xs font-semibold text-fluent-blue flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-fluent-blue"></span>
-                            Secure Edge Proxy
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="px-3 py-1.5 bg-accent-cyan/10 border border-accent-cyan/20 rounded-lg text-xs font-semibold text-accent-cyan flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-accent-cyan animate-pulse"></span>
+                            Encrypted Edge Tunnel
                         </span>
                         
-                        {% if 'pornhub' in data.provider %}
-                        <span class="px-2.5 py-1 bg-amber-50 border border-amber-500/20 rounded-md text-xs font-semibold text-amber-700 flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                            Pornhub Line
+                        <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-semibold text-gray-300 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                            {{ data.provider|title }} Gateway
                         </span>
-                        {% elif 'xnxx' in data.provider %}
-                        <span class="px-2.5 py-1 bg-sky-50 border border-sky-500/20 rounded-md text-xs font-semibold text-sky-700 flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-                            XNXX / XVideos Line
-                        </span>
-                        {% elif '3movs' in data.provider %}
-                        <span class="px-2.5 py-1 bg-purple-50 border border-purple-500/20 rounded-md text-xs font-semibold text-purple-700 flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-                            3movs Line
-                        </span>
-                        {% endif %}
     
-                        <span class="px-2.5 py-1 bg-black/[0.03] border border-black/5 rounded-md text-xs font-medium text-fluent-subtext">
-                            Tokenized Gateway Payload
+                        <span class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-medium text-gray-400">
+                            Anti-Extraction Active
                         </span>
-                    </div>
-                </div>
-                
-                <div class="hidden md:flex items-center gap-8 pl-4 border-l border-black/5 text-right">
-                    <div>
-                        <div class="text-[11px] text-fluent-subtext font-semibold uppercase tracking-wider mb-0.5">Gateway</div>
-                        <div class="text-sm text-emerald-600 font-bold flex items-center gap-1.5 justify-end">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            Online
-                        </div>
                     </div>
                 </div>
             </div>
     
+            <!-- Thumbnails Gallery (Protected Images - No URLs or Downloads) -->
             {% if data.thumbnails and data.thumbnails|length > 0 %}
-            <div class="bg-white rounded-2xl p-6 sm:p-8 border border-black/[0.08] shadow-fluent-card mt-2">
-                <h3 class="text-lg font-bold text-fluent-text mb-5 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-fluent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2...
+            <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-lg">
+                <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></pat...
                     </svg>
-                    Available Thumbnails & Posters
+                    Secure Visual Gallery ({{ data.thumbnails|length }})
                 </h3>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {% for t in data.thumbnails %}
-                    <a href="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}&dl=1" target="_blank" class="block aspect-video bg-black/5 rounded-xl overflow-hidden border border-black/10 hover:sh...
-                        <img src="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" alt="Thumbnail" onerror="this.parentElement.style.display='none'" class="w-full h-full object-cover group-hover...
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003...
+                    <div class="bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col group select-none pointer-events-none">
+                        <div class="block aspect-video relative overflow-hidden">
+                            <img src="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" alt="Preview" onerror="this.parentElement.parentElement.style.display='none'" class="w-full h-full object-c...
                         </div>
-                    </a>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
@@ -11148,92 +10403,51 @@ templates
     
         </div>
     
-        <div class="xl:col-span-3">
-            <div class="bg-white rounded-2xl p-6 sticky top-24 border border-black/[0.08] shadow-fluent-card max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <!-- Right Sidebar: Clean Quality Selector (No URLs exposed) -->
+        <div class="xl:col-span-4">
+            <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sticky top-24 border border-white/10 shadow-lg max-h-[calc(100vh-8rem)] overflow-y-auto">
                 
-                <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-8">
                     
-                    {% if data.streams.direct_mp4 %}
+                    <!-- Adaptive HLS Tracks -->
+                    {% if data.streams.qualities and data.streams.qualities|length > 0 %}
                         <div>
-                            <h3 class="section-header">Direct Progressive (MP4)</h3>
-                            <div class="flex flex-col gap-1.5">
-                                {% for label, url in data.streams.direct_mp4.items() %}
-                                <div class="flex items-center gap-1.5">
-                                    <button onclick="loadQuality('{{ url }}', this)" 
-                                            class="quality-btn flex-1 py-2.5 px-3.5 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-xs font-medium transition-all flex just...
-                                        <span class="flex items-center gap-2">
-                                            <svg class="w-4 h-4 text-[#0078d4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" ...
-                                            {{ label }}
-                                        </span>
-                                        <svg class="check-icon w-4 h-4 text-[#0078d4] opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" strok...
-                                    </button>
-                                    <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download {{ label }}" class="p-2.5 bg-black/[0.02] hover:bg-fluent-blue border border-...
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 00...
-                                    </a>
-                                </div>
-                                {% endfor %}
+                            <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                                <h3 class="text-xs font-bold text-accent-cyan uppercase tracking-widest">Adaptive HLS Streams</h3>
+                                <span class="text-[11px] font-semibold text-gray-500">{{ data.streams.qualities|length }} Qualities</span>
                             </div>
-                        </div>
-                    {% endif %}
-    
-                    {% if data.streams.qualities %}
-                        <div>
-                            <h3 class="section-header">Adaptive Streams (HLS)</h3>
-                            <div class="flex flex-col gap-1.5">
+                            <div class="flex flex-col gap-2.5">
                                 {% for q in data.streams.qualities %}
-                                <div class="flex items-center gap-1.5">
-                                    <button onclick="loadQuality('{{ q.url }}', this)" 
-                                            class="quality-btn flex-1 py-2.5 px-3.5 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-xs font-medium transition-all flex just...
-                                        <span class="flex items-center gap-2">
-                                            <svg class="w-4 h-4 text-fluent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2...
-                                            {{ q.quality }}
-                                        </span>
-                                        <svg class="check-icon w-4 h-4 text-fluent-blue opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" str...
-                                    </button>
-                                    <a href="/proxy?url={{ q.url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download {{ q.quality }} Manifest" class="p-2.5 bg-black/[0.02] hover:bg-fluent-blue...
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 00...
-                                    </a>
-                                </div>
+                                <button onclick="loadQuality('{{ q.url }}', this)" 
+                                        class="quality-btn w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-xs font-semibold text-gray-300 transition-all flex items-ce...
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d=...
+                                        {{ q.quality }} Resolution
+                                    </span>
+                                    <svg class="check-icon w-4 h-4 text-accent-cyan opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-...
+                                </button>
                                 {% endfor %}
                             </div>
                         </div>
                     {% endif %}
     
-                    {% if data.streams.video_only %}
+                    <!-- Direct MP4 Streams -->
+                    {% if data.streams.direct_mp4 and data.streams.direct_mp4|length > 0 %}
                         <div>
-                            <h3 class="section-header">Video Feeds</h3>
-                            <div class="flex flex-col gap-1.5">
-                                {% for label, url in data.streams.video_only.items() %}
-                                <div class="flex items-center gap-1.5">
-                                    <button onclick="loadQuality('{{ url }}', this)" 
-                                            class="quality-btn flex-1 py-2 px-3 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-[11px] font-medium transition-all flex just...
-                                        <span class="truncate pr-2">{{ label }}</span>
-                                        <svg class="check-icon w-3.5 h-3.5 text-fluent-subtext opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="rou...
-                                    </button>
-                                    <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download Video" class="p-2 bg-black/[0.02] hover:bg-fluent-blue border border-black/[0...
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 ...
-                                    </a>
-                                </div>
-                                {% endfor %}
+                            <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                                <h3 class="text-xs font-bold text-accent-emerald uppercase tracking-widest">Progressive Streams</h3>
+                                <span class="text-[11px] font-semibold text-gray-500">{{ data.streams.direct_mp4|length }} Tracks</span>
                             </div>
-                        </div>
-                    {% endif %}
-    
-                    {% if data.streams.audio_only %}
-                        <div>
-                            <h3 class="section-header">Audio Feeds</h3>
-                            <div class="flex flex-col gap-1.5">
-                                {% for label, url in data.streams.audio_only.items() %}
-                                <div class="flex items-center gap-1.5">
-                                    <button onclick="loadQuality('{{ url }}', this)" 
-                                            class="quality-btn flex-1 py-2 px-3 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-[11px] font-medium transition-all flex just...
-                                        <span class="truncate pr-2">{{ label }}</span>
-                                        <svg class="check-icon w-3.5 h-3.5 text-fluent-subtext opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="rou...
-                                    </button>
-                                    <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download Audio" class="p-2 bg-black/[0.02] hover:bg-fluent-blue border border-black/[0...
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 ...
-                                    </a>
-                                </div>
+                            <div class="flex flex-col gap-2.5">
+                                {% for label, url in data.streams.direct_mp4.items() %}
+                                <button onclick="loadQuality('{{ url }}', this)" 
+                                        class="quality-btn w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-xs font-semibold text-gray-300 transition-all flex items-ce...
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-accent-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"...
+                                        {{ label }} Profile
+                                    </span>
+                                    <svg class="check-icon w-4 h-4 text-accent-emerald opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stro...
+                                </button>
                                 {% endfor %}
                             </div>
                         </div>
@@ -11241,8 +10455,8 @@ templates
     
                 </div>
     
-                <div class="mt-8 pt-4 border-t border-black/5">
-                    <a href="/view" class="w-full text-center block bg-black/[0.04] hover:bg-black/[0.08] text-fluent-text font-semibold py-2.5 rounded-md transition-colors text-xs">
+                <div class="mt-8 pt-5 border-t border-white/10">
+                    <a href="/view" class="w-full text-center block bg-white/5 hover:bg-white/10 text-gray-300 font-semibold py-3 rounded-xl border border-white/10 transition-colors text-sm">
                         Process New Media URL
                     </a>
                 </div>
@@ -11263,33 +10477,27 @@ templates
         let isUserInitiated = false;
         let currentUrl = "";
     
-        video.addEventListener('contextmenu', e => e.preventDefault());
+        // Block right-click context menu and keyboard shortcuts for developer tools / saving
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 's' || e.key === 'u' || e.key === 'i' || e.key === 'S' || e.key === 'U' || e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
     
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                if (playerContainer.requestFullscreen) {
-                    playerContainer.requestFullscreen();
-                } else if (playerContainer.webkitRequestFullscreen) {
-                    playerContainer.webkitRequestFullscreen();
-                } else if (playerContainer.msRequestFullscreen) {
-                    playerContainer.msRequestFullscreen();
-                }
+                if (playerContainer.requestFullscreen) playerContainer.requestFullscreen();
+                else if (playerContainer.webkitRequestFullscreen) playerContainer.webkitRequestFullscreen();
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
     
         document.addEventListener('fullscreenchange', updateFsIcon);
         document.addEventListener('webkitfullscreenchange', updateFsIcon);
-        document.addEventListener('mozfullscreenchange', updateFsIcon);
-        document.addEventListener('MSFullscreenChange', updateFsIcon);
-    
+        
         function updateFsIcon() {
             if (document.fullscreenElement) {
                 fsIconEnter.classList.add('hidden');
@@ -11340,8 +10548,8 @@ templates
     
             if (isHls && Hls.isSupported()) {
                 hlsPlayer = new Hls({ 
-                    maxBufferSize: 60*1000*1000, 
-                    maxBufferLength: 60,
+                    maxBufferSize: 30*1000*1000, 
+                    maxBufferLength: 30,
                     enableWorker: true,
                     lowLatencyMode: true
                 });
@@ -11353,22 +10561,6 @@ templates
                     if (currentTime > 0) video.currentTime = currentTime;
                     if (shouldPlay || wasPlaying) {
                         video.play().catch(e => console.log("Autoplay blocked:", e));
-                    }
-                });
-    
-                hlsPlayer.on(Hls.Events.ERROR, function (event, data) {
-                    if (data.fatal) {
-                        switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                hlsPlayer.startLoad();
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                hlsPlayer.recoverMediaError();
-                                break;
-                            default:
-                                hlsPlayer.destroy();
-                                break;
-                        }
                     }
                 });
             } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -11426,56 +10618,54 @@ templates
     {% block title %}Gateway | VexoStream{% endblock %}
     
     {% block content %}
-    <div class="w-full flex-1 flex items-center justify-center p-4 sm:p-6 min-h-[80vh] relative antialiased">
-        <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.65px,transparent_0.65px)] [background-size:24px_24px] opacity-[0.06] pointer-events-none"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[400px] bg-gradient-to-tr from-sky-100/50 via-blue-50/40 to-slate-100/50 rounded-full blur-[100px] pointer-event...
-    
-        <div class="w-full max-w-lg bg-white rounded-2xl p-8 sm:p-10 shadow-fluent-card hover:shadow-fluent-elevated transition-all relative z-10 border border-black/[0.08]">
+    <div class="w-full flex-1 flex items-center justify-center p-4 sm:p-6 min-h-[80vh] relative">
+        
+        <div class="w-full max-w-lg bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] border border-white/10 relative z-10">
             
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-fluent-blue-light border border-fluent-blue/20 mb-4 text-fluent-blue shadow-sm">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-cyan/20 to-accent-emerald/20 border border-accent-cyan/30 mb-5 text-accent-cyan shad...
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 ...
                     </svg>
                 </div>
-                <h2 class="text-2xl sm:text-3xl font-bold text-fluent-text tracking-tight mb-2">Target Terminal</h2>
-                <p class="text-fluent-subtext text-xs sm:text-sm leading-relaxed max-w-sm mx-auto">
-                    Input a video stream URL. The gateway engine will resolve manifest lines and proxy downstream chunks.
+                <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-2">Target Terminal</h2>
+                <p class="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto">
+                    Input a video stream URL. The gateway engine will resolve manifest lines and proxy downstream chunks securely.
                 </p>
             </div>
     
             {% if error %}
-            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-xs font-semibold flex items-start gap-2.5 shadow-sm">
-                <svg class="w-4 h-4 shrink-0 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-6 text-xs font-semibold flex items-start gap-3 backdrop-blur-md">
+                <svg class="w-5 h-5 shrink-0 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <span class="break-all">{{ error }}</span>
             </div>
             {% endif %}
     
-            <form action="/extract" method="POST" class="space-y-4" onsubmit="handleExtract(this)">
+            <form action="/extract" method="POST" class="space-y-5" onsubmit="handleExtract(this)">
                 <div>
-                    <div class="flex items-center bg-black/[0.02] hover:bg-black/[0.04] focus-within:bg-white border border-black/15 focus-within:border-fluent-blue focus-within:ring-2 focus-within:ring-f...
-                        <div class="pl-3.5 pr-2 text-fluent-subtext">
+                    <div class="flex items-center bg-black/40 border border-white/10 focus-within:border-accent-cyan focus-within:ring-1 focus-within:ring-accent-cyan/50 rounded-xl transition-all overflow...
+                        <div class="pl-4 pr-2 text-gray-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-...
                             </svg>
                         </div>
                         <input type="url" name="url" required placeholder="https://..." 
-                               class="w-full bg-transparent border-none py-3.5 pr-4 text-sm text-fluent-text placeholder-fluent-subtext/60 focus:outline-none font-medium">
+                               class="w-full bg-transparent border-none py-4 pr-4 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:ring-0 font-medium">
                     </div>
                 </div>
     
                 <button type="submit" id="submit-btn"
-                        class="w-full bg-fluent-blue hover:bg-fluent-blue-hover active:bg-fluent-blue-pressed text-white font-semibold py-3 px-5 rounded-md shadow-sm transition-all flex items-center justi...
+                        class="w-full bg-gradient-to-r from-accent-cyan to-accent-emerald hover:opacity-90 active:scale-[0.98] text-gray-950 font-bold py-3.5 px-5 rounded-xl shadow-[0_0_20px_rgba(6,182,21...
                     <span id="btn-text" class="flex items-center gap-2">
                         Execute Extraction
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                         </svg>
                     </span>
                     <span id="btn-loading" class="hidden flex items-center gap-2">
-                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin h-5 w-5 text-gray-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -11484,13 +10674,13 @@ templates
                 </button>
             </form>
     
-            <div class="mt-8 pt-5 border-t border-black/5 flex flex-col items-center">
-                <p class="text-[11px] font-semibold text-fluent-subtext uppercase tracking-wider mb-3">Supported Extraction Protocols</p>
+            <div class="mt-8 pt-6 border-t border-white/10 flex flex-col items-center">
+                <p class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-4">Supported Protocols</p>
                 <div class="flex items-center justify-center flex-wrap gap-2.5">
-                    <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">Pornhub</span>
-                    <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">XNXX</span>
-                    <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">XVideos</span>
-                    <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">3movs</span>
+                    <span class="px-3 py-1.5 bg-white/5 rounded-lg text-[11px] font-medium text-gray-400 border border-white/10">Pornhub</span>
+                    <span class="px-3 py-1.5 bg-white/5 rounded-lg text-[11px] font-medium text-gray-400 border border-white/10">XNXX</span>
+                    <span class="px-3 py-1.5 bg-white/5 rounded-lg text-[11px] font-medium text-gray-400 border border-white/10">XVideos</span>
+                    <span class="px-3 py-1.5 bg-white/5 rounded-lg text-[11px] font-medium text-gray-400 border border-white/10">3movs</span>
                 </div>
             </div>
         </div>
