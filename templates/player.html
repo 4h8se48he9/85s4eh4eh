@@ -126,7 +126,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {% for t in data.thumbnails %}
                 <a href="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" target="_blank" class="block aspect-video bg-black/5 rounded-xl overflow-hidden border border-black/10 hover:shadow-fluent-elevated hover:border-fluent-blue/50 transition-all group">
-                    <img src="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" alt="Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    <img src="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" alt="Thumbnail" onerror="this.parentElement.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                 </a>
                 {% endfor %}
             </div>
