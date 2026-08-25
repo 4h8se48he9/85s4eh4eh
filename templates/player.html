@@ -19,10 +19,9 @@
     .quality-btn.active svg.check-icon { 
         opacity: 1 !important; 
     }
-    .dl-btn-text {
+    .stream-url-tag {
+        font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
-        font-weight: 700;
-        white-space: nowrap;
     }
 </style>
 {% endblock %}
@@ -30,7 +29,8 @@
 {% block content %}
 <div class="max-w-[1700px] mx-auto w-full p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 relative text-gray-200">
 
-    <div class="xl:col-span-9 flex flex-col gap-6">
+    <!-- Left / Center: Video Player & Metadata -->
+    <div class="xl:col-span-8 flex flex-col gap-6">
         
         <!-- Player Container -->
         <div id="player-container" class="bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10 relative aspect-video group flex items-center justify-center cursor-pointer transition-all">
@@ -87,21 +87,27 @@
 
         <!-- Thumbnails Gallery -->
         {% if data.thumbnails and data.thumbnails|length > 0 %}
-        <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-lg mt-2">
+        <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-lg">
             <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
                 <svg class="w-5 h-5 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
-                Available Thumbnails
+                Available Poster Dimensions & Thumbnails ({{ data.thumbnails|length }})
             </h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {% for t in data.thumbnails %}
-                <a href="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}&dl=1" target="_blank" class="block aspect-video bg-black/40 rounded-xl overflow-hidden border border-white/10 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:border-accent-cyan/50 transition-all group relative">
-                    <img src="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" alt="Thumbnail" onerror="this.parentElement.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <div class="bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col group">
+                    <a href="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}&dl=1" target="_blank" class="block aspect-video relative overflow-hidden">
+                        <img src="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" alt="Thumbnail" onerror="this.parentElement.parentElement.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        </div>
+                    </a>
+                    <div class="p-2 flex items-center justify-between border-t border-white/5 bg-white/[0.02]">
+                        <button onclick="copyToClipboard('{{ t }}', this)" class="text-[11px] font-medium text-gray-400 hover:text-accent-cyan transition-colors">Copy URL</button>
+                        <a href="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}&dl=1" class="text-[11px] font-semibold text-accent-emerald hover:underline">Save</a>
                     </div>
-                </a>
+                </div>
                 {% endfor %}
             </div>
         </div>
@@ -109,75 +115,97 @@
 
     </div>
 
-    <!-- Right Sidebar Streams -->
-    <div class="xl:col-span-3">
+    <!-- Right Sidebar: All Platform Streams -->
+    <div class="xl:col-span-4">
         <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sticky top-24 border border-white/10 shadow-lg max-h-[calc(100vh-8rem)] overflow-y-auto">
             
             <div class="flex flex-col gap-8">
                 
-                <!-- Direct MP4 -->
-                {% if data.streams.direct_mp4 %}
+                <!-- Adaptive HLS Tracks (Pornhub, XNXX, XVideos, etc.) -->
+                {% if data.streams.qualities and data.streams.qualities|length > 0 %}
                     <div>
-                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 border-b border-white/10 pb-2">Direct MP4</h3>
-                        <div class="flex flex-col gap-2">
-                            {% for label, url in data.streams.direct_mp4.items() %}
-                            <div class="flex items-center gap-2">
-                                <button onclick="loadQuality('{{ url }}', this)" 
-                                        class="quality-btn flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-medium text-gray-300 transition-all flex justify-between items-center group">
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        {{ label }}
+                        <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                            <h3 class="text-xs font-bold text-accent-cyan uppercase tracking-widest">Adaptive HLS Streams (.m3u8)</h3>
+                            <span class="text-[11px] font-semibold text-gray-500">{{ data.streams.qualities|length }} Tracks</span>
+                        </div>
+                        <div class="flex flex-col gap-2.5">
+                            {% for q in data.streams.qualities %}
+                            <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex flex-col gap-2 hover:border-white/20 transition-all">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="px-2.5 py-1 bg-accent-cyan/10 border border-accent-cyan/20 rounded-lg text-xs font-bold text-accent-cyan flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                        {{ q.quality }}
                                     </span>
-                                    <svg class="check-icon w-4 h-4 text-accent-cyan opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                </button>
-                                <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download {{ label }}" class="p-3 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors flex items-center justify-center min-w-[46px]">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                </a>
+                                    <div class="flex items-center gap-1.5">
+                                        <button onclick="loadQuality('{{ q.url }}', this)" class="quality-btn py-1.5 px-3 bg-white/5 hover:bg-accent-cyan hover:text-gray-950 border border-white/10 rounded-lg text-xs font-semibold transition-all">
+                                            Play
+                                        </button>
+                                        <button onclick="copyToClipboard('{{ q.url }}', this)" class="py-1.5 px-3 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-medium text-gray-300 transition-all">
+                                            Copy
+                                        </button>
+                                        <button onclick="downloadHlsStream('{{ q.url }}', '{{ data.title|escape }} - {{ q.quality }}', this)" title="Download as .MP4" class="py-1.5 px-3 bg-accent-emerald/10 hover:bg-accent-emerald hover:text-gray-950 border border-accent-emerald/30 text-accent-emerald rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="stream-url-tag text-gray-500 truncate select-all" title="{{ q.url }}">{{ q.url }}</div>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
                 {% endif %}
 
-                <!-- Adaptive HLS (In-Browser Stitching) -->
-                {% if data.streams.qualities %}
+                <!-- Direct MP4 Streams -->
+                {% if data.streams.direct_mp4 and data.streams.direct_mp4|length > 0 %}
                     <div>
-                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 border-b border-white/10 pb-2">Adaptive HLS</h3>
-                        <div class="flex flex-col gap-2">
-                            {% for q in data.streams.qualities %}
-                            <div class="flex items-center gap-2">
-                                <button onclick="loadQuality('{{ q.url }}', this)" 
-                                        class="quality-btn flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-medium text-gray-300 transition-all flex justify-between items-center group">
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                        {{ q.quality }}
+                        <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                            <h3 class="text-xs font-bold text-accent-emerald uppercase tracking-widest">Direct Progressive MP4 Lines</h3>
+                            <span class="text-[11px] font-semibold text-gray-500">{{ data.streams.direct_mp4|length }} Tracks</span>
+                        </div>
+                        <div class="flex flex-col gap-2.5">
+                            {% for label, url in data.streams.direct_mp4.items() %}
+                            <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex flex-col gap-2 hover:border-white/20 transition-all">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="px-2.5 py-1 bg-accent-emerald/10 border border-accent-emerald/20 rounded-lg text-xs font-bold text-accent-emerald flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        {{ label }}
                                     </span>
-                                    <svg class="check-icon w-4 h-4 text-accent-cyan opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                </button>
-                                <!-- JS Client-Side Blob Downloader -->
-                                <button onclick="downloadHlsStream('{{ q.url }}', '{{ data.title|escape }} - {{ q.quality }}', this)" title="Extract & Stitch HLS locally" class="p-3 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors flex items-center justify-center min-w-[46px]">
-                                    <svg class="w-5 h-5 icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                </button>
+                                    <div class="flex items-center gap-1.5">
+                                        <button onclick="loadQuality('{{ url }}', this)" class="quality-btn py-1.5 px-3 bg-white/5 hover:bg-accent-emerald hover:text-gray-950 border border-white/10 rounded-lg text-xs font-semibold transition-all">
+                                            Play
+                                        </button>
+                                        <button onclick="copyToClipboard('{{ url }}', this)" class="py-1.5 px-3 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-medium text-gray-300 transition-all">
+                                            Copy
+                                        </button>
+                                        <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Direct Download" class="py-1.5 px-3 bg-accent-emerald/10 hover:bg-accent-emerald hover:text-gray-950 border border-accent-emerald/30 text-accent-emerald rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                            Save
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="stream-url-tag text-gray-500 truncate select-all" title="{{ url }}">{{ url }}</div>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
                 {% endif %}
-                
-                <!-- Video/Audio Only Streams -->
-                {% if data.streams.video_only %}
+
+                <!-- Video Only / Supplementary Feeds -->
+                {% if data.streams.video_only and data.streams.video_only|length > 0 %}
                     <div>
-                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 border-b border-white/10 pb-2">Video Feeds</h3>
+                        <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Alternative Video Feeds</h3>
+                        </div>
                         <div class="flex flex-col gap-2">
                             {% for label, url in data.streams.video_only.items() %}
-                            <div class="flex items-center gap-2">
-                                <button onclick="loadQuality('{{ url }}', this)" 
-                                        class="quality-btn flex-1 py-2.5 px-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[11px] font-medium text-gray-400 transition-all flex justify-between items-center">
-                                    <span class="truncate pr-2">{{ label }}</span>
-                                </button>
-                                <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download Video" class="p-2.5 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors flex items-center justify-center min-w-[46px]">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                </a>
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center justify-between gap-2">
+                                <span class="text-xs font-medium text-gray-300 truncate">{{ label }}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="loadQuality('{{ url }}', this)" class="quality-btn py-1 px-2.5 bg-white/5 hover:bg-white/15 border border-white/10 rounded text-[11px] font-medium">Play</button>
+                                    <button onclick="copyToClipboard('{{ url }}', this)" class="py-1 px-2.5 bg-white/5 hover:bg-white/15 border border-white/10 rounded text-[11px] font-medium">Copy</button>
+                                    <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" class="py-1 px-2.5 bg-accent-emerald/10 hover:bg-accent-emerald hover:text-gray-950 border border-accent-emerald/30 text-accent-emerald rounded text-[11px] font-bold">Save</a>
+                                </div>
                             </div>
                             {% endfor %}
                         </div>
@@ -310,9 +338,16 @@
         }
     }
 
-    // ==========================================
-    // JS Blob Stitching for HLS Downloads
-    // ==========================================
+    async function copyToClipboard(text, btn) {
+        try {
+            await navigator.clipboard.writeText(text);
+            const orig = btn.innerText;
+            btn.innerText = 'Copied!';
+            setTimeout(() => { btn.innerText = orig; }, 1500);
+        } catch {}
+    }
+
+    // In-Browser Blob Stitching Engine for HLS Streams
     async function downloadHlsStream(m3u8Url, rawFilename, btn) {
         const origContent = btn.innerHTML;
         btn.disabled = true;
@@ -320,24 +355,20 @@
         const sanitizedFilename = (rawFilename || 'video').replace(/[^a-zA-Z0-9_\- ]/g, '_').substring(0, 100);
 
         try {
-            btn.innerHTML = '<span class="dl-btn-text text-accent-emerald">Parsing...</span>';
+            btn.innerHTML = '<span class="text-xs font-bold text-accent-emerald">Manifest...</span>';
             
-            // Fetch proxy version of m3u8
             const proxyM3u8Url = '/proxy?url=' + encodeURIComponent(m3u8Url) + '&provider=' + providerName;
             const manifestRes = await fetch(proxyM3u8Url);
             const manifestText = await manifestRes.text();
             const lines = manifestText.split('\n').map(l => l.trim());
             
             let tsUrls = [];
-            
-            // Check if it's a master playlist that points to child streams
             const hasChild = lines.some(l => l.startsWith('#EXT-X-STREAM-INF'));
             
             if (hasChild) {
                 let targetPlaylistUrl = '';
                 for (let i = 0; i < lines.length; i++) {
                     if (lines[i].startsWith('#EXT-X-STREAM-INF') && i + 1 < lines.length && !lines[i + 1].startsWith('#')) {
-                        // The Flask app's rewrite_playlist already changed this to a /proxy url
                         targetPlaylistUrl = lines[i + 1];
                         break;
                     }
@@ -349,18 +380,18 @@
                 tsUrls = parseSegments(manifestText);
             }
             
-            if (tsUrls.length === 0) throw new Error("No segments found");
+            if (tsUrls.length === 0) throw new Error("No media segments found.");
 
             const chunks = [];
             for (let i = 0; i < tsUrls.length; i++) {
                 const percent = Math.round(((i + 1) / tsUrls.length) * 100);
-                btn.innerHTML = `<span class="dl-btn-text text-accent-cyan">${percent}%</span>`;
+                btn.innerHTML = `<span class="text-xs font-bold text-accent-cyan">${percent}%</span>`;
                 
                 const segRes = await fetch(tsUrls[i]);
                 chunks.push(await segRes.arrayBuffer());
             }
             
-            btn.innerHTML = '<span class="dl-btn-text text-accent-emerald">Stitching...</span>';
+            btn.innerHTML = '<span class="text-xs font-bold text-accent-emerald">Stitching...</span>';
             const blob = new Blob(chunks, { type: 'video/mp4' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -370,7 +401,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(a.href);
             
-            btn.innerHTML = '<span class="dl-btn-text text-accent-emerald">Done!</span>';
+            btn.innerHTML = '<span class="text-xs font-bold text-accent-emerald">Done!</span>';
             setTimeout(() => { btn.innerHTML = origContent; btn.disabled = false; }, 2000);
             
         } catch (err) {
@@ -384,7 +415,6 @@
         const urls = [];
         for (const line of text.split('\n')) {
             const t = line.trim();
-            // Since the Flask backend already rewrites the URIs to /proxy?url=..., we just extract those lines
             if (t && !t.startsWith('#')) {
                 urls.push(t);
             }
