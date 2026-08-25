@@ -1,8 +1,9 @@
 import os
 import logging
 import re
+import hashlib
 from urllib.parse import urlparse, urljoin, quote
-from flask import Flask, request, render_template, Response
+from flask import Flask, request, render_template, Response, abort
 import requests
 from scraper import VideoScraper
 
@@ -13,13 +14,37 @@ app.secret_key = os.urandom(24)
 
 scraper = VideoScraper()
 
-def rewrite_playlist(playlist, base_url, provider):
-    def build_proxy_uri(raw_uri):
+# Secure In-Memory Token Store for Hashing Stream URLs
+STREAM_TOKENS = {}
+
+def create_secure_token(target_url, provider):
+    token = hashlib.sha256(f"{target_url}_{os.urandom(16).hex()}".encode()).hexdigest()[:32]
+    STREAM_TOKENS[token] = {"url": target_url, "provider": provider}
+    # Keep memory footprint safe
+    if len(STREAM_TOKENS) > 2000:
+        STREAM_TOKENS.pop(next(iter(STREAM_TOKENS)))
+    return token
+
+# ==========================================
+# ANTI-YT-DLP & AUTOMATED SCRAPER FIREWALL
+# ==========================================
+@app.before_request
+def anti_bot_guard():
+    # Allow normal document/asset pages, inspect stream proxy requests
+    if request.path.startswith('/stream') or request.path.startswith('/proxy'):
+        ua = request.headers.get("User-Agent", "").lower()
+        blocked_bots = ["yt-dlp", "youtube-dl", "python-requests", "curl", "wget", "libwww-perl", "axios", "postman", "bot", "crawler"]
+        if any(bot in ua for bot in blocked_bots):
+            abort(403, description="Automated scraper access prohibited.")
+
+def tokenized_rewrite_playlist(playlist, base_url, provider):
+    def build_token_uri(raw_uri):
         clean_uri = raw_uri.strip().strip("'\"")
         if clean_uri.startswith("data:"):
             return clean_uri
         resolved = urljoin(base_url, clean_uri)
-        return f"/proxy?url={quote(resolved, safe='')}&provider={provider}"
+        token = create_secure_token(resolved, provider)
+        return f"/stream/{token}"
 
     out_lines = []
     for line in playlist.splitlines():
@@ -28,10 +53,10 @@ def rewrite_playlist(playlist, base_url, provider):
             continue
         if trimmed.startswith('#'):
             def repl(m):
-                return f'URI="{build_proxy_uri(m.group(1))}"'
+                return f'URI="{build_token_uri(m.group(1))}"'
             out_lines.append(re.sub(r'URI="([^"]+)"', repl, trimmed))
         else:
-            out_lines.append(build_proxy_uri(trimmed))
+            out_lines.append(build_token_uri(trimmed))
     return '\n'.join(out_lines)
 
 @app.route("/", methods=["GET"])
@@ -58,19 +83,43 @@ def extract():
     if not data or data.get("status") == "error":
         return render_template("view.html", error=data.get("error", "Extraction failed."))
 
+    provider = data.get("provider", "pornhub")
+
+    # TOKENIZE ALL STREAM URLS (Hiding raw CDN links entirely)
+    if "streams" in data:
+        if "qualities" in data["streams"]:
+            for q in data["streams"]["qualities"]:
+                token = create_secure_token(q["url"], provider)
+                q["secure_token"] = token
+                q["url"] = f"/stream/{token}" # Overwrite cleartext URL with secure hash path
+
+        if "direct_mp4" in data["streams"]:
+            secure_mp4 = {}
+            for label, u in data["streams"]["direct_mp4"].items():
+                token = create_secure_token(u, provider)
+                secure_mp4[label] = f"/stream/{token}"
+            data["streams"]["direct_mp4"] = secure_mp4
+
+        if "video_only" in data["streams"]:
+            secure_vo = {}
+            for label, u in data["streams"]["video_only"].items():
+                token = create_secure_token(u, provider)
+                secure_vo[label] = f"/stream/{token}"
+            data["streams"]["video_only"] = secure_vo
+
     return render_template("player.html", data=data)
 
-@app.route("/proxy")
-def proxy_media():
-    target = request.args.get("url")
-    provider = request.args.get("provider", "")
-    
-    # STRICT BLOCK: Completely prevent downloads or binary file exfiltration through the proxy
-    if request.args.get("dl") == "1":
-        return "Direct content downloads are restricted by security policy.", 403
+# ==========================================
+# SECURE HASHED STREAM ENDPOINT (/stream/[token])
+# ==========================================
+@app.route("/stream/<token>")
+def secure_stream(token):
+    stream_info = STREAM_TOKENS.get(token)
+    if not stream_info:
+        return "Invalid or expired stream token.", 404
 
-    if not target:
-        return "Missing URL", 400
+    target = stream_info["url"]
+    provider = stream_info["provider"]
 
     parsed_url = urlparse(target)
     netloc = parsed_url.netloc.lower()
@@ -128,7 +177,7 @@ def proxy_media():
         if is_m3u8:
             text = upstream.text
             final_base = upstream.url or target
-            rewritten = rewrite_playlist(text, final_base, provider)
+            rewritten = tokenized_rewrite_playlist(text, final_base, provider)
             res_headers["Content-Type"] = "application/vnd.apple.mpegurl"
             res_headers["Content-Length"] = str(len(rewritten.encode('utf-8')))
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
@@ -144,8 +193,8 @@ def proxy_media():
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=False)
 
     except Exception as e:
-        logging.error(f"Proxy failure for {target}: {e}")
-        return f"Proxy stream failure: {str(e)}", 502
+        logging.error(f"Stream failure for {target}: {e}")
+        return f"Stream tunnel failure: {str(e)}", 502
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)), debug=True)

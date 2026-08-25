@@ -28,7 +28,7 @@
     <!-- Left / Center: Protected Video Player & Metadata -->
     <div class="xl:col-span-8 flex flex-col gap-6">
         
-        <!-- Player Container (Protected against right-click & pip save) -->
+        <!-- Player Container -->
         <div id="player-container" class="bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10 relative aspect-video group flex items-center justify-center cursor-pointer transition-all">
             
             <div id="play-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-10 transition-opacity duration-300">
@@ -38,7 +38,7 @@
                 <span class="text-white text-xs font-semibold tracking-widest uppercase">Initialize Secure Stream</span>
             </div>
 
-            <video id="main-player" controls controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false;" poster="/proxy?url={{ data.thumbnail|urlencode }}&provider={{ data.provider }}" preload="metadata" playsinline class="w-full h-full outline-none object-contain"></video>
+            <video id="main-player" controls controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false;" preload="metadata" playsinline class="w-full h-full outline-none object-contain"></video>
             
             <button onclick="toggleFullscreen()" class="absolute bottom-4 right-4 z-20 p-2.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-white hover:bg-black/80 hover:border-accent-cyan/50 transition-all opacity-0 group-hover:opacity-100 hidden md:block focus:outline-none">
                 <svg id="fs-icon-enter" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
@@ -71,30 +71,9 @@
             </div>
         </div>
 
-        <!-- Thumbnails Gallery (Protected Images - No URLs or Downloads) -->
-        {% if data.thumbnails and data.thumbnails|length > 0 %}
-        <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-lg">
-            <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
-                <svg class="w-5 h-5 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                </svg>
-                Secure Visual Gallery ({{ data.thumbnails|length }})
-            </h3>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {% for t in data.thumbnails %}
-                <div class="bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col group select-none pointer-events-none">
-                    <div class="block aspect-video relative overflow-hidden">
-                        <img src="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" alt="Preview" onerror="this.parentElement.parentElement.style.display='none'" class="w-full h-full object-cover">
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
     </div>
 
-    <!-- Right Sidebar: Clean Quality Selector (No URLs exposed) -->
+    <!-- Right Sidebar: Clean Quality Selector (Hashed Tokens Only) -->
     <div class="xl:col-span-4">
         <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sticky top-24 border border-white/10 shadow-lg max-h-[calc(100vh-8rem)] overflow-y-auto">
             
@@ -162,13 +141,11 @@
     const fsIconEnter = document.getElementById('fs-icon-enter');
     const fsIconExit = document.getElementById('fs-icon-exit');
     
-    const providerName = "{{ data.provider }}";
-    
     let hlsPlayer = null;
     let isUserInitiated = false;
     let currentUrl = "";
 
-    // Block right-click context menu and keyboard shortcuts for developer tools / saving
+    // Block right-click context menu and inspection shortcuts
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
         if (e.ctrlKey && (e.key === 's' || e.key === 'u' || e.key === 'i' || e.key === 'S' || e.key === 'U' || e.key === 'I')) {
@@ -216,19 +193,19 @@
         isUserInitiated = true;
     });
 
-    function loadQuality(url, btnElement) {
+    function loadQuality(secureStreamPath, btnElement) {
         document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
         if (btnElement) btnElement.classList.add('active');
 
-        currentUrl = url;
-        applySource(url, isUserInitiated);
+        currentUrl = secureStreamPath;
+        applySource(secureStreamPath, isUserInitiated);
     }
 
-    function applySource(proxyUrl, shouldPlay) {
-        if (!proxyUrl) return;
+    function applySource(streamPath, shouldPlay) {
+        if (!streamPath) return;
 
-        const finalUrl = '/proxy?url=' + encodeURIComponent(proxyUrl) + '&provider=' + providerName;
-        const isHls = proxyUrl.includes('.m3u8') || proxyUrl.includes('hls') || proxyUrl.includes('manifest');
+        // streamPath is already formatted as /stream/[hashed-token]
+        const isHls = streamPath.includes('m3u8') || streamPath.includes('stream');
         const wasPlaying = !video.paused && video.currentTime > 0;
         const currentTime = video.currentTime;
 
@@ -245,7 +222,7 @@
                 lowLatencyMode: true
             });
             
-            hlsPlayer.loadSource(finalUrl);
+            hlsPlayer.loadSource(streamPath);
             hlsPlayer.attachMedia(video);
             
             hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -255,11 +232,11 @@
                 }
             });
         } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = finalUrl;
+            video.src = streamPath;
             if (currentTime > 0) video.currentTime = currentTime;
             if (shouldPlay || wasPlaying) video.play().catch(()=>{});
         } else {
-            video.src = finalUrl;
+            video.src = streamPath;
             video.load();
             if (currentTime > 0) video.currentTime = currentTime;
             if (shouldPlay || wasPlaying) video.play().catch(()=>{});
@@ -277,15 +254,12 @@
                 currentUrl = "{{ data.streams.qualities[0].url }}";
             {% elif data.streams.video_only %}
                 currentUrl = "{{ data.streams.video_only.values()|first }}";
-            {% elif data.streams.audio_only %}
-                currentUrl = "{{ data.streams.audio_only.values()|first }}";
             {% else %}
                 currentUrl = "";
             {% endif %}
             
             if (currentUrl) {
-                const initialProxyUrl = '/proxy?url=' + encodeURIComponent(currentUrl) + '&provider=' + providerName;
-                video.src = initialProxyUrl;
+                video.src = currentUrl;
                 video.load();
             }
         }
