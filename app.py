@@ -92,7 +92,8 @@ def proxy_media():
     }
 
     range_header = request.headers.get("Range")
-    if range_header:
+    # Only pass Range if we are streaming in the player. For full downloads, omit it.
+    if range_header and not force_download:
         req_headers["Range"] = range_header
 
     try:
@@ -106,6 +107,7 @@ def proxy_media():
             upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, allow_redirects=True, timeout=25)
             upstream.raise_for_status()
 
+        # If the upstream fails, do NOT send as an attachment.
         if upstream.status_code not in [200, 206]:
             return f"Upstream block: {upstream.status_code}", upstream.status_code
 
@@ -121,12 +123,19 @@ def proxy_media():
         if "Content-Length" in upstream.headers:
             res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
-        if force_download:
-            ext = "mp4" if ".mp4" in target.lower() else "jpg" if "image" in content_type else "bin"
-            res_headers["Content-Disposition"] = f'attachment; filename="download.{ext}"'
-
         is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
 
+        # PREVENT DOWNLOADING RAW M3U8 TEXT AS A VIDEO FILE
+        if force_download and is_m3u8:
+            return "HLS streams (.m3u8) cannot be downloaded directly via proxy. Please use a Direct MP4 link.", 400
+
+        # Handle valid downloads
+        if force_download:
+            ext = "mp4" if ".mp4" in target.lower() or "video" in content_type else "bin"
+            if "image" in content_type: ext = "jpg"
+            res_headers["Content-Disposition"] = f'attachment; filename="vexostream_media.{ext}"'
+
+        # Rewrite M3U8 for the player
         if is_m3u8 and not force_download:
             text = upstream.text
             final_base = upstream.url or target
