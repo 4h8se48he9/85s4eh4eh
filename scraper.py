@@ -47,6 +47,7 @@ class VideoScraper:
 
         geo_url = url.replace("www.pornhub.com", "de.pornhub.com")
         title, poster, media_defs = "Unknown Title", "", []
+        thumbs = set()
 
         try:
             resp = requests.get(geo_url, headers=self.headers, timeout=15)
@@ -57,6 +58,18 @@ class VideoScraper:
                     media_defs = data.get('mediaDefinitions', [])
                     title = data.get('video_title') or title
                     poster = data.get('image_url') or data.get('thumb_url') or poster
+                    
+                    # Extract all thumbnails from flashvars
+                    if poster and poster.startswith('http'): thumbs.add(poster)
+                    for k, v in data.items():
+                        if isinstance(v, str) and v.startswith('http') and any(ext in v.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+                            thumbs.add(v)
+                        elif isinstance(v, list):
+                            for item in v:
+                                if isinstance(item, str) and item.startswith('http') and any(ext in item.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+                                    thumbs.add(item)
+                                elif isinstance(item, dict) and 'url' in item and isinstance(item['url'], str) and item['url'].startswith('http'):
+                                    thumbs.add(item['url'])
         except Exception: pass
 
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
@@ -87,7 +100,7 @@ class VideoScraper:
                         seen_q.add(pq["quality"])
                         stream_data["qualities"].append(pq)
                         
-        return {"status": "success", "title": title.strip(), "thumbnail": poster, "streams": stream_data, "url": url}
+        return {"status": "success", "title": title.strip(), "thumbnail": poster, "thumbnails": list(thumbs), "streams": stream_data, "url": url}
 
     def _scrape_xnxx_xvideos(self, url):
         try:
@@ -102,6 +115,12 @@ class VideoScraper:
         thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
         thumbnail = thumb_raw[0] if thumb_raw else ""
 
+        thumbs = set()
+        if thumbnail and thumbnail.startswith('http'): thumbs.add(thumbnail)
+        # Extract multiple thumb sizes from JS configs
+        for m in re.finditer(r'setThumbUrl(?:169|Slide|)?\(\s*[\'"](https?://[^\'"]+)[\'"]\s*\)', page):
+            thumbs.add(m.group(1))
+
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
         hls_match = re.search(r'(?:setVideoHLS|html5player\.setVideoHLS)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
         high_match = re.search(r'(?:setVideoUrlHigh|html5player\.setVideoUrlHigh)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
@@ -111,7 +130,7 @@ class VideoScraper:
         if high_match: stream_data["direct_mp4"]["High"] = high_match.group(1)
         if low_match: stream_data["direct_mp4"]["Low"] = low_match.group(1)
 
-        return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "streams": stream_data, "url": url}
+        return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "thumbnails": list(thumbs), "streams": stream_data, "url": url}
 
     def _scrape_3movs(self, url):
         try:
@@ -124,7 +143,7 @@ class VideoScraper:
         page = resp.text
         tree = html.fromstring(resp.content)
         
-        # 1. Extract Title
+        # Extract Title
         title_raw = tree.xpath('//meta[@property="og:title"]/@content')
         title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
         if title == "Unknown Title":
@@ -132,91 +151,90 @@ class VideoScraper:
             if title_tag:
                 title = title_tag[0].split('|')[0].split('-')[0].strip()
 
-        # 2. Extract Thumbnail
+        # Extract Thumbnails
+        thumbs = set()
         thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
         thumbnail = thumb_raw[0] if thumb_raw else ""
-        if not thumbnail:
-            poster_match = re.search(r'poster\s*[:=]\s*["\']([^"\']+)["\']', page)
-            if poster_match:
-                thumbnail = poster_match.group(1).replace('\\/', '/')
-        if thumbnail.startswith('//'):
-            thumbnail = "https:" + thumbnail
+        
+        # Scrape all image tags across page
+        for m in re.finditer(r'(?:poster|image|thumb|url)\s*[:=]\s*["\']([^"\']+\.(?:jpg|jpeg|png|webp)[^"\']*)["\']', page, re.I):
+            t_url = m.group(1).replace('\\/', '/')
+            if t_url.startswith('//'): t_url = "https:" + t_url
+            elif t_url.startswith('/'): t_url = urljoin(url, t_url)
+            if t_url.startswith('http'): thumbs.add(t_url)
+            
+        for meta in tree.xpath('//meta[contains(@property, "image") or contains(@name, "image")]/@content'):
+            if meta.startswith('//'): meta = "https:" + meta
+            elif meta.startswith('/'): meta = urljoin(url, meta)
+            if meta.startswith('http'): thumbs.add(meta)
+
+        if thumbnail:
+            if thumbnail.startswith('//'): thumbnail = "https:" + thumbnail
+            thumbs.add(thumbnail)
+        elif thumbs:
+            thumbnail = list(thumbs)[0]
 
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
         sources = []
         
-        # Method A: Parse Fluid Player <source> tags
+        # Source collection
         for source in tree.xpath('//source'):
             src = source.get('src')
             if src:
                 qual_hint = source.get('title') or source.get('label') or source.get('res')
                 sources.append({'url': src, 'qual': qual_hint})
-            
-        # Method B: Regex search for JS configs
+                
         for match in re.finditer(r'(?:video_url|video_alt_url\d*|src|file)\s*[:=]\s*["\']([^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
             sources.append({'url': match.group(1), 'qual': None})
 
-        # Method C: Raw fallback search
         for match in re.finditer(r'["\']((?:https?:)?//[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
             sources.append({'url': match.group(1), 'qual': None})
 
         seen_q = set()
         seen_urls = set()
+        mp4_candidates = []
         
         for item in sources:
             src = item['url'].replace('\\/', '/')
+            if src.startswith('//'): src = "https:" + src
+            elif src.startswith('/'): src = urljoin(url, src)
             
-            # Resolve relative URLs
-            if src.startswith('//'):
-                src = "https:" + src
-            elif src.startswith('/'):
-                src = urljoin(url, src)
-                
             if not src or src in seen_urls: continue
-            
-            # Filter out ads and thumbnails
             if any(x in src.lower() for x in ['ad.', 'ads.', 'banner', 'sprite', 'thumb', 'preview', 'timeline']): 
                 continue
                 
             seen_urls.add(src)
             
-            # Process HLS
             if '.m3u8' in src:
                 for pq in self.parse_hls_qualities(src):
                     if pq["quality"] not in seen_q:
                         seen_q.add(pq["quality"])
                         stream_data["qualities"].append(pq)
                         
-            # Process MP4
             elif '.mp4' in src:
-                qual = "auto"
-                
+                res = 0
                 if item['qual']:
-                    q_text = item['qual'].strip().lower()
-                    res_match = re.search(r'(\d{3,4})', q_text)
-                    if 'high' in q_text:
-                        qual = 'High'
-                    elif 'low' in q_text:
-                        qual = 'Low'
-                    elif res_match:
-                        qual = f"{res_match.group(1)}p"
-                    else:
-                        qual = item['qual'].strip().title()
+                    q_text = item['qual'].lower()
+                    m_res = re.search(r'(\d+)', q_text)
+                    if 'high' in q_text: res = 1080
+                    elif 'low' in q_text: res = 360
+                    elif m_res: res = int(m_res.group(1))
+                    
+                if res == 0:
+                    m_res = re.search(r'(\d{3,4})[pP]?', src)
+                    if 'high' in src.lower() or 'hq' in src.lower(): res = 1080
+                    elif 'low' in src.lower() or 'lq' in src.lower(): res = 360
+                    elif m_res: res = int(m_res.group(1))
                 
-                if qual == "auto":
-                    if 'high' in src.lower():
-                        qual = 'High'
-                    elif 'low' in src.lower():
-                        qual = 'Low'
-                    else:
-                        q_match = re.search(r'(?:[-_/]|(?<=[a-zA-Z]))(\d{3,4})[pP]?(?:[-_./]|\.mp4)', src)
-                        if q_match:
-                            qual = f"{q_match.group(1)}p"
-                
-                if qual != "auto" or "auto" not in stream_data["direct_mp4"]:
-                    stream_data["direct_mp4"][qual] = src
+                mp4_candidates.append((res, src))
 
-        return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "streams": stream_data, "url": url}
+        # Explicitly force High Quality and Low Quality naming for 3movs MP4s
+        if mp4_candidates:
+            mp4_candidates.sort(key=lambda x: x[0], reverse=True) # Sort highest resolution first
+            stream_data["direct_mp4"]["High Quality"] = mp4_candidates[0][1] # Best available
+            stream_data["direct_mp4"]["Low Quality"] = mp4_candidates[-1][1] # Worst available
+
+        return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "thumbnails": list(thumbs), "streams": stream_data, "url": url}
 
     def extract(self, url):
         m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)

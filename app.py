@@ -61,16 +61,11 @@ def proxy_media():
     parsed_url = urlparse(target)
     netloc = parsed_url.netloc.lower()
 
-    # Detect provider and set strict origin/referer headers to bypass hotlinking protection
-    if "phncdn" in netloc or "pornhub" in netloc:
-        referer = "https://www.pornhub.com/"
-    elif "xnxx" in netloc:
-        referer = "https://www.xnxx.com/"
-    elif "xvideos" in netloc:
-        referer = "https://www.xvideos.com/"
-    else:
-        # Default to 3movs Referer for all external CDNs used by 3movs
-        referer = "https://www.3movs.com/"
+    if "phncdn" in netloc or "pornhub" in netloc: referer = "https://www.pornhub.com/"
+    elif "xnxx" in netloc: referer = "https://www.xnxx.com/"
+    elif "xvideos" in netloc: referer = "https://www.xvideos.com/"
+    elif "3movs" in netloc: referer = "https://www.3movs.com/"
+    else: referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
 
     req_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
@@ -85,7 +80,6 @@ def proxy_media():
     if range_header: req_headers["Range"] = range_header
 
     try:
-        # Try Direct First (Best Performance)
         try:
             upstream = requests.get(target, headers=req_headers, stream=True, timeout=12)
             upstream.raise_for_status()
