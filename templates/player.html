@@ -149,7 +149,9 @@
                                     </span>
                                     <svg class="check-icon w-4 h-4 text-accent-cyan opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 </button>
-                                <!-- HLS streams download raw text, so usually omit download button here unless you have an FFmpeg backend -->
+                                <a href="/proxy?url={{ q.url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download {{ q.quality }} (.mp4 via FFmpeg)" class="p-3 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                </a>
                             </div>
                             {% endfor %}
                         </div>

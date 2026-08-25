@@ -8,10 +8,10 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Modern Typography (English & Arabic/Persian support) -->
+    <!-- Global Google Fonts Loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -19,7 +19,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'Vazirmatn', 'sans-serif'],
+                        sans: ['Inter', 'Vazirmatn', 'ui-sans-serif', 'system-ui', 'sans-serif'],
                     },
                     colors: {
                         glass: {
@@ -96,10 +96,8 @@
     <!-- Glass Navbar -->
     <header class="sticky top-0 z-50 bg-[#09090b]/60 backdrop-blur-xl border-b border-white/5 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            
-            <!-- Brand -->
             <a href="/" class="flex items-center gap-3 group">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-emerald flex items-center justify-center text-white font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-transform group-hover:scale-105">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-emerald flex items-center justify-center text-gray-900 font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-transform group-hover:scale-105">
                     V
                 </div>
                 <span class="text-lg font-bold tracking-tight text-white">
@@ -107,14 +105,12 @@
                 </span>
             </a>
 
-            <!-- Nav Links -->
             <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-400">
                 <a href="/" class="hover:text-accent-cyan transition-colors">Home</a>
                 <a href="/abilities" class="hover:text-accent-cyan transition-colors">Architecture</a>
                 <a href="/view" class="hover:text-accent-cyan transition-colors">Terminal</a>
             </nav>
 
-            <!-- Status Indicator -->
             <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
                 <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
