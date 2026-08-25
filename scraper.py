@@ -45,10 +45,8 @@ class VideoScraper:
 
             if t.startswith('http'):
                 t_lower = t.lower()
-                # Exclude UI icons, avatars, sprites, and tracking pixels
                 if any(bad in t_lower for bad in ['favicon', 'logo', 'icon', 'banner', 'avatar', 'blank', 'pixel', 'sprite', 'timeline', '.vtt', '.gif']):
                     continue
-                # Ensure valid image extension or path
                 if not any(ext in t_lower for ext in ['.jpg', '.jpeg', '.png', '.webp', 'preview', 'thumb', 'poster', 'screenshots']):
                     continue
 
@@ -209,7 +207,6 @@ class VideoScraper:
         page = resp.text
         tree = html.fromstring(resp.content)
 
-        # 1. Parse Title
         title_raw = tree.xpath('//meta[@property="og:title"]/@content')
         title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
         if title == "Unknown Title":
@@ -217,7 +214,6 @@ class VideoScraper:
             if title_tag:
                 title = title_tag[0].split('|')[0].split('-')[0].strip()
 
-        # 2. Parse Thumbnails Strictly for Current Video
         raw_thumbs = set()
         for meta in tree.xpath('//meta[@property="og:image"]/@content | //meta[@name="twitter:image"]/@content'):
             raw_thumbs.add(meta)
@@ -231,58 +227,29 @@ class VideoScraper:
         clean_thumbs = self.clean_thumbnails(raw_thumbs, url)
         thumbnail = clean_thumbs[0] if clean_thumbs else ""
 
-        # 3. Stream Routing: Lock onto the Main Player Video Sources Only
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
         player_sources = []
 
-        # Target player element specifically to avoid picking up related videos
         player_source_elements = tree.xpath('//div[contains(@id, "player") or contains(@class, "player")]//video//source | //video//source')
         for s in player_source_elements:
             src = s.get('src')
+            title_attr = s.get('title') or s.get('label') or ''
             if src and '.mp4' in src.lower():
-                player_sources.append(src)
+                player_sources.append({'url': src, 'label': title_attr})
 
-        # Fallback to JS Player regex configuration
         if not player_sources:
             for m in re.finditer(r'(?:video_url|video_alt_url|src|file)\s*[:=]\s*["\']([^"\']+\.mp4[^"\']*)["\']', page):
-                player_sources.append(m.group(1))
+                player_sources.append({'url': m.group(1), 'label': 'High Quality'})
 
-        if player_sources:
-            # Clean and set High Quality
-            high_url = player_sources[0].replace('\\/', '/').strip()
-            if high_url.startswith('//'):
-                high_url = "https:" + high_url
-            elif high_url.startswith('/'):
-                high_url = urljoin(url, high_url)
+        for idx, s in enumerate(player_sources):
+            full_src = s['url'].replace('\\/', '/').strip()
+            if full_src.startswith('//'):
+                full_src = "https:" + full_src
+            elif full_src.startswith('/'):
+                full_src = urljoin(url, full_src)
 
-            # Forcing Bad Quality via strict URI manipulation
-            low_url = high_url
-            
-            # Map down resolutions or labels
-            if '1080p' in low_url:
-                low_url = low_url.replace('1080p', '360p')
-            elif '720p' in low_url:
-                low_url = low_url.replace('720p', '360p')
-            elif '480p' in low_url:
-                low_url = low_url.replace('480p', '360p')
-            elif '1080' in low_url:
-                low_url = low_url.replace('1080', '360')
-            elif '720' in low_url:
-                low_url = low_url.replace('720', '360')
-            elif '/high/' in low_url.lower():
-                low_url = re.sub(r'/high/', '/low/', low_url, flags=re.I)
-            elif '_high.' in low_url.lower():
-                low_url = re.sub(r'_high\.', '_low.', low_url, flags=re.I)
-            elif 'high' in low_url.lower():
-                low_url = re.sub(r'high', 'low', low_url, flags=re.I)
-            elif 'hq' in low_url.lower():
-                low_url = re.sub(r'hq', 'lq', low_url, flags=re.I)
-            else:
-                low_url = low_url.replace('.mp4', '_low.mp4')
-
-            # Inject the streams
-            stream_data["direct_mp4"]["High Quality"] = high_url
-            stream_data["direct_mp4"]["Low Quality"] = low_url
+            label = s['label'] if s['label'] else f"Quality {idx+1}"
+            stream_data["direct_mp4"][label] = full_src
 
         return {
             "status": "success",

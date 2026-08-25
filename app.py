@@ -64,6 +64,7 @@ def extract():
 def proxy_media():
     target = request.args.get("url")
     provider = request.args.get("provider", "")
+    force_download = request.args.get("dl") == "1"
     if not target:
         return "Missing URL", 400
 
@@ -113,12 +114,16 @@ def proxy_media():
         content_type = upstream.headers.get("content-type", "").lower()
         res_headers["Content-Type"] = content_type
 
+        if force_download:
+            filename = "media.mp4" if ".mp4" in target.lower() else "media_stream.m3u8"
+            res_headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+
         if "Content-Length" in upstream.headers:
             res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
         is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
 
-        if is_m3u8:
+        if is_m3u8 and not force_download:
             text = upstream.text
             final_base = upstream.url or target
             rewritten = rewrite_playlist(text, final_base, provider)
