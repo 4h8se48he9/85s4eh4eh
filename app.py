@@ -65,6 +65,10 @@ def proxy_media():
     target = request.args.get("url")
     provider = request.args.get("provider", "")
     
+    # STRICT BLOCK: Completely prevent downloads or binary file exfiltration through the proxy
+    if request.args.get("dl") == "1":
+        return "Direct content downloads are restricted by security policy.", 403
+
     if not target:
         return "Missing URL", 400
 
