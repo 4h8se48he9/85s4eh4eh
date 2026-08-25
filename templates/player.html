@@ -19,6 +19,11 @@
     .quality-btn.active svg.check-icon { 
         opacity: 1 !important; 
     }
+    .dl-btn-text {
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
 </style>
 {% endblock %}
 
@@ -125,7 +130,7 @@
                                     </span>
                                     <svg class="check-icon w-4 h-4 text-accent-cyan opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 </button>
-                                <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download {{ label }}" class="p-3 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors">
+                                <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download {{ label }}" class="p-3 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors flex items-center justify-center min-w-[46px]">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                 </a>
                             </div>
@@ -134,7 +139,7 @@
                     </div>
                 {% endif %}
 
-                <!-- Adaptive HLS -->
+                <!-- Adaptive HLS (In-Browser Stitching) -->
                 {% if data.streams.qualities %}
                     <div>
                         <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 border-b border-white/10 pb-2">Adaptive HLS</h3>
@@ -149,9 +154,10 @@
                                     </span>
                                     <svg class="check-icon w-4 h-4 text-accent-cyan opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 </button>
-                                <a href="/proxy?url={{ q.url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download {{ q.quality }} (.mp4 via FFmpeg)" class="p-3 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                </a>
+                                <!-- JS Client-Side Blob Downloader -->
+                                <button onclick="downloadHlsStream('{{ q.url }}', '{{ data.title|escape }} - {{ q.quality }}', this)" title="Extract & Stitch HLS locally" class="p-3 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors flex items-center justify-center min-w-[46px]">
+                                    <svg class="w-5 h-5 icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                </button>
                             </div>
                             {% endfor %}
                         </div>
@@ -169,7 +175,7 @@
                                         class="quality-btn flex-1 py-2.5 px-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[11px] font-medium text-gray-400 transition-all flex justify-between items-center">
                                     <span class="truncate pr-2">{{ label }}</span>
                                 </button>
-                                <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download Video" class="p-2.5 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors">
+                                <a href="/proxy?url={{ url|urlencode }}&provider={{ data.provider }}&dl=1" title="Download Video" class="p-2.5 bg-white/5 hover:bg-accent-emerald border border-white/10 rounded-xl text-gray-400 hover:text-gray-950 transition-colors flex items-center justify-center min-w-[46px]">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                 </a>
                             </div>
@@ -302,6 +308,88 @@
             if (currentTime > 0) video.currentTime = currentTime;
             if (shouldPlay || wasPlaying) video.play().catch(()=>{});
         }
+    }
+
+    // ==========================================
+    // JS Blob Stitching for HLS Downloads
+    // ==========================================
+    async function downloadHlsStream(m3u8Url, rawFilename, btn) {
+        const origContent = btn.innerHTML;
+        btn.disabled = true;
+        
+        const sanitizedFilename = (rawFilename || 'video').replace(/[^a-zA-Z0-9_\- ]/g, '_').substring(0, 100);
+
+        try {
+            btn.innerHTML = '<span class="dl-btn-text text-accent-emerald">Parsing...</span>';
+            
+            // Fetch proxy version of m3u8
+            const proxyM3u8Url = '/proxy?url=' + encodeURIComponent(m3u8Url) + '&provider=' + providerName;
+            const manifestRes = await fetch(proxyM3u8Url);
+            const manifestText = await manifestRes.text();
+            const lines = manifestText.split('\n').map(l => l.trim());
+            
+            let tsUrls = [];
+            
+            // Check if it's a master playlist that points to child streams
+            const hasChild = lines.some(l => l.startsWith('#EXT-X-STREAM-INF'));
+            
+            if (hasChild) {
+                let targetPlaylistUrl = '';
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].startsWith('#EXT-X-STREAM-INF') && i + 1 < lines.length && !lines[i + 1].startsWith('#')) {
+                        // The Flask app's rewrite_playlist already changed this to a /proxy url
+                        targetPlaylistUrl = lines[i + 1];
+                        break;
+                    }
+                }
+                const subRes = await fetch(targetPlaylistUrl);
+                const subText = await subRes.text();
+                tsUrls = parseSegments(subText);
+            } else {
+                tsUrls = parseSegments(manifestText);
+            }
+            
+            if (tsUrls.length === 0) throw new Error("No segments found");
+
+            const chunks = [];
+            for (let i = 0; i < tsUrls.length; i++) {
+                const percent = Math.round(((i + 1) / tsUrls.length) * 100);
+                btn.innerHTML = `<span class="dl-btn-text text-accent-cyan">${percent}%</span>`;
+                
+                const segRes = await fetch(tsUrls[i]);
+                chunks.push(await segRes.arrayBuffer());
+            }
+            
+            btn.innerHTML = '<span class="dl-btn-text text-accent-emerald">Stitching...</span>';
+            const blob = new Blob(chunks, { type: 'video/mp4' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = sanitizedFilename + '.mp4';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+            
+            btn.innerHTML = '<span class="dl-btn-text text-accent-emerald">Done!</span>';
+            setTimeout(() => { btn.innerHTML = origContent; btn.disabled = false; }, 2000);
+            
+        } catch (err) {
+            alert('Download failed: ' + err.message);
+            btn.innerHTML = origContent;
+            btn.disabled = false;
+        }
+    }
+
+    function parseSegments(text) {
+        const urls = [];
+        for (const line of text.split('\n')) {
+            const t = line.trim();
+            // Since the Flask backend already rewrites the URIs to /proxy?url=..., we just extract those lines
+            if (t && !t.startsWith('#')) {
+                urls.push(t);
+            }
+        }
+        return urls;
     }
 
     window.addEventListener('DOMContentLoaded', () => {
