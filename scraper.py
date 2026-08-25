@@ -239,7 +239,7 @@ class VideoScraper:
 
         if not player_sources:
             for m in re.finditer(r'(?:video_url|video_alt_url|src|file)\s*[:=]\s*["\']([^"\']+\.mp4[^"\']*)["\']', page):
-                player_sources.append({'url': m.group(1), 'label': 'High Quality'})
+                player_sources.append({'url': m.group(1), 'label': 'Standard Quality'})
 
         for idx, s in enumerate(player_sources):
             full_src = s['url'].replace('\\/', '/').strip()

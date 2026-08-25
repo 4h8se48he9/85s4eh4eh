@@ -65,6 +65,7 @@ def proxy_media():
     target = request.args.get("url")
     provider = request.args.get("provider", "")
     force_download = request.args.get("dl") == "1"
+    
     if not target:
         return "Missing URL", 400
 
@@ -87,7 +88,6 @@ def proxy_media():
         "Referer": referer,
         "Origin": referer.rstrip('/'),
         "Accept": "*/*",
-        "Accept-Encoding": "identity",
         "Connection": "keep-alive"
     }
 
@@ -105,25 +105,24 @@ def proxy_media():
             upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
             upstream.raise_for_status()
 
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        if upstream.status_code not in [200, 206]:
+            return f"Upstream block: {upstream.status_code}", upstream.status_code
+
+        excluded_headers = ['transfer-encoding', 'connection']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
         res_headers["Access-Control-Allow-Origin"] = "*"
         res_headers["Access-Control-Allow-Headers"] = "*"
         res_headers["Accept-Ranges"] = "bytes"
 
         content_type = upstream.headers.get("content-type", "").lower()
-        res_headers["Content-Type"] = content_type
-
-        if force_download:
-            filename = "media.mp4" if ".mp4" in target.lower() else "media_stream.m3u8"
-            res_headers["Content-Disposition"] = f'attachment; filename="{filename}"'
-
-        if "Content-Length" in upstream.headers:
-            res_headers["Content-Length"] = upstream.headers["Content-Length"]
-
         is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
 
         if is_m3u8 and not force_download:
+            res_headers.pop('Content-Encoding', None)
+            res_headers.pop('content-encoding', None)
+            res_headers.pop('Content-Length', None)
+            res_headers.pop('content-length', None)
+            
             text = upstream.text
             final_base = upstream.url or target
             rewritten = rewrite_playlist(text, final_base, provider)
@@ -131,13 +130,17 @@ def proxy_media():
             res_headers["Content-Length"] = str(len(rewritten.encode('utf-8')))
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
 
+        if force_download:
+            filename = "media.mp4" if ".mp4" in target.lower() else "media_stream.m3u8"
+            res_headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+
         def generate():
             try:
-                for chunk in upstream.iter_content(chunk_size=131072):
+                for chunk in upstream.raw.stream(131072, decode_content=False):
                     if chunk:
                         yield chunk
             except Exception as stream_err:
-                logging.warning(f"Stream suppressed EOF drop: {stream_err}")
+                logging.warning(f"Stream dropped: {stream_err}")
                 pass
 
         return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
