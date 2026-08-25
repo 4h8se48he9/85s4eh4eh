@@ -63,6 +63,7 @@ def proxy_media():
     if "phncdn" in parsed_url.netloc or "pornhub" in parsed_url.netloc: referer = "https://www.pornhub.com/"
     elif "xnxx" in parsed_url.netloc: referer = "https://www.xnxx.com/"
     elif "xvideos" in parsed_url.netloc: referer = "https://www.xvideos.com/"
+    elif "3movs" in parsed_url.netloc: referer = "https://www.3movs.com/"
     else: referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
 
     req_headers = {

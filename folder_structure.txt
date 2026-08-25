@@ -1,0 +1,6752 @@
+Directory structure for: C:\Users\nasle javan\Desktop\RailwayViewerPH\RailwayViewerPH/
+==================================================
+
+.git
+  COMMIT_EDITMSG
+    UI overhaul and new routing
+
+
+
+
+
+
+
+
+
+
+
+  HEAD
+    ref: refs/heads/main
+
+
+
+
+
+
+
+
+
+
+
+  config
+    [core]
+    	repositoryformatversion = 0
+    	filemode = false
+    	bare = false
+    	logallrefupdates = true
+    	symlinks = false
+    	ignorecase = true
+    [remote "origin"]
+    	url = https://github.com/4h8se48he9/85s4eh4eh
+    	fetch = +refs/heads/*:refs/remotes/origin/*
+    [branch "main"]
+    	remote = origin
+    	merge = refs/heads/main
+
+
+
+
+
+
+
+
+
+
+
+  description
+    Unnamed repository; edit this file 'description' to name the repository.
+
+
+
+
+
+
+
+
+
+
+
+  hooks
+    applypatch-msg.sample
+      #!/bin/sh
+      #
+      # An example hook script to check the commit log message taken by
+      # applypatch from an e-mail message.
+      #
+      # The hook should exit with non-zero status after issuing an
+      # appropriate message if it wants to stop the commit.  The hook is
+      # allowed to edit the commit message file.
+      #
+      # To enable this hook, rename this file to "applypatch-msg".
+      
+      . git-sh-setup
+      commitmsg="$(git rev-parse --git-path hooks/commit-msg)"
+      test -x "$commitmsg" && exec "$commitmsg" ${1+"$@"}
+      :
+
+
+
+
+
+
+
+
+
+
+
+    commit-msg.sample
+      #!/bin/sh
+      #
+      # An example hook script to check the commit log message.
+      # Called by "git commit" with one argument, the name of the file
+      # that has the commit message.  The hook should exit with non-zero
+      # status after issuing an appropriate message if it wants to stop the
+      # commit.  The hook is allowed to edit the commit message file.
+      #
+      # To enable this hook, rename this file to "commit-msg".
+      
+      # Uncomment the below to add a Signed-off-by line to the message.
+      # Doing this in a hook is a bad idea in general, but the prepare-commit-msg
+      # hook is more suited to it.
+      #
+      # SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+      # grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
+      
+      # This example catches duplicate Signed-off-by lines.
+      
+      test "" = "$(grep '^Signed-off-by: ' "$1" |
+      	 sort | uniq -c | sed -e '/^[ 	]*1[ 	]/d')" || {
+      	echo >&2 Duplicate Signed-off-by lines.
+      	exit 1
+      }
+
+
+
+
+
+
+
+
+
+
+
+    fsmonitor-watchman.sample
+      #!/usr/bin/perl
+      
+      use strict;
+      use warnings;
+      use IPC::Open2;
+      
+      # An example hook script to integrate Watchman
+      # (https://facebook.github.io/watchman/) with git to speed up detecting
+      # new and modified files.
+      #
+      # The hook is passed a version (currently 2) and last update token
+      # formatted as a string and outputs to stdout a new update token and
+      # all files that have been modified since the update token. Paths must
+      # be relative to the root of the working tree and separated by a single NUL.
+      #
+      # To enable this hook, rename this file to "query-watchman" and set
+      # 'git config core.fsmonitor .git/hooks/query-watchman'
+      #
+      my ($version, $last_update_token) = @ARGV;
+      
+      # Uncomment for debugging
+      # print STDERR "$0 $version $last_update_token\n";
+      
+      # Check the hook interface version
+      if ($version ne 2) {
+      	die "Unsupported query-fsmonitor hook version '$version'.\n" .
+      	    "Falling back to scanning...\n";
+      }
+      
+      my $git_work_tree = get_working_dir();
+      
+      my $retry = 1;
+      
+      my $json_pkg;
+      eval {
+      	require JSON::XS;
+      	$json_pkg = "JSON::XS";
+      	1;
+      } or do {
+      	require JSON::PP;
+      	$json_pkg = "JSON::PP";
+      };
+      
+      launch_watchman();
+      
+      sub launch_watchman {
+      	my $o = watchman_query();
+      	if (is_work_tree_watched($o)) {
+      		output_result($o->{clock}, @{$o->{files}});
+      	}
+      }
+      
+      sub output_result {
+      	my ($clockid, @files) = @_;
+      
+      	# Uncomment for debugging watchman output
+      	# open (my $fh, ">", ".git/watchman-output.out");
+      	# binmode $fh, ":utf8";
+      	# print $fh "$clockid\n@files\n";
+      	# close $fh;
+      
+      	binmode STDOUT, ":utf8";
+      	print $clockid;
+      	print "\0";
+      	local $, = "\0";
+      	print @files;
+      }
+      
+      sub watchman_clock {
+      	my $response = qx/watchman clock "$git_work_tree"/;
+      	die "Failed to get clock id on '$git_work_tree'.\n" .
+      		"Falling back to scanning...\n" if $? != 0;
+      
+      	return $json_pkg->new->utf8->decode($response);
+      }
+      
+      sub watchman_query {
+      	my $pid = open2(\*CHLD_OUT, \*CHLD_IN, 'watchman -j --no-pretty')
+      	or die "open2() failed: $!\n" .
+      	"Falling back to scanning...\n";
+      
+      	# In the query expression below we're asking for names of files that
+      	# changed since $last_update_token but not from the .git folder.
+      	#
+      	# To accomplish this, we're using the "since" generator to use the
+      	# recency index to select candidate nodes and "fields" to limit the
+      	# output to file names only. Then we're using the "expression" term to
+      	# further constrain the results.
+      	my $last_update_line = "";
+      	if (substr($last_update_token, 0, 1) eq "c") {
+      		$last_update_token = "\"$last_update_token\"";
+      		$last_update_line = qq[\n"since": $last_update_token,];
+      	}
+      	my $query = <<"	END";
+      		["query", "$git_work_tree", {$last_update_line
+      			"fields": ["name"],
+      			"expression": ["not", ["dirname", ".git"]]
+      		}]
+      	END
+      
+      	# Uncomment for debugging the watchman query
+      	# open (my $fh, ">", ".git/watchman-query.json");
+      	# print $fh $query;
+      	# close $fh;
+      
+      	print CHLD_IN $query;
+      	close CHLD_IN;
+      	my $response = do {local $/; <CHLD_OUT>};
+      
+      	# Uncomment for debugging the watch response
+      	# open ($fh, ">", ".git/watchman-response.json");
+      	# print $fh $response;
+      	# close $fh;
+      
+      	die "Watchman: command returned no output.\n" .
+      	"Falling back to scanning...\n" if $response eq "";
+      	die "Watchman: command returned invalid output: $response\n" .
+      	"Falling back to scanning...\n" unless $response =~ /^\{/;
+      
+      	return $json_pkg->new->utf8->decode($response);
+      }
+      
+      sub is_work_tree_watched {
+      	my ($output) = @_;
+      	my $error = $output->{error};
+      	if ($retry > 0 and $error and $error =~ m/unable to resolve root .* directory (.*) is not watched/) {
+      		$retry--;
+      		my $response = qx/watchman watch "$git_work_tree"/;
+      		die "Failed to make watchman watch '$git_work_tree'.\n" .
+      		    "Falling back to scanning...\n" if $? != 0;
+      		$output = $json_pkg->new->utf8->decode($response);
+      		$error = $output->{error};
+      		die "Watchman: $error.\n" .
+      		"Falling back to scanning...\n" if $error;
+      
+      		# Uncomment for debugging watchman output
+      		# open (my $fh, ">", ".git/watchman-output.out");
+      		# close $fh;
+      
+      		# Watchman will always return all files on the first query so
+      		# return the fast "everything is dirty" flag to git and do the
+      		# Watchman query just to get it over with now so we won't pay
+      		# the cost in git to look up each individual file.
+      		my $o = watchman_clock();
+      		$error = $output->{error};
+      
+      		die "Watchman: $error.\n" .
+      		"Falling back to scanning...\n" if $error;
+      
+      		output_result($o->{clock}, ("/"));
+      		$last_update_token = $o->{clock};
+      
+      		eval { launch_watchman() };
+      		return 0;
+      	}
+      
+      	die "Watchman: $error.\n" .
+      	"Falling back to scanning...\n" if $error;
+      
+      	return 1;
+      }
+      
+      sub get_working_dir {
+      	my $working_dir;
+      	if ($^O =~ 'msys' || $^O =~ 'cygwin') {
+      		$working_dir = Win32::GetCwd();
+      		$working_dir =~ tr/\\/\//;
+      	} else {
+      		require Cwd;
+      		$working_dir = Cwd::cwd();
+      	}
+      
+      	return $working_dir;
+      }
+
+
+
+
+
+
+
+
+
+
+
+    post-update.sample
+      #!/bin/sh
+      #
+      # An example hook script to prepare a packed repository for use over
+      # dumb transports.
+      #
+      # To enable this hook, rename this file to "post-update".
+      
+      exec git update-server-info
+
+
+
+
+
+
+
+
+
+
+
+    pre-applypatch.sample
+      #!/bin/sh
+      #
+      # An example hook script to verify what is about to be committed
+      # by applypatch from an e-mail message.
+      #
+      # The hook should exit with non-zero status after issuing an
+      # appropriate message if it wants to stop the commit.
+      #
+      # To enable this hook, rename this file to "pre-applypatch".
+      
+      . git-sh-setup
+      precommit="$(git rev-parse --git-path hooks/pre-commit)"
+      test -x "$precommit" && exec "$precommit" ${1+"$@"}
+      :
+
+
+
+
+
+
+
+
+
+
+
+    pre-commit.sample
+      #!/bin/sh
+      #
+      # An example hook script to verify what is about to be committed.
+      # Called by "git commit" with no arguments.  The hook should
+      # exit with non-zero status after issuing an appropriate message if
+      # it wants to stop the commit.
+      #
+      # To enable this hook, rename this file to "pre-commit".
+      
+      if git rev-parse --verify HEAD >/dev/null 2>&1
+      then
+      	against=HEAD
+      else
+      	# Initial commit: diff against an empty tree object
+      	against=$(git hash-object -t tree /dev/null)
+      fi
+      
+      # If you want to allow non-ASCII filenames set this variable to true.
+      allownonascii=$(git config --type=bool hooks.allownonascii)
+      
+      # Redirect output to stderr.
+      exec 1>&2
+      
+      # Cross platform projects tend to avoid non-ASCII filenames; prevent
+      # them from being added to the repository. We exploit the fact that the
+      # printable range starts at the space character and ends with tilde.
+      if [ "$allownonascii" != "true" ] &&
+      	# Note that the use of brackets around a tr range is ok here, (it's
+      	# even required, for portability to Solaris 10's /usr/bin/tr), since
+      	# the square bracket bytes happen to fall in the designated range.
+      	test $(git diff-index --cached --name-only --diff-filter=A -z $against |
+      	  LC_ALL=C tr -d '[ -~]\0' | wc -c) != 0
+      then
+      	cat <<\EOF
+      Error: Attempt to add a non-ASCII file name.
+      
+      This can cause problems if you want to work with people on other platforms.
+      
+      To be portable it is advisable to rename the file.
+      
+      If you know what you are doing you can disable this check using:
+      
+        git config hooks.allownonascii true
+      EOF
+      	exit 1
+      fi
+      
+      # If there are whitespace errors, print the offending file names and fail.
+      exec git diff-index --check --cached $against --
+
+
+
+
+
+
+
+
+
+
+
+    pre-merge-commit.sample
+      #!/bin/sh
+      #
+      # An example hook script to verify what is about to be committed.
+      # Called by "git merge" with no arguments.  The hook should
+      # exit with non-zero status after issuing an appropriate message to
+      # stderr if it wants to stop the merge commit.
+      #
+      # To enable this hook, rename this file to "pre-merge-commit".
+      
+      . git-sh-setup
+      test -x "$GIT_DIR/hooks/pre-commit" &&
+              exec "$GIT_DIR/hooks/pre-commit"
+      :
+
+
+
+
+
+
+
+
+
+
+
+    pre-push.sample
+      #!/bin/sh
+      
+      # An example hook script to verify what is about to be pushed.  Called by "git
+      # push" after it has checked the remote status, but before anything has been
+      # pushed.  If this script exits with a non-zero status nothing will be pushed.
+      #
+      # This hook is called with the following parameters:
+      #
+      # $1 -- Name of the remote to which the push is being done
+      # $2 -- URL to which the push is being done
+      #
+      # If pushing without using a named remote those arguments will be equal.
+      #
+      # Information about the commits which are being pushed is supplied as lines to
+      # the standard input in the form:
+      #
+      #   <local ref> <local oid> <remote ref> <remote oid>
+      #
+      # This sample shows how to prevent push of commits where the log message starts
+      # with "WIP" (work in progress).
+      
+      remote="$1"
+      url="$2"
+      
+      zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+      
+      while read local_ref local_oid remote_ref remote_oid
+      do
+      	if test "$local_oid" = "$zero"
+      	then
+      		# Handle delete
+      		:
+      	else
+      		if test "$remote_oid" = "$zero"
+      		then
+      			# New branch, examine all commits
+      			range="$local_oid"
+      		else
+      			# Update to existing branch, examine new commits
+      			range="$remote_oid..$local_oid"
+      		fi
+      
+      		# Check for WIP commit
+      		commit=$(git rev-list -n 1 --grep '^WIP' "$range")
+      		if test -n "$commit"
+      		then
+      			echo >&2 "Found WIP commit in $local_ref, not pushing"
+      			exit 1
+      		fi
+      	fi
+      done
+      
+      exit 0
+
+
+
+
+
+
+
+
+
+
+
+    pre-rebase.sample
+      #!/bin/sh
+      #
+      # Copyright (c) 2006, 2008 Junio C Hamano
+      #
+      # The "pre-rebase" hook is run just before "git rebase" starts doing
+      # its job, and can prevent the command from running by exiting with
+      # non-zero status.
+      #
+      # The hook is called with the following parameters:
+      #
+      # $1 -- the upstream the series was forked from.
+      # $2 -- the branch being rebased (or empty when rebasing the current branch).
+      #
+      # This sample shows how to prevent topic branches that are already
+      # merged to 'next' branch from getting rebased, because allowing it
+      # would result in rebasing already published history.
+      
+      publish=next
+      basebranch="$1"
+      if test "$#" = 2
+      then
+      	topic="refs/heads/$2"
+      else
+      	topic=`git symbolic-ref HEAD` ||
+      	exit 0 ;# we do not interrupt rebasing detached HEAD
+      fi
+      
+      case "$topic" in
+      refs/heads/??/*)
+      	;;
+      *)
+      	exit 0 ;# we do not interrupt others.
+      	;;
+      esac
+      
+      # Now we are dealing with a topic branch being rebased
+      # on top of master.  Is it OK to rebase it?
+      
+      # Does the topic really exist?
+      git show-ref -q "$topic" || {
+      	echo >&2 "No such branch $topic"
+      	exit 1
+      }
+      
+      # Is topic fully merged to master?
+      not_in_master=`git rev-list --pretty=oneline ^master "$topic"`
+      if test -z "$not_in_master"
+      then
+      	echo >&2 "$topic is fully merged to master; better remove it."
+      	exit 1 ;# we could allow it, but there is no point.
+      fi
+      
+      # Is topic ever merged to next?  If so you should not be rebasing it.
+      only_next_1=`git rev-list ^master "^$topic" ${publish} | sort`
+      only_next_2=`git rev-list ^master           ${publish} | sort`
+      if test "$only_next_1" = "$only_next_2"
+      then
+      	not_in_topic=`git rev-list "^$topic" master`
+      	if test -z "$not_in_topic"
+      	then
+      		echo >&2 "$topic is already up to date with master"
+      		exit 1 ;# we could allow it, but there is no point.
+      	else
+      		exit 0
+      	fi
+      else
+      	not_in_next=`git rev-list --pretty=oneline ^${publish} "$topic"`
+      	/usr/bin/perl -e '
+      		my $topic = $ARGV[0];
+      		my $msg = "* $topic has commits already merged to public branch:\n";
+      		my (%not_in_next) = map {
+      			/^([0-9a-f]+) /;
+      			($1 => 1);
+      		} split(/\n/, $ARGV[1]);
+      		for my $elem (map {
+      				/^([0-9a-f]+) (.*)$/;
+      				[$1 => $2];
+      			} split(/\n/, $ARGV[2])) {
+      			if (!exists $not_in_next{$elem->[0]}) {
+      				if ($msg) {
+      					print STDERR $msg;
+      					undef $msg;
+      				}
+      				print STDERR " $elem->[1]\n";
+      			}
+      		}
+      	' "$topic" "$not_in_next" "$not_in_master"
+      	exit 1
+      fi
+      
+      <<\DOC_END
+      
+      This sample hook safeguards topic branches that have been
+      published from being rewound.
+      
+      The workflow assumed here is:
+      
+       * Once a topic branch forks from "master", "master" is never
+         merged into it again (either directly or indirectly).
+      
+       * Once a topic branch is fully cooked and merged into "master",
+         it is deleted.  If you need to build on top of it to correct
+         earlier mistakes, a new topic branch is created by forking at
+         the tip of the "master".  This is not strictly necessary, but
+         it makes it easier to keep your history simple.
+      
+       * Whenever you need to test or publish your changes to topic
+         branches, merge them into "next" branch.
+      
+      The script, being an example, hardcodes the publish branch name
+      to be "next", but it is trivial to make it configurable via
+      $GIT_DIR/config mechanism.
+      
+      With this workflow, you would want to know:
+      
+      (1) ... if a topic branch has ever been merged to "next".  Young
+          topic branches can have stupid mistakes you would rather
+          clean up before publishing, and things that have not been
+          merged into other branches can be easily rebased without
+          affecting other people.  But once it is published, you would
+          not want to rewind it.
+      
+      (2) ... if a topic branch has been fully merged to "master".
+          Then you can delete it.  More importantly, you should not
+          build on top of it -- other people may already want to
+          change things related to the topic as patches against your
+          "master", so if you need further changes, it is better to
+          fork the topic (perhaps with the same name) afresh from the
+          tip of "master".
+      
+      Let's look at this example:
+      
+      		   o---o---o---o---o---o---o---o---o---o "next"
+      		  /       /           /           /
+      		 /   a---a---b A     /           /
+      		/   /               /           /
+      	       /   /   c---c---c---c B         /
+      	      /   /   /             \         /
+      	     /   /   /   b---b C     \       /
+      	    /   /   /   /             \     /
+          ---o---o---o---o---o---o---o---o---o---o---o "master"
+      
+      
+      A, B and C are topic branches.
+      
+       * A has one fix since it was merged up to "next".
+      
+       * B has finished.  It has been fully merged up to "master" and "next",
+         and is ready to be deleted.
+      
+       * C has not merged to "next" at all.
+      
+      We would want to allow C to be rebased, refuse A, and encourage
+      B to be deleted.
+      
+      To compute (1):
+      
+      	git rev-list ^master ^topic next
+      	git rev-list ^master        next
+      
+      	if these match, topic has not merged in next at all.
+      
+      To compute (2):
+      
+      	git rev-list master..topic
+      
+      	if this is empty, it is fully merged to "master".
+      
+      DOC_END
+
+
+
+
+
+
+
+
+
+
+
+    pre-receive.sample
+      #!/bin/sh
+      #
+      # An example hook script to make use of push options.
+      # The example simply echoes all push options that start with 'echoback='
+      # and rejects all pushes when the "reject" push option is used.
+      #
+      # To enable this hook, rename this file to "pre-receive".
+      
+      if test -n "$GIT_PUSH_OPTION_COUNT"
+      then
+      	i=0
+      	while test "$i" -lt "$GIT_PUSH_OPTION_COUNT"
+      	do
+      		eval "value=\$GIT_PUSH_OPTION_$i"
+      		case "$value" in
+      		echoback=*)
+      			echo "echo from the pre-receive-hook: ${value#*=}" >&2
+      			;;
+      		reject)
+      			exit 1
+      		esac
+      		i=$((i + 1))
+      	done
+      fi
+
+
+
+
+
+
+
+
+
+
+
+    prepare-commit-msg.sample
+      #!/bin/sh
+      #
+      # An example hook script to prepare the commit log message.
+      # Called by "git commit" with the name of the file that has the
+      # commit message, followed by the description of the commit
+      # message's source.  The hook's purpose is to edit the commit
+      # message file.  If the hook fails with a non-zero status,
+      # the commit is aborted.
+      #
+      # To enable this hook, rename this file to "prepare-commit-msg".
+      
+      # This hook includes three examples. The first one removes the
+      # "# Please enter the commit message..." help message.
+      #
+      # The second includes the output of "git diff --name-status -r"
+      # into the message, just before the "git status" output.  It is
+      # commented because it doesn't cope with --amend or with squashed
+      # commits.
+      #
+      # The third example adds a Signed-off-by line to the message, that can
+      # still be edited.  This is rarely a good idea.
+      
+      COMMIT_MSG_FILE=$1
+      COMMIT_SOURCE=$2
+      SHA1=$3
+      
+      /usr/bin/perl -i.bak -ne 'print unless(m/^. Please enter the commit message/..m/^#$/)' "$COMMIT_MSG_FILE"
+      
+      # case "$COMMIT_SOURCE,$SHA1" in
+      #  ,|template,)
+      #    /usr/bin/perl -i.bak -pe '
+      #       print "\n" . `git diff --cached --name-status -r`
+      # 	 if /^#/ && $first++ == 0' "$COMMIT_MSG_FILE" ;;
+      #  *) ;;
+      # esac
+      
+      # SOB=$(git var GIT_COMMITTER_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+      # git interpret-trailers --in-place --trailer "$SOB" "$COMMIT_MSG_FILE"
+      # if test -z "$COMMIT_SOURCE"
+      # then
+      #   /usr/bin/perl -i.bak -pe 'print "\n" if !$first_line++' "$COMMIT_MSG_FILE"
+      # fi
+
+
+
+
+
+
+
+
+
+
+
+    push-to-checkout.sample
+      #!/bin/sh
+      
+      # An example hook script to update a checked-out tree on a git push.
+      #
+      # This hook is invoked by git-receive-pack(1) when it reacts to git
+      # push and updates reference(s) in its repository, and when the push
+      # tries to update the branch that is currently checked out and the
+      # receive.denyCurrentBranch configuration variable is set to
+      # updateInstead.
+      #
+      # By default, such a push is refused if the working tree and the index
+      # of the remote repository has any difference from the currently
+      # checked out commit; when both the working tree and the index match
+      # the current commit, they are updated to match the newly pushed tip
+      # of the branch. This hook is to be used to override the default
+      # behaviour; however the code below reimplements the default behaviour
+      # as a starting point for convenient modification.
+      #
+      # The hook receives the commit with which the tip of the current
+      # branch is going to be updated:
+      commit=$1
+      
+      # It can exit with a non-zero status to refuse the push (when it does
+      # so, it must not modify the index or the working tree).
+      die () {
+      	echo >&2 "$*"
+      	exit 1
+      }
+      
+      # Or it can make any necessary changes to the working tree and to the
+      # index to bring them to the desired state when the tip of the current
+      # branch is updated to the new commit, and exit with a zero status.
+      #
+      # For example, the hook can simply run git read-tree -u -m HEAD "$1"
+      # in order to emulate git fetch that is run in the reverse direction
+      # with git push, as the two-tree form of git read-tree -u -m is
+      # essentially the same as git switch or git checkout that switches
+      # branches while keeping the local changes in the working tree that do
+      # not interfere with the difference between the branches.
+      
+      # The below is a more-or-less exact translation to shell of the C code
+      # for the default behaviour for git's push-to-checkout hook defined in
+      # the push_to_deploy() function in builtin/receive-pack.c.
+      #
+      # Note that the hook will be executed from the repository directory,
+      # not from the working tree, so if you want to perform operations on
+      # the working tree, you will have to adapt your code accordingly, e.g.
+      # by adding "cd .." or using relative paths.
+      
+      if ! git update-index -q --ignore-submodules --refresh
+      then
+      	die "Up-to-date check failed"
+      fi
+      
+      if ! git diff-files --quiet --ignore-submodules --
+      then
+      	die "Working directory has unstaged changes"
+      fi
+      
+      # This is a rough translation of:
+      #
+      #   head_has_history() ? "HEAD" : EMPTY_TREE_SHA1_HEX
+      if git cat-file -e HEAD 2>/dev/null
+      then
+      	head=HEAD
+      else
+      	head=$(git hash-object -t tree --stdin </dev/null)
+      fi
+      
+      if ! git diff-index --quiet --cached --ignore-submodules $head --
+      then
+      	die "Working directory has staged changes"
+      fi
+      
+      if ! git read-tree -u -m "$commit"
+      then
+      	die "Could not update working tree to new HEAD"
+      fi
+
+
+
+
+
+
+
+
+
+
+
+    sendemail-validate.sample
+      #!/bin/sh
+      
+      # An example hook script to validate a patch (and/or patch series) before
+      # sending it via email.
+      #
+      # The hook should exit with non-zero status after issuing an appropriate
+      # message if it wants to prevent the email(s) from being sent.
+      #
+      # To enable this hook, rename this file to "sendemail-validate".
+      #
+      # By default, it will only check that the patch(es) can be applied on top of
+      # the default upstream branch without conflicts in a secondary worktree. After
+      # validation (successful or not) of the last patch of a series, the worktree
+      # will be deleted.
+      #
+      # The following config variables can be set to change the default remote and
+      # remote ref that are used to apply the patches against:
+      #
+      #   sendemail.validateRemote (default: origin)
+      #   sendemail.validateRemoteRef (default: HEAD)
+      #
+      # Replace the TODO placeholders with appropriate checks according to your
+      # needs.
+      
+      validate_cover_letter () {
+      	file="$1"
+      	# TODO: Replace with appropriate checks (e.g. spell checking).
+      	true
+      }
+      
+      validate_patch () {
+      	file="$1"
+      	# Ensure that the patch applies without conflicts.
+      	git am -3 "$file" || return
+      	# TODO: Replace with appropriate checks for this patch
+      	# (e.g. checkpatch.pl).
+      	true
+      }
+      
+      validate_series () {
+      	# TODO: Replace with appropriate checks for the whole series
+      	# (e.g. quick build, coding style checks, etc.).
+      	true
+      }
+      
+      # main -------------------------------------------------------------------------
+      
+      if test "$GIT_SENDEMAIL_FILE_COUNTER" = 1
+      then
+      	remote=$(git config --default origin --get sendemail.validateRemote) &&
+      	ref=$(git config --default HEAD --get sendemail.validateRemoteRef) &&
+      	worktree=$(mktemp --tmpdir -d sendemail-validate.XXXXXXX) &&
+      	git worktree add -fd --checkout "$worktree" "refs/remotes/$remote/$ref" &&
+      	git config --replace-all sendemail.validateWorktree "$worktree"
+      else
+      	worktree=$(git config --get sendemail.validateWorktree)
+      fi || {
+      	echo "sendemail-validate: error: failed to prepare worktree" >&2
+      	exit 1
+      }
+      
+      unset GIT_DIR GIT_WORK_TREE
+      cd "$worktree" &&
+      
+      if grep -q "^diff --git " "$1"
+      then
+      	validate_patch "$1"
+      else
+      	validate_cover_letter "$1"
+      fi &&
+      
+      if test "$GIT_SENDEMAIL_FILE_COUNTER" = "$GIT_SENDEMAIL_FILE_TOTAL"
+      then
+      	git config --unset-all sendemail.validateWorktree &&
+      	trap 'git worktree remove -ff "$worktree"' EXIT &&
+      	validate_series
+      fi
+
+
+
+
+
+
+
+
+
+
+
+    update.sample
+      #!/bin/sh
+      #
+      # An example hook script to block unannotated tags from entering.
+      # Called by "git receive-pack" with arguments: refname sha1-old sha1-new
+      #
+      # To enable this hook, rename this file to "update".
+      #
+      # Config
+      # ------
+      # hooks.allowunannotated
+      #   This boolean sets whether unannotated tags will be allowed into the
+      #   repository.  By default they won't be.
+      # hooks.allowdeletetag
+      #   This boolean sets whether deleting tags will be allowed in the
+      #   repository.  By default they won't be.
+      # hooks.allowmodifytag
+      #   This boolean sets whether a tag may be modified after creation. By default
+      #   it won't be.
+      # hooks.allowdeletebranch
+      #   This boolean sets whether deleting branches will be allowed in the
+      #   repository.  By default they won't be.
+      # hooks.denycreatebranch
+      #   This boolean sets whether remotely creating branches will be denied
+      #   in the repository.  By default this is allowed.
+      #
+      
+      # --- Command line
+      refname="$1"
+      oldrev="$2"
+      newrev="$3"
+      
+      # --- Safety check
+      if [ -z "$GIT_DIR" ]; then
+      	echo "Don't run this script from the command line." >&2
+      	echo " (if you want, you could supply GIT_DIR then run" >&2
+      	echo "  $0 <ref> <oldrev> <newrev>)" >&2
+      	exit 1
+      fi
+      
+      if [ -z "$refname" -o -z "$oldrev" -o -z "$newrev" ]; then
+      	echo "usage: $0 <ref> <oldrev> <newrev>" >&2
+      	exit 1
+      fi
+      
+      # --- Config
+      allowunannotated=$(git config --type=bool hooks.allowunannotated)
+      allowdeletebranch=$(git config --type=bool hooks.allowdeletebranch)
+      denycreatebranch=$(git config --type=bool hooks.denycreatebranch)
+      allowdeletetag=$(git config --type=bool hooks.allowdeletetag)
+      allowmodifytag=$(git config --type=bool hooks.allowmodifytag)
+      
+      # check for no description
+      projectdesc=$(sed -e '1q' "$GIT_DIR/description")
+      case "$projectdesc" in
+      "Unnamed repository"* | "")
+      	echo "*** Project description file hasn't been set" >&2
+      	exit 1
+      	;;
+      esac
+      
+      # --- Check types
+      # if $newrev is 0000...0000, it's a commit to delete a ref.
+      zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+      if [ "$newrev" = "$zero" ]; then
+      	newrev_type=delete
+      else
+      	newrev_type=$(git cat-file -t $newrev)
+      fi
+      
+      case "$refname","$newrev_type" in
+      	refs/tags/*,commit)
+      		# un-annotated tag
+      		short_refname=${refname##refs/tags/}
+      		if [ "$allowunannotated" != "true" ]; then
+      			echo "*** The un-annotated tag, $short_refname, is not allowed in this repository" >&2
+      			echo "*** Use 'git tag [ -a | -s ]' for tags you want to propagate." >&2
+      			exit 1
+      		fi
+      		;;
+      	refs/tags/*,delete)
+      		# delete tag
+      		if [ "$allowdeletetag" != "true" ]; then
+      			echo "*** Deleting a tag is not allowed in this repository" >&2
+      			exit 1
+      		fi
+      		;;
+      	refs/tags/*,tag)
+      		# annotated tag
+      		if [ "$allowmodifytag" != "true" ] && git rev-parse $refname > /dev/null 2>&1
+      		then
+      			echo "*** Tag '$refname' already exists." >&2
+      			echo "*** Modifying a tag is not allowed in this repository." >&2
+      			exit 1
+      		fi
+      		;;
+      	refs/heads/*,commit)
+      		# branch
+      		if [ "$oldrev" = "$zero" -a "$denycreatebranch" = "true" ]; then
+      			echo "*** Creating a branch is not allowed in this repository" >&2
+      			exit 1
+      		fi
+      		;;
+      	refs/heads/*,delete)
+      		# delete branch
+      		if [ "$allowdeletebranch" != "true" ]; then
+      			echo "*** Deleting a branch is not allowed in this repository" >&2
+      			exit 1
+      		fi
+      		;;
+      	refs/remotes/*,commit)
+      		# tracking branch
+      		;;
+      	refs/remotes/*,delete)
+      		# delete tracking branch
+      		if [ "$allowdeletebranch" != "true" ]; then
+      			echo "*** Deleting a tracking branch is not allowed in this repository" >&2
+      			exit 1
+      		fi
+      		;;
+      	*)
+      		# Anything else (is there anything else?)
+      		echo "*** Update hook: unknown type of update to ref $refname of type $newrev_type" >&2
+      		exit 1
+      		;;
+      esac
+      
+      # --- Finished
+      exit 0
+
+
+
+
+
+
+
+
+
+
+
+  index
+    [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+  info
+    exclude
+      # git ls-files --others --exclude-from=.git/info/exclude
+      # Lines that start with '#' are comments.
+      # For a project mostly in C, the following would be a good set of
+      # exclude patterns (uncomment them if you want to use them):
+      # *.[oa]
+      # *~
+
+
+
+
+
+
+
+
+
+
+
+  logs
+    HEAD
+      0000000000000000000000000000000000000000 8feda8eee9fed768348c0d0b320a1b7a35bb3abe muvixo <godarshia20@gmail.com> 1787262957 +0330	commit (initial): UI overhaul and new routing
+      8feda8eee9fed768348c0d0b320a1b7a35bb3abe 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787262957 +0330	Branch: renamed refs/heads/master to refs/heads/main
+      0000000000000000000000000000000000000000 8feda8eee9fed768348c0d0b320a1b7a35bb3abe muvixo <godarshia20@gmail.com> 1787262957 +0330	Branch: renamed refs/heads/master to refs/heads/main
+      8feda8eee9fed768348c0d0b320a1b7a35bb3abe 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787264031 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      8feda8eee9fed768348c0d0b320a1b7a35bb3abe 8feda8eee9fed768348c0d0b320a1b7a35bb3abe muvixo <godarshia20@gmail.com> 1787264031 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      8feda8eee9fed768348c0d0b320a1b7a35bb3abe 87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 muvixo <godarshia20@gmail.com> 1787264106 +0330	commit: UI overhaul and new routing
+      87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787264106 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 muvixo <godarshia20@gmail.com> 1787264106 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 1a7ed5337294cf7a8b50fac36ea37c6213369249 muvixo <godarshia20@gmail.com> 1787266365 +0330	commit: UI overhaul and new routing
+      1a7ed5337294cf7a8b50fac36ea37c6213369249 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787266365 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      1a7ed5337294cf7a8b50fac36ea37c6213369249 1a7ed5337294cf7a8b50fac36ea37c6213369249 muvixo <godarshia20@gmail.com> 1787266365 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      1a7ed5337294cf7a8b50fac36ea37c6213369249 6504882994fb75a162f7fccb9edd89be40c71da6 muvixo <godarshia20@gmail.com> 1787267710 +0330	commit: UI overhaul and new routing
+      6504882994fb75a162f7fccb9edd89be40c71da6 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787267710 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      6504882994fb75a162f7fccb9edd89be40c71da6 6504882994fb75a162f7fccb9edd89be40c71da6 muvixo <godarshia20@gmail.com> 1787267710 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      6504882994fb75a162f7fccb9edd89be40c71da6 b8723972785ffc98ed0dcb152ed40be24a3e8da7 muvixo <godarshia20@gmail.com> 1787268601 +0330	commit: UI overhaul and new routing
+      b8723972785ffc98ed0dcb152ed40be24a3e8da7 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787268601 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      b8723972785ffc98ed0dcb152ed40be24a3e8da7 b8723972785ffc98ed0dcb152ed40be24a3e8da7 muvixo <godarshia20@gmail.com> 1787268601 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      b8723972785ffc98ed0dcb152ed40be24a3e8da7 986801a6d45c5d558ce10d3b54f038ab45666f17 muvixo <godarshia20@gmail.com> 1787321061 +0330	commit: UI overhaul and new routing
+      986801a6d45c5d558ce10d3b54f038ab45666f17 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787321062 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      986801a6d45c5d558ce10d3b54f038ab45666f17 986801a6d45c5d558ce10d3b54f038ab45666f17 muvixo <godarshia20@gmail.com> 1787321062 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      986801a6d45c5d558ce10d3b54f038ab45666f17 e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 muvixo <godarshia20@gmail.com> 1787321289 +0330	commit: UI overhaul and new routing
+      e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787321289 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 muvixo <godarshia20@gmail.com> 1787321289 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 9a69987a86aa3208b5a109180234a1de1a4c7aac muvixo <godarshia20@gmail.com> 1787321540 +0330	commit: UI overhaul and new routing
+      9a69987a86aa3208b5a109180234a1de1a4c7aac 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787321540 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9a69987a86aa3208b5a109180234a1de1a4c7aac 9a69987a86aa3208b5a109180234a1de1a4c7aac muvixo <godarshia20@gmail.com> 1787321540 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9a69987a86aa3208b5a109180234a1de1a4c7aac 985621333b39e249cb0fbcab5b2b3da23fb8784f muvixo <godarshia20@gmail.com> 1787321747 +0330	commit: UI overhaul and new routing
+      985621333b39e249cb0fbcab5b2b3da23fb8784f 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787321747 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      985621333b39e249cb0fbcab5b2b3da23fb8784f 985621333b39e249cb0fbcab5b2b3da23fb8784f muvixo <godarshia20@gmail.com> 1787321747 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      985621333b39e249cb0fbcab5b2b3da23fb8784f aa49476c29d1c11ab9b8e4d705349816b49030ba muvixo <godarshia20@gmail.com> 1787322346 +0330	commit: UI overhaul and new routing
+      aa49476c29d1c11ab9b8e4d705349816b49030ba 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787322346 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      aa49476c29d1c11ab9b8e4d705349816b49030ba aa49476c29d1c11ab9b8e4d705349816b49030ba muvixo <godarshia20@gmail.com> 1787322346 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      aa49476c29d1c11ab9b8e4d705349816b49030ba 9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a muvixo <godarshia20@gmail.com> 1787323266 +0330	commit: UI overhaul and new routing
+      9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787323266 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a 9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a muvixo <godarshia20@gmail.com> 1787323266 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a f9be568d3f9b74cf7893ccbcca99ca2c85d07526 muvixo <godarshia20@gmail.com> 1787323683 +0330	commit: UI overhaul and new routing
+      f9be568d3f9b74cf7893ccbcca99ca2c85d07526 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787323684 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      f9be568d3f9b74cf7893ccbcca99ca2c85d07526 f9be568d3f9b74cf7893ccbcca99ca2c85d07526 muvixo <godarshia20@gmail.com> 1787323684 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      f9be568d3f9b74cf7893ccbcca99ca2c85d07526 860510926175a9876c8f9f144d6d376b13e855f4 muvixo <godarshia20@gmail.com> 1787323909 +0330	commit: UI overhaul and new routing
+      860510926175a9876c8f9f144d6d376b13e855f4 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787323910 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      860510926175a9876c8f9f144d6d376b13e855f4 860510926175a9876c8f9f144d6d376b13e855f4 muvixo <godarshia20@gmail.com> 1787323910 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      860510926175a9876c8f9f144d6d376b13e855f4 ddbf428bedebc080599012b51a2a3a0cb58e0883 muvixo <godarshia20@gmail.com> 1787324149 +0330	commit: UI overhaul and new routing
+      ddbf428bedebc080599012b51a2a3a0cb58e0883 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787324150 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      ddbf428bedebc080599012b51a2a3a0cb58e0883 ddbf428bedebc080599012b51a2a3a0cb58e0883 muvixo <godarshia20@gmail.com> 1787324150 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      ddbf428bedebc080599012b51a2a3a0cb58e0883 90efe908398514ac1f10467e55bdc4599f04394e muvixo <godarshia20@gmail.com> 1787324650 +0330	commit: UI overhaul and new routing
+      90efe908398514ac1f10467e55bdc4599f04394e 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787324650 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      90efe908398514ac1f10467e55bdc4599f04394e 90efe908398514ac1f10467e55bdc4599f04394e muvixo <godarshia20@gmail.com> 1787324650 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      90efe908398514ac1f10467e55bdc4599f04394e 6e44470dd2817a46835dcecb8fcc21adbd1aa1af muvixo <godarshia20@gmail.com> 1787325853 +0330	commit: UI overhaul and new routing
+      6e44470dd2817a46835dcecb8fcc21adbd1aa1af 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787325853 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      6e44470dd2817a46835dcecb8fcc21adbd1aa1af 6e44470dd2817a46835dcecb8fcc21adbd1aa1af muvixo <godarshia20@gmail.com> 1787325853 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      6e44470dd2817a46835dcecb8fcc21adbd1aa1af 5addd5bb94e5d68a2596455809fa4e27701ee61c muvixo <godarshia20@gmail.com> 1787326065 +0330	commit: UI overhaul and new routing
+      5addd5bb94e5d68a2596455809fa4e27701ee61c 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787326065 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      5addd5bb94e5d68a2596455809fa4e27701ee61c 5addd5bb94e5d68a2596455809fa4e27701ee61c muvixo <godarshia20@gmail.com> 1787326065 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      5addd5bb94e5d68a2596455809fa4e27701ee61c 2ef31207d896f28322fea66976dbe6e3e8c5f063 muvixo <godarshia20@gmail.com> 1787328271 +0330	commit: UI overhaul and new routing
+      2ef31207d896f28322fea66976dbe6e3e8c5f063 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787328271 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      2ef31207d896f28322fea66976dbe6e3e8c5f063 2ef31207d896f28322fea66976dbe6e3e8c5f063 muvixo <godarshia20@gmail.com> 1787328271 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      2ef31207d896f28322fea66976dbe6e3e8c5f063 aef0746c3dda5734047f9051ee2c912519eab00f muvixo <godarshia20@gmail.com> 1787328806 +0330	commit: UI overhaul and new routing
+      aef0746c3dda5734047f9051ee2c912519eab00f 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787328806 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      aef0746c3dda5734047f9051ee2c912519eab00f aef0746c3dda5734047f9051ee2c912519eab00f muvixo <godarshia20@gmail.com> 1787328806 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      aef0746c3dda5734047f9051ee2c912519eab00f 39f98aac859bb2f860651f3adafe2f6358078df7 muvixo <godarshia20@gmail.com> 1787329076 +0330	commit: UI overhaul and new routing
+      39f98aac859bb2f860651f3adafe2f6358078df7 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787329076 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      39f98aac859bb2f860651f3adafe2f6358078df7 39f98aac859bb2f860651f3adafe2f6358078df7 muvixo <godarshia20@gmail.com> 1787329076 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      39f98aac859bb2f860651f3adafe2f6358078df7 203a498bd728fb60f937c54817bbca8153a70da5 muvixo <godarshia20@gmail.com> 1787329493 +0330	commit: UI overhaul and new routing
+      203a498bd728fb60f937c54817bbca8153a70da5 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787329494 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      203a498bd728fb60f937c54817bbca8153a70da5 203a498bd728fb60f937c54817bbca8153a70da5 muvixo <godarshia20@gmail.com> 1787329494 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      203a498bd728fb60f937c54817bbca8153a70da5 09e6b7a278f2e5001e6e2b64146559a5284ec193 muvixo <godarshia20@gmail.com> 1787330408 +0330	commit: UI overhaul and new routing
+      09e6b7a278f2e5001e6e2b64146559a5284ec193 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787330408 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      09e6b7a278f2e5001e6e2b64146559a5284ec193 09e6b7a278f2e5001e6e2b64146559a5284ec193 muvixo <godarshia20@gmail.com> 1787330408 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      09e6b7a278f2e5001e6e2b64146559a5284ec193 4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 muvixo <godarshia20@gmail.com> 1787331003 +0330	commit: UI overhaul and new routing
+      4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787331003 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 muvixo <godarshia20@gmail.com> 1787331003 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb muvixo <godarshia20@gmail.com> 1787331240 +0330	commit: UI overhaul and new routing
+      b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787331241 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb muvixo <godarshia20@gmail.com> 1787331241 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb 9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 muvixo <godarshia20@gmail.com> 1787331398 +0330	commit: UI overhaul and new routing
+      9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787331398 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 muvixo <godarshia20@gmail.com> 1787331398 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 6539d2adcc0503c5ec6b0650a36ae3431568add2 muvixo <godarshia20@gmail.com> 1787331682 +0330	commit: UI overhaul and new routing
+      6539d2adcc0503c5ec6b0650a36ae3431568add2 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787331683 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      6539d2adcc0503c5ec6b0650a36ae3431568add2 6539d2adcc0503c5ec6b0650a36ae3431568add2 muvixo <godarshia20@gmail.com> 1787331683 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      6539d2adcc0503c5ec6b0650a36ae3431568add2 b8d5a0f73468fc934c96634545aad6ce24361d8a muvixo <godarshia20@gmail.com> 1787332015 +0330	commit: UI overhaul and new routing
+      b8d5a0f73468fc934c96634545aad6ce24361d8a 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787332016 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      b8d5a0f73468fc934c96634545aad6ce24361d8a b8d5a0f73468fc934c96634545aad6ce24361d8a muvixo <godarshia20@gmail.com> 1787332016 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      b8d5a0f73468fc934c96634545aad6ce24361d8a 9c9281b842306a8480a859cd2638bfb924b6ac85 muvixo <godarshia20@gmail.com> 1787332380 +0330	commit: UI overhaul and new routing
+      9c9281b842306a8480a859cd2638bfb924b6ac85 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787332380 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9c9281b842306a8480a859cd2638bfb924b6ac85 9c9281b842306a8480a859cd2638bfb924b6ac85 muvixo <godarshia20@gmail.com> 1787332380 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9c9281b842306a8480a859cd2638bfb924b6ac85 28f0dc4ad677c2038e22c1066effebbf66204df8 muvixo <godarshia20@gmail.com> 1787332792 +0330	commit: UI overhaul and new routing
+      28f0dc4ad677c2038e22c1066effebbf66204df8 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787332792 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      28f0dc4ad677c2038e22c1066effebbf66204df8 28f0dc4ad677c2038e22c1066effebbf66204df8 muvixo <godarshia20@gmail.com> 1787332792 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      28f0dc4ad677c2038e22c1066effebbf66204df8 46758b3b55a4312ce67a0f2660aead50fb7eed25 muvixo <godarshia20@gmail.com> 1787333852 +0330	commit: UI overhaul and new routing
+      46758b3b55a4312ce67a0f2660aead50fb7eed25 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787333852 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      46758b3b55a4312ce67a0f2660aead50fb7eed25 46758b3b55a4312ce67a0f2660aead50fb7eed25 muvixo <godarshia20@gmail.com> 1787333852 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      46758b3b55a4312ce67a0f2660aead50fb7eed25 c37c26facf38a28f15b20a97f319a07517f137eb muvixo <godarshia20@gmail.com> 1787334412 +0330	commit: UI overhaul and new routing
+      c37c26facf38a28f15b20a97f319a07517f137eb 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787334412 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      c37c26facf38a28f15b20a97f319a07517f137eb c37c26facf38a28f15b20a97f319a07517f137eb muvixo <godarshia20@gmail.com> 1787334412 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      c37c26facf38a28f15b20a97f319a07517f137eb 1f6d31a6bf647b3784413ebeb8dd102317d3a989 muvixo <godarshia20@gmail.com> 1787334930 +0330	commit: UI overhaul and new routing
+      1f6d31a6bf647b3784413ebeb8dd102317d3a989 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787334930 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      1f6d31a6bf647b3784413ebeb8dd102317d3a989 1f6d31a6bf647b3784413ebeb8dd102317d3a989 muvixo <godarshia20@gmail.com> 1787334930 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      1f6d31a6bf647b3784413ebeb8dd102317d3a989 f5c22e0eb44dd096833ed1a3903b90c12f552972 muvixo <godarshia20@gmail.com> 1787335231 +0330	commit: UI overhaul and new routing
+      f5c22e0eb44dd096833ed1a3903b90c12f552972 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787335231 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      f5c22e0eb44dd096833ed1a3903b90c12f552972 f5c22e0eb44dd096833ed1a3903b90c12f552972 muvixo <godarshia20@gmail.com> 1787335231 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      f5c22e0eb44dd096833ed1a3903b90c12f552972 99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d muvixo <godarshia20@gmail.com> 1787335490 +0330	commit: UI overhaul and new routing
+      99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787335490 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d 99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d muvixo <godarshia20@gmail.com> 1787335490 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336052 +0330	commit: UI overhaul and new routing
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787336052 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336052 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787336076 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336076 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787336087 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336087 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787336102 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336102 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787336815 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336815 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      3d9590350ad5231c70e4a0dd1c6b28686a205f59 6cd1af03e59e6b94115b72d47d7da10d654de772 muvixo <godarshia20@gmail.com> 1787337705 +0330	commit: UI overhaul and new routing
+      6cd1af03e59e6b94115b72d47d7da10d654de772 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787337705 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      6cd1af03e59e6b94115b72d47d7da10d654de772 6cd1af03e59e6b94115b72d47d7da10d654de772 muvixo <godarshia20@gmail.com> 1787337705 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      6cd1af03e59e6b94115b72d47d7da10d654de772 d6195e8aee114a8ba31a0de3b83997e0dc2980e2 muvixo <godarshia20@gmail.com> 1787338745 +0330	commit: UI overhaul and new routing
+      d6195e8aee114a8ba31a0de3b83997e0dc2980e2 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787338745 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      d6195e8aee114a8ba31a0de3b83997e0dc2980e2 d6195e8aee114a8ba31a0de3b83997e0dc2980e2 muvixo <godarshia20@gmail.com> 1787338745 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      d6195e8aee114a8ba31a0de3b83997e0dc2980e2 cc38836bb8d2703ce064091d6e8bdd90f3c43a28 muvixo <godarshia20@gmail.com> 1787339338 +0330	commit: UI overhaul and new routing
+      cc38836bb8d2703ce064091d6e8bdd90f3c43a28 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787339338 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      cc38836bb8d2703ce064091d6e8bdd90f3c43a28 cc38836bb8d2703ce064091d6e8bdd90f3c43a28 muvixo <godarshia20@gmail.com> 1787339338 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      cc38836bb8d2703ce064091d6e8bdd90f3c43a28 ce624ba072e9a8cd453b9fd195255352ee766500 muvixo <godarshia20@gmail.com> 1787340040 +0330	commit: UI overhaul and new routing
+      ce624ba072e9a8cd453b9fd195255352ee766500 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787340041 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      ce624ba072e9a8cd453b9fd195255352ee766500 ce624ba072e9a8cd453b9fd195255352ee766500 muvixo <godarshia20@gmail.com> 1787340041 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      ce624ba072e9a8cd453b9fd195255352ee766500 18bc79e6d9d6d779f467a3c4e35c792e247b85ef muvixo <godarshia20@gmail.com> 1787340281 +0330	commit: UI overhaul and new routing
+      18bc79e6d9d6d779f467a3c4e35c792e247b85ef 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787340282 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      18bc79e6d9d6d779f467a3c4e35c792e247b85ef 18bc79e6d9d6d779f467a3c4e35c792e247b85ef muvixo <godarshia20@gmail.com> 1787340282 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      18bc79e6d9d6d779f467a3c4e35c792e247b85ef a7ee05efdc2621d9f30cdff37638dcf3671e2555 muvixo <godarshia20@gmail.com> 1787340606 +0330	commit: UI overhaul and new routing
+      a7ee05efdc2621d9f30cdff37638dcf3671e2555 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787340606 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      a7ee05efdc2621d9f30cdff37638dcf3671e2555 a7ee05efdc2621d9f30cdff37638dcf3671e2555 muvixo <godarshia20@gmail.com> 1787340606 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      a7ee05efdc2621d9f30cdff37638dcf3671e2555 04fc347de06e49ab5aa429612fc7806f0159664b muvixo <godarshia20@gmail.com> 1787341251 +0330	commit: UI overhaul and new routing
+      04fc347de06e49ab5aa429612fc7806f0159664b 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787341252 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      04fc347de06e49ab5aa429612fc7806f0159664b 04fc347de06e49ab5aa429612fc7806f0159664b muvixo <godarshia20@gmail.com> 1787341252 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      04fc347de06e49ab5aa429612fc7806f0159664b 488b4564a6780bdc015aac6242b8779db7c0b1b5 muvixo <godarshia20@gmail.com> 1787342026 +0330	commit: UI overhaul and new routing
+      488b4564a6780bdc015aac6242b8779db7c0b1b5 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787342026 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      488b4564a6780bdc015aac6242b8779db7c0b1b5 488b4564a6780bdc015aac6242b8779db7c0b1b5 muvixo <godarshia20@gmail.com> 1787342026 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      488b4564a6780bdc015aac6242b8779db7c0b1b5 57a38c548d5b267fc486c6643629c99ff0110a27 muvixo <godarshia20@gmail.com> 1787343765 +0330	commit: UI overhaul and new routing
+      57a38c548d5b267fc486c6643629c99ff0110a27 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787343765 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      57a38c548d5b267fc486c6643629c99ff0110a27 57a38c548d5b267fc486c6643629c99ff0110a27 muvixo <godarshia20@gmail.com> 1787343765 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      57a38c548d5b267fc486c6643629c99ff0110a27 e3be10820fae706a1e94dd85930dbdbb3266330a muvixo <godarshia20@gmail.com> 1787344530 +0330	commit: UI overhaul and new routing
+      e3be10820fae706a1e94dd85930dbdbb3266330a 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787344530 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      e3be10820fae706a1e94dd85930dbdbb3266330a e3be10820fae706a1e94dd85930dbdbb3266330a muvixo <godarshia20@gmail.com> 1787344530 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      e3be10820fae706a1e94dd85930dbdbb3266330a f4deea94fe066c7d02afe15030d8a6be6a192c04 muvixo <godarshia20@gmail.com> 1787345358 +0330	commit: UI overhaul and new routing
+      f4deea94fe066c7d02afe15030d8a6be6a192c04 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787345358 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      f4deea94fe066c7d02afe15030d8a6be6a192c04 f4deea94fe066c7d02afe15030d8a6be6a192c04 muvixo <godarshia20@gmail.com> 1787345358 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      f4deea94fe066c7d02afe15030d8a6be6a192c04 9dff6d9769513b1e0cca3fd0c08be328443a49d1 muvixo <godarshia20@gmail.com> 1787345739 +0330	commit: UI overhaul and new routing
+      9dff6d9769513b1e0cca3fd0c08be328443a49d1 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787345739 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9dff6d9769513b1e0cca3fd0c08be328443a49d1 9dff6d9769513b1e0cca3fd0c08be328443a49d1 muvixo <godarshia20@gmail.com> 1787345739 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9dff6d9769513b1e0cca3fd0c08be328443a49d1 9f712839b143da5e2fbcb82fa035bd4d121d10df muvixo <godarshia20@gmail.com> 1787397237 +0330	commit: UI overhaul and new routing
+      9f712839b143da5e2fbcb82fa035bd4d121d10df 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787397237 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9f712839b143da5e2fbcb82fa035bd4d121d10df 9f712839b143da5e2fbcb82fa035bd4d121d10df muvixo <godarshia20@gmail.com> 1787397237 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      9f712839b143da5e2fbcb82fa035bd4d121d10df c0b6868b8618d30c8250e341940bdced8bf3736f muvixo <godarshia20@gmail.com> 1787397548 +0330	commit: UI overhaul and new routing
+      c0b6868b8618d30c8250e341940bdced8bf3736f 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787397548 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      c0b6868b8618d30c8250e341940bdced8bf3736f c0b6868b8618d30c8250e341940bdced8bf3736f muvixo <godarshia20@gmail.com> 1787397548 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      c0b6868b8618d30c8250e341940bdced8bf3736f 4d15e8ad08943225c897743cdb4b85ab9e790234 muvixo <godarshia20@gmail.com> 1787397700 +0330	commit: UI overhaul and new routing
+      4d15e8ad08943225c897743cdb4b85ab9e790234 0000000000000000000000000000000000000000 muvixo <godarshia20@gmail.com> 1787397700 +0330	Branch: renamed refs/heads/main to refs/heads/main
+      4d15e8ad08943225c897743cdb4b85ab9e790234 4d15e8ad08943225c897743cdb4b85ab9e790234 muvixo <godarshia20@gmail.com> 1787397700 +0330	Branch: renamed refs/heads/main to refs/heads/main
+
+
+
+
+
+
+
+
+
+
+
+    refs
+      heads
+        main
+          0000000000000000000000000000000000000000 8feda8eee9fed768348c0d0b320a1b7a35bb3abe muvixo <godarshia20@gmail.com> 1787262957 +0330	commit (initial): UI overhaul and new routing
+          8feda8eee9fed768348c0d0b320a1b7a35bb3abe 8feda8eee9fed768348c0d0b320a1b7a35bb3abe muvixo <godarshia20@gmail.com> 1787262957 +0330	Branch: renamed refs/heads/master to refs/heads/main
+          8feda8eee9fed768348c0d0b320a1b7a35bb3abe 8feda8eee9fed768348c0d0b320a1b7a35bb3abe muvixo <godarshia20@gmail.com> 1787264031 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          8feda8eee9fed768348c0d0b320a1b7a35bb3abe 87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 muvixo <godarshia20@gmail.com> 1787264106 +0330	commit: UI overhaul and new routing
+          87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 muvixo <godarshia20@gmail.com> 1787264106 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 1a7ed5337294cf7a8b50fac36ea37c6213369249 muvixo <godarshia20@gmail.com> 1787266365 +0330	commit: UI overhaul and new routing
+          1a7ed5337294cf7a8b50fac36ea37c6213369249 1a7ed5337294cf7a8b50fac36ea37c6213369249 muvixo <godarshia20@gmail.com> 1787266365 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          1a7ed5337294cf7a8b50fac36ea37c6213369249 6504882994fb75a162f7fccb9edd89be40c71da6 muvixo <godarshia20@gmail.com> 1787267710 +0330	commit: UI overhaul and new routing
+          6504882994fb75a162f7fccb9edd89be40c71da6 6504882994fb75a162f7fccb9edd89be40c71da6 muvixo <godarshia20@gmail.com> 1787267710 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          6504882994fb75a162f7fccb9edd89be40c71da6 b8723972785ffc98ed0dcb152ed40be24a3e8da7 muvixo <godarshia20@gmail.com> 1787268601 +0330	commit: UI overhaul and new routing
+          b8723972785ffc98ed0dcb152ed40be24a3e8da7 b8723972785ffc98ed0dcb152ed40be24a3e8da7 muvixo <godarshia20@gmail.com> 1787268601 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          b8723972785ffc98ed0dcb152ed40be24a3e8da7 986801a6d45c5d558ce10d3b54f038ab45666f17 muvixo <godarshia20@gmail.com> 1787321061 +0330	commit: UI overhaul and new routing
+          986801a6d45c5d558ce10d3b54f038ab45666f17 986801a6d45c5d558ce10d3b54f038ab45666f17 muvixo <godarshia20@gmail.com> 1787321062 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          986801a6d45c5d558ce10d3b54f038ab45666f17 e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 muvixo <godarshia20@gmail.com> 1787321289 +0330	commit: UI overhaul and new routing
+          e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 muvixo <godarshia20@gmail.com> 1787321289 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 9a69987a86aa3208b5a109180234a1de1a4c7aac muvixo <godarshia20@gmail.com> 1787321540 +0330	commit: UI overhaul and new routing
+          9a69987a86aa3208b5a109180234a1de1a4c7aac 9a69987a86aa3208b5a109180234a1de1a4c7aac muvixo <godarshia20@gmail.com> 1787321540 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          9a69987a86aa3208b5a109180234a1de1a4c7aac 985621333b39e249cb0fbcab5b2b3da23fb8784f muvixo <godarshia20@gmail.com> 1787321747 +0330	commit: UI overhaul and new routing
+          985621333b39e249cb0fbcab5b2b3da23fb8784f 985621333b39e249cb0fbcab5b2b3da23fb8784f muvixo <godarshia20@gmail.com> 1787321747 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          985621333b39e249cb0fbcab5b2b3da23fb8784f aa49476c29d1c11ab9b8e4d705349816b49030ba muvixo <godarshia20@gmail.com> 1787322346 +0330	commit: UI overhaul and new routing
+          aa49476c29d1c11ab9b8e4d705349816b49030ba aa49476c29d1c11ab9b8e4d705349816b49030ba muvixo <godarshia20@gmail.com> 1787322346 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          aa49476c29d1c11ab9b8e4d705349816b49030ba 9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a muvixo <godarshia20@gmail.com> 1787323266 +0330	commit: UI overhaul and new routing
+          9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a 9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a muvixo <godarshia20@gmail.com> 1787323266 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a f9be568d3f9b74cf7893ccbcca99ca2c85d07526 muvixo <godarshia20@gmail.com> 1787323683 +0330	commit: UI overhaul and new routing
+          f9be568d3f9b74cf7893ccbcca99ca2c85d07526 f9be568d3f9b74cf7893ccbcca99ca2c85d07526 muvixo <godarshia20@gmail.com> 1787323684 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          f9be568d3f9b74cf7893ccbcca99ca2c85d07526 860510926175a9876c8f9f144d6d376b13e855f4 muvixo <godarshia20@gmail.com> 1787323909 +0330	commit: UI overhaul and new routing
+          860510926175a9876c8f9f144d6d376b13e855f4 860510926175a9876c8f9f144d6d376b13e855f4 muvixo <godarshia20@gmail.com> 1787323910 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          860510926175a9876c8f9f144d6d376b13e855f4 ddbf428bedebc080599012b51a2a3a0cb58e0883 muvixo <godarshia20@gmail.com> 1787324149 +0330	commit: UI overhaul and new routing
+          ddbf428bedebc080599012b51a2a3a0cb58e0883 ddbf428bedebc080599012b51a2a3a0cb58e0883 muvixo <godarshia20@gmail.com> 1787324150 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          ddbf428bedebc080599012b51a2a3a0cb58e0883 90efe908398514ac1f10467e55bdc4599f04394e muvixo <godarshia20@gmail.com> 1787324650 +0330	commit: UI overhaul and new routing
+          90efe908398514ac1f10467e55bdc4599f04394e 90efe908398514ac1f10467e55bdc4599f04394e muvixo <godarshia20@gmail.com> 1787324650 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          90efe908398514ac1f10467e55bdc4599f04394e 6e44470dd2817a46835dcecb8fcc21adbd1aa1af muvixo <godarshia20@gmail.com> 1787325853 +0330	commit: UI overhaul and new routing
+          6e44470dd2817a46835dcecb8fcc21adbd1aa1af 6e44470dd2817a46835dcecb8fcc21adbd1aa1af muvixo <godarshia20@gmail.com> 1787325853 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          6e44470dd2817a46835dcecb8fcc21adbd1aa1af 5addd5bb94e5d68a2596455809fa4e27701ee61c muvixo <godarshia20@gmail.com> 1787326065 +0330	commit: UI overhaul and new routing
+          5addd5bb94e5d68a2596455809fa4e27701ee61c 5addd5bb94e5d68a2596455809fa4e27701ee61c muvixo <godarshia20@gmail.com> 1787326065 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          5addd5bb94e5d68a2596455809fa4e27701ee61c 2ef31207d896f28322fea66976dbe6e3e8c5f063 muvixo <godarshia20@gmail.com> 1787328271 +0330	commit: UI overhaul and new routing
+          2ef31207d896f28322fea66976dbe6e3e8c5f063 2ef31207d896f28322fea66976dbe6e3e8c5f063 muvixo <godarshia20@gmail.com> 1787328271 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          2ef31207d896f28322fea66976dbe6e3e8c5f063 aef0746c3dda5734047f9051ee2c912519eab00f muvixo <godarshia20@gmail.com> 1787328806 +0330	commit: UI overhaul and new routing
+          aef0746c3dda5734047f9051ee2c912519eab00f aef0746c3dda5734047f9051ee2c912519eab00f muvixo <godarshia20@gmail.com> 1787328806 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          aef0746c3dda5734047f9051ee2c912519eab00f 39f98aac859bb2f860651f3adafe2f6358078df7 muvixo <godarshia20@gmail.com> 1787329076 +0330	commit: UI overhaul and new routing
+          39f98aac859bb2f860651f3adafe2f6358078df7 39f98aac859bb2f860651f3adafe2f6358078df7 muvixo <godarshia20@gmail.com> 1787329076 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          39f98aac859bb2f860651f3adafe2f6358078df7 203a498bd728fb60f937c54817bbca8153a70da5 muvixo <godarshia20@gmail.com> 1787329493 +0330	commit: UI overhaul and new routing
+          203a498bd728fb60f937c54817bbca8153a70da5 203a498bd728fb60f937c54817bbca8153a70da5 muvixo <godarshia20@gmail.com> 1787329494 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          203a498bd728fb60f937c54817bbca8153a70da5 09e6b7a278f2e5001e6e2b64146559a5284ec193 muvixo <godarshia20@gmail.com> 1787330408 +0330	commit: UI overhaul and new routing
+          09e6b7a278f2e5001e6e2b64146559a5284ec193 09e6b7a278f2e5001e6e2b64146559a5284ec193 muvixo <godarshia20@gmail.com> 1787330408 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          09e6b7a278f2e5001e6e2b64146559a5284ec193 4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 muvixo <godarshia20@gmail.com> 1787331003 +0330	commit: UI overhaul and new routing
+          4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 muvixo <godarshia20@gmail.com> 1787331003 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb muvixo <godarshia20@gmail.com> 1787331240 +0330	commit: UI overhaul and new routing
+          b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb muvixo <godarshia20@gmail.com> 1787331241 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb 9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 muvixo <godarshia20@gmail.com> 1787331398 +0330	commit: UI overhaul and new routing
+          9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 muvixo <godarshia20@gmail.com> 1787331398 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 6539d2adcc0503c5ec6b0650a36ae3431568add2 muvixo <godarshia20@gmail.com> 1787331682 +0330	commit: UI overhaul and new routing
+          6539d2adcc0503c5ec6b0650a36ae3431568add2 6539d2adcc0503c5ec6b0650a36ae3431568add2 muvixo <godarshia20@gmail.com> 1787331683 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          6539d2adcc0503c5ec6b0650a36ae3431568add2 b8d5a0f73468fc934c96634545aad6ce24361d8a muvixo <godarshia20@gmail.com> 1787332015 +0330	commit: UI overhaul and new routing
+          b8d5a0f73468fc934c96634545aad6ce24361d8a b8d5a0f73468fc934c96634545aad6ce24361d8a muvixo <godarshia20@gmail.com> 1787332016 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          b8d5a0f73468fc934c96634545aad6ce24361d8a 9c9281b842306a8480a859cd2638bfb924b6ac85 muvixo <godarshia20@gmail.com> 1787332380 +0330	commit: UI overhaul and new routing
+          9c9281b842306a8480a859cd2638bfb924b6ac85 9c9281b842306a8480a859cd2638bfb924b6ac85 muvixo <godarshia20@gmail.com> 1787332380 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          9c9281b842306a8480a859cd2638bfb924b6ac85 28f0dc4ad677c2038e22c1066effebbf66204df8 muvixo <godarshia20@gmail.com> 1787332792 +0330	commit: UI overhaul and new routing
+          28f0dc4ad677c2038e22c1066effebbf66204df8 28f0dc4ad677c2038e22c1066effebbf66204df8 muvixo <godarshia20@gmail.com> 1787332792 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          28f0dc4ad677c2038e22c1066effebbf66204df8 46758b3b55a4312ce67a0f2660aead50fb7eed25 muvixo <godarshia20@gmail.com> 1787333852 +0330	commit: UI overhaul and new routing
+          46758b3b55a4312ce67a0f2660aead50fb7eed25 46758b3b55a4312ce67a0f2660aead50fb7eed25 muvixo <godarshia20@gmail.com> 1787333852 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          46758b3b55a4312ce67a0f2660aead50fb7eed25 c37c26facf38a28f15b20a97f319a07517f137eb muvixo <godarshia20@gmail.com> 1787334412 +0330	commit: UI overhaul and new routing
+          c37c26facf38a28f15b20a97f319a07517f137eb c37c26facf38a28f15b20a97f319a07517f137eb muvixo <godarshia20@gmail.com> 1787334412 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          c37c26facf38a28f15b20a97f319a07517f137eb 1f6d31a6bf647b3784413ebeb8dd102317d3a989 muvixo <godarshia20@gmail.com> 1787334930 +0330	commit: UI overhaul and new routing
+          1f6d31a6bf647b3784413ebeb8dd102317d3a989 1f6d31a6bf647b3784413ebeb8dd102317d3a989 muvixo <godarshia20@gmail.com> 1787334930 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          1f6d31a6bf647b3784413ebeb8dd102317d3a989 f5c22e0eb44dd096833ed1a3903b90c12f552972 muvixo <godarshia20@gmail.com> 1787335231 +0330	commit: UI overhaul and new routing
+          f5c22e0eb44dd096833ed1a3903b90c12f552972 f5c22e0eb44dd096833ed1a3903b90c12f552972 muvixo <godarshia20@gmail.com> 1787335231 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          f5c22e0eb44dd096833ed1a3903b90c12f552972 99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d muvixo <godarshia20@gmail.com> 1787335490 +0330	commit: UI overhaul and new routing
+          99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d 99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d muvixo <godarshia20@gmail.com> 1787335490 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336052 +0330	commit: UI overhaul and new routing
+          3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336052 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336076 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336087 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336102 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          3d9590350ad5231c70e4a0dd1c6b28686a205f59 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336815 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          3d9590350ad5231c70e4a0dd1c6b28686a205f59 6cd1af03e59e6b94115b72d47d7da10d654de772 muvixo <godarshia20@gmail.com> 1787337705 +0330	commit: UI overhaul and new routing
+          6cd1af03e59e6b94115b72d47d7da10d654de772 6cd1af03e59e6b94115b72d47d7da10d654de772 muvixo <godarshia20@gmail.com> 1787337705 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          6cd1af03e59e6b94115b72d47d7da10d654de772 d6195e8aee114a8ba31a0de3b83997e0dc2980e2 muvixo <godarshia20@gmail.com> 1787338745 +0330	commit: UI overhaul and new routing
+          d6195e8aee114a8ba31a0de3b83997e0dc2980e2 d6195e8aee114a8ba31a0de3b83997e0dc2980e2 muvixo <godarshia20@gmail.com> 1787338745 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          d6195e8aee114a8ba31a0de3b83997e0dc2980e2 cc38836bb8d2703ce064091d6e8bdd90f3c43a28 muvixo <godarshia20@gmail.com> 1787339338 +0330	commit: UI overhaul and new routing
+          cc38836bb8d2703ce064091d6e8bdd90f3c43a28 cc38836bb8d2703ce064091d6e8bdd90f3c43a28 muvixo <godarshia20@gmail.com> 1787339338 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          cc38836bb8d2703ce064091d6e8bdd90f3c43a28 ce624ba072e9a8cd453b9fd195255352ee766500 muvixo <godarshia20@gmail.com> 1787340040 +0330	commit: UI overhaul and new routing
+          ce624ba072e9a8cd453b9fd195255352ee766500 ce624ba072e9a8cd453b9fd195255352ee766500 muvixo <godarshia20@gmail.com> 1787340041 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          ce624ba072e9a8cd453b9fd195255352ee766500 18bc79e6d9d6d779f467a3c4e35c792e247b85ef muvixo <godarshia20@gmail.com> 1787340281 +0330	commit: UI overhaul and new routing
+          18bc79e6d9d6d779f467a3c4e35c792e247b85ef 18bc79e6d9d6d779f467a3c4e35c792e247b85ef muvixo <godarshia20@gmail.com> 1787340282 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          18bc79e6d9d6d779f467a3c4e35c792e247b85ef a7ee05efdc2621d9f30cdff37638dcf3671e2555 muvixo <godarshia20@gmail.com> 1787340606 +0330	commit: UI overhaul and new routing
+          a7ee05efdc2621d9f30cdff37638dcf3671e2555 a7ee05efdc2621d9f30cdff37638dcf3671e2555 muvixo <godarshia20@gmail.com> 1787340606 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          a7ee05efdc2621d9f30cdff37638dcf3671e2555 04fc347de06e49ab5aa429612fc7806f0159664b muvixo <godarshia20@gmail.com> 1787341251 +0330	commit: UI overhaul and new routing
+          04fc347de06e49ab5aa429612fc7806f0159664b 04fc347de06e49ab5aa429612fc7806f0159664b muvixo <godarshia20@gmail.com> 1787341252 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          04fc347de06e49ab5aa429612fc7806f0159664b 488b4564a6780bdc015aac6242b8779db7c0b1b5 muvixo <godarshia20@gmail.com> 1787342026 +0330	commit: UI overhaul and new routing
+          488b4564a6780bdc015aac6242b8779db7c0b1b5 488b4564a6780bdc015aac6242b8779db7c0b1b5 muvixo <godarshia20@gmail.com> 1787342026 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          488b4564a6780bdc015aac6242b8779db7c0b1b5 57a38c548d5b267fc486c6643629c99ff0110a27 muvixo <godarshia20@gmail.com> 1787343765 +0330	commit: UI overhaul and new routing
+          57a38c548d5b267fc486c6643629c99ff0110a27 57a38c548d5b267fc486c6643629c99ff0110a27 muvixo <godarshia20@gmail.com> 1787343765 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          57a38c548d5b267fc486c6643629c99ff0110a27 e3be10820fae706a1e94dd85930dbdbb3266330a muvixo <godarshia20@gmail.com> 1787344530 +0330	commit: UI overhaul and new routing
+          e3be10820fae706a1e94dd85930dbdbb3266330a e3be10820fae706a1e94dd85930dbdbb3266330a muvixo <godarshia20@gmail.com> 1787344530 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          e3be10820fae706a1e94dd85930dbdbb3266330a f4deea94fe066c7d02afe15030d8a6be6a192c04 muvixo <godarshia20@gmail.com> 1787345358 +0330	commit: UI overhaul and new routing
+          f4deea94fe066c7d02afe15030d8a6be6a192c04 f4deea94fe066c7d02afe15030d8a6be6a192c04 muvixo <godarshia20@gmail.com> 1787345358 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          f4deea94fe066c7d02afe15030d8a6be6a192c04 9dff6d9769513b1e0cca3fd0c08be328443a49d1 muvixo <godarshia20@gmail.com> 1787345739 +0330	commit: UI overhaul and new routing
+          9dff6d9769513b1e0cca3fd0c08be328443a49d1 9dff6d9769513b1e0cca3fd0c08be328443a49d1 muvixo <godarshia20@gmail.com> 1787345739 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          9dff6d9769513b1e0cca3fd0c08be328443a49d1 9f712839b143da5e2fbcb82fa035bd4d121d10df muvixo <godarshia20@gmail.com> 1787397237 +0330	commit: UI overhaul and new routing
+          9f712839b143da5e2fbcb82fa035bd4d121d10df 9f712839b143da5e2fbcb82fa035bd4d121d10df muvixo <godarshia20@gmail.com> 1787397237 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          9f712839b143da5e2fbcb82fa035bd4d121d10df c0b6868b8618d30c8250e341940bdced8bf3736f muvixo <godarshia20@gmail.com> 1787397548 +0330	commit: UI overhaul and new routing
+          c0b6868b8618d30c8250e341940bdced8bf3736f c0b6868b8618d30c8250e341940bdced8bf3736f muvixo <godarshia20@gmail.com> 1787397548 +0330	Branch: renamed refs/heads/main to refs/heads/main
+          c0b6868b8618d30c8250e341940bdced8bf3736f 4d15e8ad08943225c897743cdb4b85ab9e790234 muvixo <godarshia20@gmail.com> 1787397700 +0330	commit: UI overhaul and new routing
+          4d15e8ad08943225c897743cdb4b85ab9e790234 4d15e8ad08943225c897743cdb4b85ab9e790234 muvixo <godarshia20@gmail.com> 1787397700 +0330	Branch: renamed refs/heads/main to refs/heads/main
+
+
+
+
+
+
+
+
+
+
+
+      remotes
+        origin
+          main
+            0000000000000000000000000000000000000000 8feda8eee9fed768348c0d0b320a1b7a35bb3abe muvixo <godarshia20@gmail.com> 1787262975 +0330	update by push
+            8feda8eee9fed768348c0d0b320a1b7a35bb3abe 87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 muvixo <godarshia20@gmail.com> 1787264120 +0330	update by push
+            87b3d634baf8ccf3416e17e0a7c81e5a430fcae6 1a7ed5337294cf7a8b50fac36ea37c6213369249 muvixo <godarshia20@gmail.com> 1787266375 +0330	update by push
+            1a7ed5337294cf7a8b50fac36ea37c6213369249 6504882994fb75a162f7fccb9edd89be40c71da6 muvixo <godarshia20@gmail.com> 1787267737 +0330	update by push
+            6504882994fb75a162f7fccb9edd89be40c71da6 b8723972785ffc98ed0dcb152ed40be24a3e8da7 muvixo <godarshia20@gmail.com> 1787268637 +0330	update by push
+            b8723972785ffc98ed0dcb152ed40be24a3e8da7 986801a6d45c5d558ce10d3b54f038ab45666f17 muvixo <godarshia20@gmail.com> 1787321073 +0330	update by push
+            986801a6d45c5d558ce10d3b54f038ab45666f17 e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 muvixo <godarshia20@gmail.com> 1787321297 +0330	update by push
+            e33ac9a9feff1e92dbec1c90be1f8b1ab96af731 9a69987a86aa3208b5a109180234a1de1a4c7aac muvixo <godarshia20@gmail.com> 1787321552 +0330	update by push
+            9a69987a86aa3208b5a109180234a1de1a4c7aac 985621333b39e249cb0fbcab5b2b3da23fb8784f muvixo <godarshia20@gmail.com> 1787321760 +0330	update by push
+            985621333b39e249cb0fbcab5b2b3da23fb8784f aa49476c29d1c11ab9b8e4d705349816b49030ba muvixo <godarshia20@gmail.com> 1787322355 +0330	update by push
+            aa49476c29d1c11ab9b8e4d705349816b49030ba 9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a muvixo <godarshia20@gmail.com> 1787323277 +0330	update by push
+            9bcd8d208f6f522ca9665650ca7a7a4ffab86e5a f9be568d3f9b74cf7893ccbcca99ca2c85d07526 muvixo <godarshia20@gmail.com> 1787323701 +0330	update by push
+            f9be568d3f9b74cf7893ccbcca99ca2c85d07526 860510926175a9876c8f9f144d6d376b13e855f4 muvixo <godarshia20@gmail.com> 1787323919 +0330	update by push
+            860510926175a9876c8f9f144d6d376b13e855f4 ddbf428bedebc080599012b51a2a3a0cb58e0883 muvixo <godarshia20@gmail.com> 1787324165 +0330	update by push
+            ddbf428bedebc080599012b51a2a3a0cb58e0883 90efe908398514ac1f10467e55bdc4599f04394e muvixo <godarshia20@gmail.com> 1787324676 +0330	update by push
+            90efe908398514ac1f10467e55bdc4599f04394e 6e44470dd2817a46835dcecb8fcc21adbd1aa1af muvixo <godarshia20@gmail.com> 1787325866 +0330	update by push
+            6e44470dd2817a46835dcecb8fcc21adbd1aa1af 5addd5bb94e5d68a2596455809fa4e27701ee61c muvixo <godarshia20@gmail.com> 1787326077 +0330	update by push
+            5addd5bb94e5d68a2596455809fa4e27701ee61c 2ef31207d896f28322fea66976dbe6e3e8c5f063 muvixo <godarshia20@gmail.com> 1787328283 +0330	update by push
+            2ef31207d896f28322fea66976dbe6e3e8c5f063 aef0746c3dda5734047f9051ee2c912519eab00f muvixo <godarshia20@gmail.com> 1787328816 +0330	update by push
+            aef0746c3dda5734047f9051ee2c912519eab00f 39f98aac859bb2f860651f3adafe2f6358078df7 muvixo <godarshia20@gmail.com> 1787329087 +0330	update by push
+            39f98aac859bb2f860651f3adafe2f6358078df7 203a498bd728fb60f937c54817bbca8153a70da5 muvixo <godarshia20@gmail.com> 1787329510 +0330	update by push
+            203a498bd728fb60f937c54817bbca8153a70da5 09e6b7a278f2e5001e6e2b64146559a5284ec193 muvixo <godarshia20@gmail.com> 1787330430 +0330	update by push
+            09e6b7a278f2e5001e6e2b64146559a5284ec193 4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 muvixo <godarshia20@gmail.com> 1787331011 +0330	update by push
+            4e987ee6e3d2c7abfa04c618fd5f729932abf8b7 b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb muvixo <godarshia20@gmail.com> 1787331252 +0330	update by push
+            b9df70a0bdcdb9af912cf886cc787cbe2fdc7fcb 9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 muvixo <godarshia20@gmail.com> 1787331407 +0330	update by push
+            9c9f7bb878ab8086fc634bcdd7a2abb540a843e7 6539d2adcc0503c5ec6b0650a36ae3431568add2 muvixo <godarshia20@gmail.com> 1787331695 +0330	update by push
+            6539d2adcc0503c5ec6b0650a36ae3431568add2 b8d5a0f73468fc934c96634545aad6ce24361d8a muvixo <godarshia20@gmail.com> 1787332035 +0330	update by push
+            b8d5a0f73468fc934c96634545aad6ce24361d8a 9c9281b842306a8480a859cd2638bfb924b6ac85 muvixo <godarshia20@gmail.com> 1787332391 +0330	update by push
+            9c9281b842306a8480a859cd2638bfb924b6ac85 28f0dc4ad677c2038e22c1066effebbf66204df8 muvixo <godarshia20@gmail.com> 1787332804 +0330	update by push
+            28f0dc4ad677c2038e22c1066effebbf66204df8 46758b3b55a4312ce67a0f2660aead50fb7eed25 muvixo <godarshia20@gmail.com> 1787333866 +0330	update by push
+            46758b3b55a4312ce67a0f2660aead50fb7eed25 c37c26facf38a28f15b20a97f319a07517f137eb muvixo <godarshia20@gmail.com> 1787334422 +0330	update by push
+            c37c26facf38a28f15b20a97f319a07517f137eb 1f6d31a6bf647b3784413ebeb8dd102317d3a989 muvixo <godarshia20@gmail.com> 1787334939 +0330	update by push
+            1f6d31a6bf647b3784413ebeb8dd102317d3a989 f5c22e0eb44dd096833ed1a3903b90c12f552972 muvixo <godarshia20@gmail.com> 1787335240 +0330	update by push
+            f5c22e0eb44dd096833ed1a3903b90c12f552972 99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d muvixo <godarshia20@gmail.com> 1787335501 +0330	update by push
+            99e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d 3d9590350ad5231c70e4a0dd1c6b28686a205f59 muvixo <godarshia20@gmail.com> 1787336831 +0330	update by push
+            3d9590350ad5231c70e4a0dd1c6b28686a205f59 6cd1af03e59e6b94115b72d47d7da10d654de772 muvixo <godarshia20@gmail.com> 1787337719 +0330	update by push
+            6cd1af03e59e6b94115b72d47d7da10d654de772 d6195e8aee114a8ba31a0de3b83997e0dc2980e2 muvixo <godarshia20@gmail.com> 1787338759 +0330	update by push
+            d6195e8aee114a8ba31a0de3b83997e0dc2980e2 cc38836bb8d2703ce064091d6e8bdd90f3c43a28 muvixo <godarshia20@gmail.com> 1787339368 +0330	update by push
+            cc38836bb8d2703ce064091d6e8bdd90f3c43a28 ce624ba072e9a8cd453b9fd195255352ee766500 muvixo <godarshia20@gmail.com> 1787340061 +0330	update by push
+            ce624ba072e9a8cd453b9fd195255352ee766500 18bc79e6d9d6d779f467a3c4e35c792e247b85ef muvixo <godarshia20@gmail.com> 1787340306 +0330	update by push
+            18bc79e6d9d6d779f467a3c4e35c792e247b85ef a7ee05efdc2621d9f30cdff37638dcf3671e2555 muvixo <godarshia20@gmail.com> 1787340619 +0330	update by push
+            a7ee05efdc2621d9f30cdff37638dcf3671e2555 04fc347de06e49ab5aa429612fc7806f0159664b muvixo <godarshia20@gmail.com> 1787341261 +0330	update by push
+            04fc347de06e49ab5aa429612fc7806f0159664b 488b4564a6780bdc015aac6242b8779db7c0b1b5 muvixo <godarshia20@gmail.com> 1787342038 +0330	update by push
+            488b4564a6780bdc015aac6242b8779db7c0b1b5 57a38c548d5b267fc486c6643629c99ff0110a27 muvixo <godarshia20@gmail.com> 1787343774 +0330	update by push
+            57a38c548d5b267fc486c6643629c99ff0110a27 e3be10820fae706a1e94dd85930dbdbb3266330a muvixo <godarshia20@gmail.com> 1787344539 +0330	update by push
+            e3be10820fae706a1e94dd85930dbdbb3266330a f4deea94fe066c7d02afe15030d8a6be6a192c04 muvixo <godarshia20@gmail.com> 1787345369 +0330	update by push
+            f4deea94fe066c7d02afe15030d8a6be6a192c04 9dff6d9769513b1e0cca3fd0c08be328443a49d1 muvixo <godarshia20@gmail.com> 1787345748 +0330	update by push
+            9dff6d9769513b1e0cca3fd0c08be328443a49d1 9f712839b143da5e2fbcb82fa035bd4d121d10df muvixo <godarshia20@gmail.com> 1787397259 +0330	update by push
+            9f712839b143da5e2fbcb82fa035bd4d121d10df c0b6868b8618d30c8250e341940bdced8bf3736f muvixo <godarshia20@gmail.com> 1787397559 +0330	update by push
+            c0b6868b8618d30c8250e341940bdced8bf3736f 4d15e8ad08943225c897743cdb4b85ab9e790234 muvixo <godarshia20@gmail.com> 1787397709 +0330	update by push
+
+
+
+
+
+
+
+
+
+
+
+  objects
+    01
+      16661e2a436a2a1f0a5276414c40e9ec1e5cc7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      82470bffba3e9c55388011ba9f30d751c4d49a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    02
+      1ecf5cd1fb1c9b87c128d0521432267f072e8d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      82acb7f7c705dd8b43d8c489182b564b5751ae
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a020e058052abde46095519d12058641f49578
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    03
+      29fe4fc1bffabeaf7b099961969bf964eefb6e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      6549851fec5780e1319440b97c357de5ef9f8b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      819ae2ce5b1d507f93611b303f6c0391ffac3c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    04
+      0e8f91a8b325c606758f6afcf26b0ababc5601
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      3a934b25509f226020c3724cbefd99b65b8f62
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      fc347de06e49ab5aa429612fc7806f0159664b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    07
+      3acb3c48ec375f0e47c7ca36b1cb69f70c6656
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      f4da0344c4ac2a5583546c0232788a592d11ee
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    08
+      60db582db7881a85f951f4bcb5ecc1f0d4f4b8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    09
+      e6b7a278f2e5001e6e2b64146559a5284ec193
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    0a
+      3b150d0fae7cb5699ef179e588c2bc9fa63423
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      e98145c767ccf8f8c83add7290530f295c8e95
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    0b
+      382538a830b5caadc9b664e78fda78ab4d82e0
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      84d6ff6781f96f3a7ae81f85fe85f8b8b599dd
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    0c
+      8db73260095eeb639db680becfd8c9e5441f7b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    0d
+      12353c40bf1eb603cc56563d4009c314ff1138
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c07cb76d7834c6486925fdf5937ad76de27280
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    0f
+      dfc156206639c851b764a5fd6e33308732e8fa
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    11
+      989f755818c4a734291cef6baaaf763e1f83b5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a52a229e0af15dffeee2051a54bc7f0c216d72
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    12
+      53897df38cb7ccc1e7f70cf5865afb2ca1e562
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      d4cba2278754fa91bbc84f8db68a1c85aef3ab
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      fbefdb2f869dfce45f3ff2e8e9d2662060f350
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    14
+      77bcd1bad7c7613e36887151d571f4b35fec3f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    15
+      841a0905245bfe159ffdac9b9667d1505efa88
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      fe635c786280e1d49abe94a6b60339b401569c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    18
+      bc79e6d9d6d779f467a3c4e35c792e247b85ef
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      deccd7208d2dbe178d3768f4942e6cf740bfc2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    19
+      a08b88f95f03ba2ba8425919fe51162fbfcb2d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    1a
+      7ed5337294cf7a8b50fac36ea37c6213369249
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c2985298f1f3b226aa2db6c0a79af943f69905
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    1b
+      851c301e3e3979517fa02a96d140b19d2e1970
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    1d
+      d04686d50ee06a6910f1b092613184228e9f72
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    1f
+      6d31a6bf647b3784413ebeb8dd102317d3a989
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    20
+      3a498bd728fb60f937c54817bbca8153a70da5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    23
+      9d9810e8145406f65c91937c39cc5253f0da4f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    25
+      44574db83fcb244b9d72da1a53a6e3790f6103
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      6fb461d924c1d4d12bebcf6431138082a53288
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    26
+      6f2806a36ed6d4f171c9aec0032b96b526b967
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    27
+      424b5c2475c26ffd42e24af2b38238d1f46e92
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    28
+      a16ea4755765c5e801e8b23cce82e725dffccc
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      b45962931d1cbc4843b1aab5a50bf40e237877
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      e05dfe035b5d50b202b4484dc48750a577fcca
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      f0dc4ad677c2038e22c1066effebbf66204df8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    29
+      e9556a6c7d93f3a722ea9a9d29c54c5c146bff
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    2b
+      33e7320622ae84d842dc25feb62d9a2ee38ee4
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    2c
+      299adbb2e407197297874e540397b71990610c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    2d
+      7803e56308bf44ef8e891d381dc90fe0c76d47
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    2e
+      f31207d896f28322fea66976dbe6e3e8c5f063
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    2f
+      5fbf7282b24e88d035e079c1a24917b219d638
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      7263bfbb890bb6df73b34031fee93ba8a5dd55
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    30
+      06a39f4392fdb937b3b2e12c3d84be90e27f29
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    32
+      4b66709a06e714d6c9967d9f4e41c58f3548b5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    33
+      16f929f4a35bfa3b217007abc742403502dea5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      eea3f45f007c12b5df2a0664902e64aba994fd
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    35
+      e1c07e7f4f72a52c74a1ae1de57c3b6d208717
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    36
+      bf3cafd2197c7ef5f6deec7131b6efd2ef6000
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    37
+      cc0f840abcf9c346d6b802208a4f1c4c21d890
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    38
+      8bef03aba0a2a95f4b2b77a6021ffd66cc263b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    39
+      d8ff377c96ea26d834f2260111ad860d5ba33d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      f98aac859bb2f860651f3adafe2f6358078df7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    3a
+      99853f419413c44b822b11a96a48631f5362f2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    3b
+      026e808e52d809c36554bbd68ea0d52794a974
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      38479ead57045bde1b72982ac3375c299c53d0
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a0966bfd5e98107cde13785005b62fbc981563
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    3c
+      b1a6cdd3a017c2da69a339b961f342d9fa7634
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    3d
+      2678e21cb1607237ab005b6626546919510ad4
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      9590350ad5231c70e4a0dd1c6b28686a205f59
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      b1717cfc73ea55c45a959b1c944211a231e915
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      b25371cb5adb780c3d5c5cc89b29bf03ffe5be
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    3e
+      1e16ee2e15ef276f35ee1bc6388419f28e2f8e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      2cb6ae9126d92577010261288ef046eadbe795
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      eee5ebfbad0a292a3d94d4f12fe71353ae0e44
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    40
+      05953ed7dbd4260465df1c4be1315ae9bdd9da
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      efadb2e5d9931cbde8a4b87970a2890640f5c5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    42
+      8d9193bf50e54ad8d3f4e1e77b5516f59130cb
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    44
+      92ec5b00919297ad60f171d8b566924800252e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    45
+      f9133106ec560a9ad3e51e8c9b008db5b8461f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    46
+      758b3b55a4312ce67a0f2660aead50fb7eed25
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c3ece9ac8bbbf876820d348b7edd8b68cc932f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    47
+      12d9b4015faced58f9ca719256ef07f83fd6b5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      449f9f8fa010363c298d7e8beadab7777e037e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    48
+      8b4564a6780bdc015aac6242b8779db7c0b1b5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    4b
+      f5f3aa0968155e70f488f7c30f92027f4ebc29
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    4d
+      15e8ad08943225c897743cdb4b85ab9e790234
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    4e
+      987ee6e3d2c7abfa04c618fd5f729932abf8b7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a03ea706ebfd8943f7992fd745c39bdddcf960
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      dcaa7904b44e854b993f8ad3de73adfb6616eb
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    4f
+      14f7ae36380ac60d678e1722d914940e9bd58c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      da71b4841b227dca809a27fba95814b5bab12b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    50
+      f9d05e0d1098f0970cd1d8837bae862451d8e9
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    51
+      23f9f49c28b86e987544e1f4648bcff22e7fc3
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    53
+      e53767ac5c53687f202a9719b4cdefc9099571
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    57
+      a38c548d5b267fc486c6643629c99ff0110a27
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      fab1d9840937f13b4cb3c31fbb72b9aec90732
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    5a
+      4dfa296c1187e0b3a32a65d984ce4e121f4aab
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ddd5bb94e5d68a2596455809fa4e27701ee61c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    5b
+      c7bd5b29fc75aaa0a869d4a62ccda3d705ba8a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    5c
+      b874b475fca5d2def51334f31c978834240a08
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c518b805cae112edb78b0d59d77b5180d90c1b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    5d
+      69e2f7ad38c6aea973d1e8cb8f23133873de7e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    61
+      56ef5ad28507ddd84ee762ef3692fbc0bd3aa7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    62
+      0b07086ac6a2b562e23d5510793875e7d4940c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    64
+      5dae18bcd4c161e62b4c1b3262722532696b69
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      d36947b11357eca79c40592ec961c21b3ce0ca
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    65
+      04882994fb75a162f7fccb9edd89be40c71da6
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      39d2adcc0503c5ec6b0650a36ae3431568add2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      8d3cf0bb01ee76cfec6ef7a924277277f9c41f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      da00b627bbc8c01ac7d5cdb6851d9a64ffea60
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    67
+      de40c542d4f8776542f788934e90b91fc449b4
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    68
+      1974b4d1a570b421b484403123778117157621
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    69
+      4ee62ebb985c7649890a3979d949e42569c90c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      67ac7f3cf5074fc954222344d021d1363b11fa
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    6a
+      a9afdd85dc919c5c34e5aafd7126392a2eba4f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    6c
+      11db1012965ec4c1687dc0a4cd8e04c60f0a84
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      d1af03e59e6b94115b72d47d7da10d654de772
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    6d
+      dfeb9e6db3227f045d2ec27bb10129a9b6abc2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    6e
+      44470dd2817a46835dcecb8fcc21adbd1aa1af
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      53de3fb70af9219f03d4558c0a0e4fe03e28fd
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    70
+      6e25791f258acefd439f1f0c3c5c622b6a32e9
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    71
+      c7743f9bfa5e930915df3d36414970ae7dbce9
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    73
+      0cb6fefc5f71b8f1b7d57b28ee1730edfa2da0
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    74
+      373d361fb858b4e0159bbc0475465556e215a7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    76
+      ca6399de02ac3a7066a56c326f70f22148850a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    7a
+      8cd58c40ea8dcb13992c86e6e1e57177c54864
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c4e07731478da4a066936d3b39ab6d4faa4ef8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    7c
+      0f5f19b84ecbc0ede21d70450e3e2366eceb3a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      81c86137ee8848ebe9a21b2c00bfc5dc5bc8c1
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      e1542dde17b2c8383e8a530e626306c2c61279
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    7f
+      c299f6cd81cfacf6eef9f1fecd802cc01f0d4e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    80
+      3bf2a35c941cb0d1d1d1718b9baef94ff1e1fc
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      5ef5ce8f6e3c211ccb951c3d3fdb176403234b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    82
+      475b489006ee54fe335b98d0fc34362d9a72c3
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    83
+      85d0ce533ea5b6e9b221a91b991a50e49d6e4b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    84
+      a9c545ea2534b4312f9b35a547898afad03405
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c2a6f7b317d3bf2fa73f477d458f43e60d8cd5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    85
+      d9af296fe352f7c118a4d456f84952e2df1a5e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    86
+      0510926175a9876c8f9f144d6d376b13e855f4
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    87
+      47da72347eebd7d921d3e15501f3a287d41034
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      b3d634baf8ccf3416e17e0a7c81e5a430fcae6
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    88
+      5cd69abeb6993e3c16fc73ceb2134696fb7d6e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    89
+      508c3f041b27ac62866780249758eaab7f5d00
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      957990a099d5ab8fbd20c24e60559ebd652fde
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      dad579bf9e3a75e41a13b78278959bc226717c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    8e
+      8c26e7bdf08a4e33a5196d7a59db24288f0d3b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    8f
+      60843a731178f676cd19b3a8d59ff8493c36d1
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      eda8eee9fed768348c0d0b320a1b7a35bb3abe
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      f0738d39bf68dcb00bc29c981ac68f895acec6
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      f1195e4db0095214230f0e44bbcb3196374d36
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    90
+      39fe01e671d181ea4523ba6eda63eeb5f037b6
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      49b7d87cd12a5d62a5cda13b3afc691fdc9699
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ccc7ab81311a44fa7de519a4da3b977d9c4147
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      d7b11c0b050256e0401f39eba676d0654a356c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      efe908398514ac1f10467e55bdc4599f04394e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    91
+      23bd11cccd35cd252bfbe0775f4f48aa179a9b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      cb059ddf3e8b3508a8546eb80c75e3f88b3a8b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    92
+      8d8476168ac1a5814c22477e96c895500883f8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    94
+      8b750083bc2e893c1179b5e1d57c8c6e16fde3
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ce9d0abfacf641f31b28dc6ff8616616e6aa64
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    97
+      13e27702823fff5766eb77c8fca05c68580439
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      94e4b735eebcd91babf4764ba3973b29e72239
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      e0f82356ece29438a51f31a2e462a22b8a2f2c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    98
+      5621333b39e249cb0fbcab5b2b3da23fb8784f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      6801a6d45c5d558ce10d3b54f038ab45666f17
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      72e977b6ccf8db7d3844365f4603feadef23a8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    99
+      e7b29c1783ab3f9b8c68a25e7e8fae5f15b06d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    9a
+      69987a86aa3208b5a109180234a1de1a4c7aac
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c1915372a1a656d7b1b8d0d9621ca19eff36db
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    9b
+      a58fdbc617114cd4f9bc56582997cde294e53b
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      cd8d208f6f522ca9665650ca7a7a4ffab86e5a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    9c
+      9281b842306a8480a859cd2638bfb924b6ac85
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      9f7bb878ab8086fc634bcdd7a2abb540a843e7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    9d
+      f3f9a9dfe891316852df6952f9fa7352515add
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ff6d9769513b1e0cca3fd0c08be328443a49d1
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    9f
+      0693f34948dbdc88784cbeb25b14a75f3e7315
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      712839b143da5e2fbcb82fa035bd4d121d10df
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c096ebaf4a112137d623a7fcb1cbfd80caee84
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    a0
+      c47b2a2b7c77b4ef67049a724849c0762975ba
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    a1
+      d12d41296d455951424491e9893247003f0e67
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    a4
+      6d56cd42d424fc9eb63d922b03db60f90aced4
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      827f3b31fa0cf428eed80f257a4fa086d751e7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    a7
+      e024e931e634dad37bab9c0d5e701895ca6598
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ee05efdc2621d9f30cdff37638dcf3671e2555
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    a9
+      9bd704162e298cca27e8610ff8e8970a2a209d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    aa
+      49476c29d1c11ab9b8e4d705349816b49030ba
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ab
+      ae77f9b009df72766de1eea71a8030148347b2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ac
+      88e7f4fa5c9babde7417ad2bd6d6a4441016dc
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      f59c00430341a7ded9c74c6ce779f36ddd65a5
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ad
+      39cede63a420c4e28ebab73eb9c4f25d83817f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ae
+      f0746c3dda5734047f9051ee2c912519eab00f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    af
+      305337fa557a72f9b0c0e9819a67898b1188ee
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    b1
+      80cec19fc5c89c5b78a5222b73a15f84d1c428
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    b5
+      a6437dc645b56184269fac7395752832779471
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    b6
+      c12d5631ce4be78fa277768cd30ce2795460fe
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    b7
+      6cb45080aec5e93386721ee5ad8d7cd31e28e6
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    b8
+      723972785ffc98ed0dcb152ed40be24a3e8da7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      d5a0f73468fc934c96634545aad6ce24361d8a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    b9
+      df70a0bdcdb9af912cf886cc787cbe2fdc7fcb
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ba
+      04adc1bed7a748ce58aca44a4d01ec65413ddb
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      fcc70eaec55ed7cf7b0df44082cab70ccaef96
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    bb
+      4831f1861cc677135f977b55cb38403f0d6480
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a88e43f42ef96b560ca719e8c202f7196f8157
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      bd34e78d4525f1e0039f54aa6a3302699689bd
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      e43d8384eefb74f3137357b72afad957d850dc
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    bd
+      b08bc25b99f56c9e9c9b7d0de37ce74529bd0e
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ba0d8294994f925aa901dd5f347a8b4c0cbba3
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c0
+      b6868b8618d30c8250e341940bdced8bf3736f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      b9093d4075ae7f3a742d2383bd461542d2acf3
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c1
+      36ff27fa67fa61071c8b3ca52bedcea4d00435
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      68fed688a7e0d4d45acfbd5623470a270afba8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c2
+      7357bd8dd12cd8c0b18a517845a455581b3aa2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c3
+      752091923fe62c37cdfbe2e3bb9223893976d2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      7c26facf38a28f15b20a97f319a07517f137eb
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c4
+      9de15f7ec1995b70aea976d3eaa4437e74f6c1
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c6
+      c538044bbde7ee9c024e8cb818181fa0bc8cef
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c7
+      256b4133ac4b917d0d983a12f2c277e49f257d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c8
+      0f7803f8f013d68da0059fbb4255138253deab
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      f0656819322c8ac37096c6d36f55393dc38d95
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    c9
+      62403606fb6a1c0f043173b7f809dc8b2b5604
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      d361d82e0fab658df4c53364954d39a6a2ae6f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ca
+      8b3e8997259cd89114dd6b5ecd27bc969af22a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    cb
+      eba09c9391a7b8b0c7ee83c9b2502b56adf77f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    cc
+      38836bb8d2703ce064091d6e8bdd90f3c43a28
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      ff09a0eb01db45a5f59a58bbac4cc001b5437f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    cd
+      f4c8073c0365ebe9952be5f2b940b79ca3c12f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ce
+      624ba072e9a8cd453b9fd195255352ee766500
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    cf
+      3c73334faa594583416c520982f4345dd980a0
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    d0
+      671c75f04e01276e1acfa0a7d3535bf3e5a3fd
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    d1
+      0aebb02663c153b60d69034a8fc4b3dc766609
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      699555e9d89644d12e198dff909c12cca44e24
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      dd95caa3e81eb8365c14fc57e6d4a609d034ec
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    d2
+      835c6de0435f711e4bf6e14c8fc4c9316fc062
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    d3
+      d00af6154cb7fbea4e328397c6451ba70bc35f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    d4
+      526552d05bcd402d326c55be244ed3dc415353
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      6079ab9c3906fd1a3409057bb816cba22f825f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    d6
+      195e8aee114a8ba31a0de3b83997e0dc2980e2
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      818ca4284a37a55d352a85c7f3ee0248834108
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      b308dc1d7a9b6a4310914f9a41846cd07e79d9
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    d8
+      5694064a191cc50105abd01cc3a9f5a233b0d8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      9bf681f4a751010fa6252f05efc36c68013120
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a98daf98f17b33a1f5f8f56292acd9893b7aa6
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    da
+      c552db4d5f2f398b4641178cdbcf3ad16ccaf1
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    dc
+      0a5efae4219d2711dd4644d49d496178b47d9d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      2fe1cfc22e21f18fed0e0720d58132b810958d
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    dd
+      119cc3871e680d50135e35b91fe3dda990be8c
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      bf428bedebc080599012b51a2a3a0cb58e0883
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    e0
+      b0a2f4928df18f8821cdf69c601fbe79329651
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      c60d51817810a827424e9cf1d6a1240a3a1de7
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    e1
+      1bbb67cf7b144b3bad85a14121a5b85f160f28
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      eb75092c7575a9966a20a76768bae64c7bbdde
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    e2
+      98ae2219bf5b095c3226ed685e1610fd9ba032
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      eb5f146e4f0b58d61eafce6c7c9aee6a0a4326
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    e3
+      3ac9a9feff1e92dbec1c90be1f8b1ab96af731
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      43f474fbcf8966fa41b59876bf1572eae15f31
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      be10820fae706a1e94dd85930dbdbb3266330a
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    e4
+      653b14d8f32bb9882adc3034d7421ebf2d0d4f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    e6
+      c1de7e7fbcbbfd0418da4b93c4a0aaa9386664
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    e7
+      a3101836f9a6d4a236682f9be812ed304934d8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    e8
+      4642f7d9c791a87e1b1cfaedd25e72733a0e98
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ea
+      9b730ac2eec2cad961cf044eb02cb76cc50373
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      b19848cc97fefc2f364db1d57bfd4af8e11fbc
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    eb
+      50073c1a2cee515bb71e20455fc8a69f52f67f
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a722a86c5bac571e32e3a4b06c85377bd37e43
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ee
+      2a82b621f584786acbbabe4522ece4f9f733aa
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    ef
+      1edefdf9467f4bd1bdad10aefa619b7c1463a0
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    f0
+      a237a16e93f67449ad9478714bb1ae16ca4355
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    f4
+      deea94fe066c7d02afe15030d8a6be6a192c04
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    f5
+      c22e0eb44dd096833ed1a3903b90c12f552972
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    f9
+      218788bda97e57870a23c862d1db99354c7495
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      a1b483b8af8a4c6af3daed53c0accc69b659a8
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+      be568d3f9b74cf7893ccbcca99ca2c85d07526
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    fd
+      04c58b99e364e2f0f11c13290b83781fae0d73
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    fe
+      3dee63f23128cebe8f7ff29d2867adc898b480
+        [Binary or unreadable file]
+
+
+
+
+
+
+
+
+
+
+
+    info
+
+
+
+
+
+
+
+
+
+
+    pack
+
+
+
+
+
+
+
+
+
+
+  refs
+    heads
+      main
+        4d15e8ad08943225c897743cdb4b85ab9e790234
+
+
+
+
+
+
+
+
+
+
+
+    remotes
+      origin
+        main
+          4d15e8ad08943225c897743cdb4b85ab9e790234
+
+
+
+
+
+
+
+
+
+
+
+    tags
+
+
+
+
+
+
+
+
+
+
+app.py
+  import os
+  import logging
+  import re
+  from urllib.parse import urlparse, urljoin, quote
+  from flask import Flask, request, render_template, Response
+  import requests
+  from scraper import VideoScraper
+  
+  logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+  
+  app = Flask(__name__)
+  app.secret_key = os.urandom(24)
+  
+  scraper = VideoScraper()
+  
+  def rewrite_playlist(playlist, base_url):
+      def build_proxy_uri(raw_uri):
+          clean_uri = raw_uri.strip().strip("'\"")
+          if clean_uri.startswith("data:"): return clean_uri
+          resolved = urljoin(base_url, clean_uri)
+          return "/proxy?url=" + quote(resolved, safe="")
+  
+      out_lines = []
+      for line in playlist.splitlines():
+          trimmed = line.strip()
+          if not trimmed: continue
+          if trimmed.startswith('#'):
+              def repl(m): return f'URI="{build_proxy_uri(m.group(1))}"'
+              out_lines.append(re.sub(r'URI="([^"]+)"', repl, trimmed))
+          else:
+              out_lines.append(build_proxy_uri(trimmed))
+      return '\n'.join(out_lines)
+  
+  @app.route("/", methods=["GET"])
+  def index(): return render_template("home.html")
+  
+  @app.route("/abilities", methods=["GET"])
+  def abilities(): return render_template("abilities.html")
+  
+  @app.route("/view", methods=["GET"])
+  def view_page(): return render_template("view.html")
+  
+  @app.route("/extract", methods=["POST"])
+  def extract():
+      url = request.form.get("url")
+      if not url: return render_template("view.html", error="Target URL is required.")
+  
+      logging.info(f"Extracting: {url}")
+      data = scraper.extract(url)
+  
+      if not data or data.get("status") == "error":
+          return render_template("view.html", error=data.get("error", "Extraction failed."))
+  
+      return render_template("player.html", data=data)
+  
+  @app.route("/proxy")
+  def proxy_media():
+      target = request.args.get("url")
+      if not target: return "Missing URL", 400
+  
+      parsed_url = urlparse(target)
+  
+      if "phncdn" in parsed_url.netloc or "pornhub" in parsed_url.netloc: referer = "https://www.pornhub.com/"
+      elif "xnxx" in parsed_url.netloc: referer = "https://www.xnxx.com/"
+      elif "xvideos" in parsed_url.netloc: referer = "https://www.xvideos.com/"
+      else: referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
+  
+      req_headers = {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+          "Referer": referer,
+          "Origin": referer.rstrip('/'),
+          "Accept-Encoding": "identity"
+      }
+  
+      range_header = request.headers.get("Range")
+      if range_header: req_headers["Range"] = range_header
+  
+      try:
+          # Try Direct First (Best Performance, No SOCKS EOF bugs)
+          try:
+              upstream = requests.get(target, headers=req_headers, stream=True, timeout=10)
+              upstream.raise_for_status()
+          except Exception as direct_err:
+              logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
+              active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
+              upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
+              upstream.raise_for_status()
+  
+          excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+          res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
+          res_headers["Access-Control-Allow-Origin"] = "*"
+          res_headers["Accept-Ranges"] = "bytes"
+  
+          if "Content-Length" in upstream.headers:
+              res_headers["Content-Length"] = upstream.headers["Content-Length"]
+  
+          content_type = upstream.headers.get("content-type", "").lower()
+          is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
+  
+          if is_m3u8:
+              text = upstream.text
+              final_base = upstream.url or target
+              rewritten = rewrite_playlist(text, final_base)
+              res_headers["Content-Type"] = "application/vnd.apple.mpegurl"
+              res_headers["Content-Length"] = str(len(rewritten.encode('utf-8')))
+              return Response(rewritten, status=upstream.status_code, headers=res_headers)
+  
+          def generate():
+              try:
+                  for chunk in upstream.iter_content(chunk_size=131072):
+                      if chunk: yield chunk
+              except Exception as stream_err:
+                  logging.warning(f"Stream suppressed EOF drop: {stream_err}")
+                  pass # Suppress PySocks 1-byte drop so video keeps playing silently
+  
+          return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
+  
+      except Exception as e:
+          logging.error(f"Proxy failure for {target}: {e}")
+          return "Proxy stream failure", 502
+  
+  if __name__ == "__main__":
+      app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)), debug=True)
+
+
+
+
+
+
+
+
+
+
+
+ee.py
+  import os
+  
+  def print_tree(folder, file, indent=""):
+      try:
+          items = sorted(os.listdir(folder))
+      except PermissionError:
+          file.write(f"{indent}[Permission Denied]\n")
+          return
+      
+      for i, item in enumerate(items):
+          path = os.path.join(folder, item)
+          is_font = 'font' in item.lower()
+          
+          # Write the item name
+          file.write(f"{indent}{item}\n")
+          
+          if os.path.isdir(path) and not is_font:
+              print_tree(path, file, indent + "  ")
+          elif os.path.isfile(path) and not is_font:
+              try:
+                  with open(path, 'r', encoding='utf-8') as read_file:
+                      content = read_file.read().strip()
+                      if content:
+                          for line in content.splitlines():
+                              # Truncate very long lines for readability
+                              if len(line) > 200:
+                                  line = line[:200] + "..."
+                              file.write(f"{indent}  {line}\n")
+                      file.write("\n")
+              except (UnicodeDecodeError, IOError):
+                  # Skip binary files or unreadable files
+                  file.write(f"{indent}  [Binary or unreadable file]\n")
+                  file.write("\n")
+              except Exception as e:
+                  file.write(f"{indent}  [Error reading file: {str(e)}]\n")
+                  file.write("\n")
+          
+          # Add 10 empty lines between items (except last item)
+          if i < len(items) - 1:
+              file.write("\n" * 10)
+  
+  # Use current directory instead of script directory for better flexibility
+  root = os.getcwd()  # or use os.path.dirname(os.path.abspath(__file__)) for script directory
+  
+  with open("folder_structure.txt", "w", encoding='utf-8') as f:
+      f.write(f"Directory structure for: {root}/\n")
+      f.write("=" * 50 + "\n\n")
+      print_tree(root, f)
+  
+  print(f"Saved to folder_structure.txt")
+
+
+
+
+
+
+
+
+
+
+
+folder_structure.txt
+
+
+
+
+
+
+
+
+
+
+
+nixpacks.toml
+  [phases.setup]
+  nixPkgs = ["python311", "python311Packages.pip", "cloudflare-warp", "curl", "ffmpeg"]
+  
+  [phases.install]
+  cmds = [
+    "python -m venv /opt/venv",
+    "curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py",
+    "/opt/venv/bin/python get-pip.py",
+    "/opt/venv/bin/pip install -r requirements.txt"
+  ]
+  
+  [phases.build]
+  cmds = [
+    "chmod +x start.sh"
+  ]
+
+
+
+
+
+
+
+
+
+
+
+pusher.py
+  #!/usr/bin/env python3
+  import os
+  import sys
+  import logging
+  import argparse
+  import subprocess
+  
+  logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+  
+  def run_cmd(cmd, check=True):
+      logging.info(f"Running: {' '.join(cmd)}")
+      result = subprocess.run(cmd, capture_output=True, text=True)
+      if check and result.returncode != 0:
+          logging.error(f"Command failed: {result.stderr}")
+          sys.exit(1)
+      return result.stdout.strip()
+  
+  def main():
+      parser = argparse.ArgumentParser(description="Initialize, commit, and push project to GitHub")
+      parser.add_argument("repo", help="GitHub repository URL (e.g., https://github.com/user/repo.git)")
+      parser.add_argument("-b", "--branch", default="main", help="Target branch name")
+      parser.add_argument("-m", "--message", default="UI overhaul and new routing", help="Commit message")
+      parser.add_argument("-f", "--force", action="store_true", help="Force push to remote repository")
+      args = parser.parse_args()
+  
+      if not os.path.exists(".git"): run_cmd(["git", "init"])
+  
+      run_cmd(["git", "add", "."])
+      
+      status = run_cmd(["git", "status", "--porcelain"], check=False)
+      if not status:
+          logging.info("No changes to commit. Proceeding to push.")
+      else:
+          run_cmd(["git", "commit", "-m", args.message])
+  
+      run_cmd(["git", "branch", "-M", args.branch])
+      
+      remotes = run_cmd(["git", "remote"], check=False)
+      if "origin" in remotes.split():
+          run_cmd(["git", "remote", "set-url", "origin", args.repo])
+      else:
+          run_cmd(["git", "remote", "add", "origin", args.repo])
+  
+      push_cmd = ["git", "push", "-u", "origin", args.branch]
+      if args.force: push_cmd.append("--force")
+  
+      run_cmd(push_cmd)
+      logging.info("System deployed to remote repository.")
+  
+  if __name__ == "__main__":
+      main()
+
+
+
+
+
+
+
+
+
+
+
+railway.json
+  {
+    "$schema": "https://railway.app/railway.schema.json",
+    "build": {
+      "builder": "NIXPACKS"
+    },
+    "deploy": {
+      "startCommand": "bash start.sh",
+      "restartPolicyType": "ON_FAILURE"
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+requirements.txt
+  Flask==3.0.3
+  gunicorn==22.0.0
+  requests
+  requests[socks]
+  lxml
+
+
+
+
+
+
+
+
+
+
+
+scraper.py
+  import json
+  import re
+  import os
+  import sys
+  import subprocess
+  from urllib.parse import urlparse
+  import requests
+  from lxml import html
+  
+  class VideoScraper:
+      def __init__(self):
+          self.headers = {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.9',
+          }
+  
+      def title_case(self, text):
+          return re.sub(r"\b\w", lambda m: m.group(0).upper(), text.strip().lower()) if text else ""
+  
+      def parse_hls_qualities(self, master_m3u8_url):
+          qualities = []
+          try:
+              resp = requests.get(master_m3u8_url, headers=self.headers, timeout=15)
+              if resp.status_code != 200: return qualities
+              lines = resp.text.splitlines()
+              base_url = master_m3u8_url.rsplit('/', 1)[0] + '/'
+              for i, line in enumerate(lines):
+                  if line.startswith("#EXT-X-STREAM-INF:"):
+                      res_match = re.search(r"RESOLUTION=(\d+x\d+)", line)
+                      height = res_match.group(1).split("x")[1] if res_match and "x" in res_match.group(1) else "0"
+                      quality_label = f"{height}p" if height.isdigit() and int(height) > 0 else "auto"
+                      if i + 1 < len(lines) and not lines[i + 1].startswith("#"):
+                          stream_uri = lines[i + 1].strip()
+                          stream_url = stream_uri if stream_uri.startswith('http') else base_url + stream_uri
+                          qualities.append({"quality": quality_label, "url": stream_url})
+          except Exception: pass
+          qualities.sort(key=lambda x: int(re.search(r'(\d+)', x['quality']).group(1)) if re.search(r'(\d+)', x['quality']) else 0, reverse=True)
+          return qualities
+  
+      def _scrape_pornhub(self, url):
+          viewkey = None
+          if 'viewkey=' in url: viewkey = url.split('viewkey=')[1].split('&')[0]
+          elif 'embed/' in url: viewkey = url.split('embed/')[1].split('?')[0]
+          if not viewkey: return {"status": "error", "error": "Invalid viewkey", "url": url}
+  
+          geo_url = url.replace("www.pornhub.com", "de.pornhub.com")
+          title, poster, media_defs = "Unknown Title", "", []
+  
+          try:
+              resp = requests.get(geo_url, headers=self.headers, timeout=15)
+              if resp.status_code == 200:
+                  fv_match = re.search(r'flashvars(?:_\d+)?\s*=\s*(\{.*?\});', resp.text, re.DOTALL)
+                  if fv_match:
+                      data = json.loads(fv_match.group(1))
+                      media_defs = data.get('mediaDefinitions', [])
+                      title = data.get('video_title') or title
+                      poster = data.get('image_url') or data.get('thumb_url') or poster
+          except Exception: pass
+  
+          stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
+          seen_q = set()
+          
+          for m in media_defs:
+              if not isinstance(m, dict): continue
+              v_url = m.get('videoUrl') or m.get('url')
+              if not v_url or not isinstance(v_url, str): continue
+              
+              fmt = m.get('format', '')
+              qual_raw = m.get('quality')
+              
+              if isinstance(qual_raw, list):
+                  qual = str(qual_raw[0]) if qual_raw else "auto"
+              else:
+                  qual = str(qual_raw or "auto")
+                  
+              if qual == "[]" or not qual: qual = "auto"
+                  
+              if fmt == 'mp4' or 'mp4' in v_url:
+                  q_label = f"{qual}p" if qual.isdigit() else qual.upper()
+                  stream_data["direct_mp4"][q_label] = v_url
+                  
+              if fmt == 'hls' or '.m3u8' in v_url:
+                  for pq in self.parse_hls_qualities(v_url):
+                      if pq["quality"] not in seen_q:
+                          seen_q.add(pq["quality"])
+                          stream_data["qualities"].append(pq)
+                          
+          return {"status": "success", "title": title.strip(), "thumbnail": poster, "streams": stream_data, "url": url}
+  
+      def _scrape_xnxx_xvideos(self, url):
+          try:
+              resp = requests.get(url, headers=self.headers, timeout=15)
+              if resp.status_code != 200: return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
+          except Exception as e: return {"status": "error", "error": str(e), "url": url}
+  
+          page = resp.text
+          tree = html.fromstring(resp.content)
+          title_raw = tree.xpath('//meta[@property="og:title"]/@content')
+          title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
+          thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
+          thumbnail = thumb_raw[0] if thumb_raw else ""
+  
+          stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
+          hls_match = re.search(r'(?:setVideoHLS|html5player\.setVideoHLS)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
+          high_match = re.search(r'(?:setVideoUrlHigh|html5player\.setVideoUrlHigh)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
+          low_match = re.search(r'(?:setVideoUrlLow|html5player\.setVideoUrlLow)\(\s*[\'"]([^\'"]+)[\'"]\s*\)', page)
+  
+          if hls_match: stream_data["qualities"] = self.parse_hls_qualities(hls_match.group(1))
+          if high_match: stream_data["direct_mp4"]["High"] = high_match.group(1)
+          if low_match: stream_data["direct_mp4"]["Low"] = low_match.group(1)
+  
+          return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "streams": stream_data, "url": url}
+  
+      def _scrape_3movs(self, url):
+          try:
+              resp = requests.get(url, headers=self.headers, timeout=15)
+              if resp.status_code != 200: 
+                  return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
+          except Exception as e: 
+              return {"status": "error", "error": str(e), "url": url}
+  
+          page = resp.text
+          tree = html.fromstring(resp.content)
+          
+          # 1. Extract Title
+          title_raw = tree.xpath('//meta[@property="og:title"]/@content')
+          title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
+          if title == "Unknown Title":
+              title_tag = tree.xpath('//title/text()')
+              if title_tag:
+                  title = title_tag[0].split('|')[0].split('-')[0].strip()
+  
+          # 2. Extract Thumbnail
+          thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
+          thumbnail = thumb_raw[0] if thumb_raw else ""
+          if not thumbnail:
+              poster_match = re.search(r'poster\s*[:=]\s*["\']([^"\']+)["\']', page)
+              if poster_match:
+                  thumbnail = poster_match.group(1).replace('\\/', '/')
+  
+          stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
+          sources = []
+          
+          # Method A: Look for <source> elements in the HTML natively used by Fluid Player
+          for src in tree.xpath('//source/@src'):
+              sources.append(src)
+              
+          # Method B: Parse configuration dictionaries / FlashVars using Regex
+          for match in re.finditer(r'(?:video_url|video_alt_url\d*|src|file)\s*[:=]\s*["\'](https?://[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
+              sources.append(match.group(1).replace('\\/', '/'))
+              
+          # Method C: Aggressive fallback catching raw URLs pointing to media files in the page source
+          for match in re.finditer(r'["\'](https?://[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
+              sources.append(match.group(1).replace('\\/', '/'))
+  
+          seen_q = set()
+          seen_urls = set()
+          
+          for src in sources:
+              if not src or src in seen_urls: continue
+              
+              # Filter out ads, thumbnails, preview chunks, and sprite sheets
+              if any(x in src.lower() for x in ['ad.', 'ads.', 'banner', 'sprite', 'thumb', 'preview', 'timeline']): 
+                  continue
+                  
+              seen_urls.add(src)
+              
+              # Sort as HLS/M3U8
+              if '.m3u8' in src:
+                  for pq in self.parse_hls_qualities(src):
+                      if pq["quality"] not in seen_q:
+                          seen_q.add(pq["quality"])
+                          stream_data["qualities"].append(pq)
+                          
+              # Sort as MP4
+              elif '.mp4' in src:
+                  qual = "auto"
+                  q_match = re.search(r'(\d{3,4})p', src, re.I)
+                  
+                  if q_match:
+                      qual = f"{q_match.group(1)}p"
+                  else:
+                      q_match2 = re.search(r'_(high|low|medium|hq|lq)_', src, re.I)
+                      if q_match2:
+                          qual = q_match2.group(1).capitalize()
+                  
+                  # Assign to MP4 streams if it hasn't been added yet
+                  if qual != "auto" or "auto" not in stream_data["direct_mp4"]:
+                      stream_data["direct_mp4"][qual] = src
+  
+          return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "streams": stream_data, "url": url}
+  
+      def extract(self, url):
+          # Optional: Normalize shortened tags to XNXX URLs
+          m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
+          if m: 
+              url = f"https://www.xnxx.com/video-{m.group(1)}/x"
+  
+          # Routing Logic
+          if 'pornhub' in url:
+              return self._scrape_pornhub(url)
+          elif 'xnxx' in url or 'xvideos' in url:
+              return self._scrape_xnxx_xvideos(url)
+          elif '3movs' in url:
+              return self._scrape_3movs(url)
+              
+          return {"status": "error", "error": "Unsupported provider"}
+
+
+
+
+
+
+
+
+
+
+
+start.sh
+  #!/usr/bin/env bash
+  set -e
+  
+  echo "Starting Cloudflare WARP daemon..."
+  warp-svc &
+  sleep 3
+  
+  warp-cli --accept-tos registration new || true
+  warp-cli --accept-tos mode proxy || true
+  warp-cli --accept-tos proxy port 40000 || true
+  warp-cli --accept-tos connect || true
+  
+  echo "Launching gateway."
+  exec /opt/venv/bin/gunicorn -w 4 -b 0.0.0.0:${PORT:-8080} --timeout 120 app:app
+
+
+
+
+
+
+
+
+
+
+
+templates
+  abilities.html
+    {% extends "layout.html" %}
+    
+    {% block title %}Abilities | VexoStream{% endblock %}
+    
+    {% block content %}
+    <div class="relative min-h-screen w-full py-16 text-fluent-text antialiased overflow-hidden">
+        
+        <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.65px,transparent_0.65px)] [background-size:20px_20px] opacity-[0.06] pointer-events-none"></div>
+    
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Header -->
+            <div class="text-center mb-16 space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-black/[0.08] shadow-fluent-card text-xs font-semibold text-fluent-blue">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-fluent-blue opacity-60"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-fluent-blue"></span>
+                    </span>
+                    Core Infrastructure
+                </div>
+                
+                <h2 class="text-4xl sm:text-5xl font-bold tracking-tight text-fluent-text">
+                    System Architecture
+                </h2>
+                
+                <p class="text-fluent-subtext text-base max-w-2xl mx-auto leading-relaxed">
+                    VexoStream operates as a high-performance edge proxy, bridging restricted CDNs and local networks through advanced evasion protocols.
+                </p>
+            </div>
+    
+            <!-- Fluent Bento Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 auto-rows-[minmax(180px,auto)]">
+                
+                <!-- Hero Tile (2x2) -->
+                <div class="group relative col-span-1 md:col-span-2 row-span-2 p-8 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-2...
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-fluent-blue opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-fluent-blue-light border border-fluent-blue/20 flex items-center justify-center mb-6 text-fluent-blue group-hover:scale-105 transition-transform...
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 ...
+                        </div>
+                        <span class="text-xs font-semibold text-fluent-blue uppercase tracking-wider">Gateway Engine</span>
+                        <h3 class="text-2xl font-bold text-fluent-text mt-1 mb-3">Zero-Config VPN</h3>
+                        <p class="text-fluent-subtext text-sm leading-relaxed max-w-md">
+                            Backend handles all routing and proxy networking. Your client device connects strictly to the gateway, completely bypassing ISP-level domain filters.
+                        </p>
+                    </div>
+                    <div class="pt-6 flex items-center text-xs font-semibold text-fluent-blue group-hover:translate-x-1 transition-transform">
+                        <span>Explore routing layer</span>
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </div>
+    
+                <!-- Multi-Provider Scraper -->
+                <div class="group col-span-1 md:col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col jus...
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-[#f8f5fc] border border-[#8661c5]/20 flex items-center justify-center mb-4 text-[#8661c5] group-hover:scale-105 transition-transform">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A...
+                        </div>
+                        <h3 class="text-base font-bold text-fluent-text mb-1">Multi-Provider Scraper</h3>
+                        <p class="text-fluent-subtext text-xs leading-relaxed">Optimized parsers for Pornhub, XNXX, and XVideos to extract direct MP4 lines and HLS streams.</p>
+                    </div>
+                </div>
+    
+                <!-- Adaptive HLS -->
+                <div class="group col-span-1 md:col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col jus...
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-[#fdf2f8] border border-[#e3008c]/20 flex items-center justify-center mb-4 text-[#e3008c] group-hover:scale-105 transition-transform">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0...
+                        </div>
+                        <h3 class="text-base font-bold text-fluent-text mb-1">Adaptive HLS</h3>
+                        <p class="text-fluent-subtext text-xs leading-relaxed">Extracts dynamic HLS manifests and rewrites chunk URIs on the fly with automatic resolution scaling.</p>
+                    </div>
+                </div>
+    
+                <!-- In-Memory Tunnel -->
+                <div class="group col-span-1 md:col-span-2 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex items-center...
+                    <div class="w-12 h-12 shrink-0 rounded-xl bg-[#f1f9f4] border border-[#107c41]/20 flex items-center justify-center text-[#107c41] group-hover:scale-105 transition-transform">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a...
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-fluent-text mb-1">In-Memory Tunnel</h3>
+                        <p class="text-fluent-subtext text-xs sm:text-sm leading-relaxed">Streams pass directly via byte-range requests. Data hits your browser without touching disk storage.</p>
+                    </div>
+                </div>
+    
+                <!-- WAF Bypass -->
+                <div class="group col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-[#eff6fc] border border-[#0078d4]/20 flex items-center justify-center mb-4 text-[#0078d4] group-hover:scale-105 transition-transform">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16...
+                        </div>
+                        <h3 class="text-base font-bold text-fluent-text mb-1">WAF Bypass</h3>
+                        <p class="text-fluent-subtext text-xs leading-relaxed">Dynamically injects verified Origin and Referer headers to evade strict hotlink protection blocks.</p>
+                    </div>
+                </div>
+    
+                <!-- Cloud Native -->
+                <div class="group col-span-1 p-6 rounded-2xl bg-white border border-black/[0.08] shadow-fluent-card hover:shadow-fluent-elevated transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-[#fdf3ef] border border-[#d83b01]/20 flex items-center justify-center mb-4 text-[#d83b01] group-hover:scale-105 transition-transform">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">...
+                        </div>
+                        <h3 class="text-base font-bold text-fluent-text mb-1">Cloud Native</h3>
+                        <p class="text-fluent-subtext text-xs leading-relaxed">Stateless WSGI app optimized for Railway Nixpacks to ensure maximum upstream bandwidth utilization.</p>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+  home.html
+    {% extends "layout.html" %}
+    
+    {% block title %}Home | VexoStream{% endblock %}
+    
+    {% block content %}
+    <div class="w-full flex-1 flex items-center justify-center p-6 min-h-[85vh] relative overflow-hidden">
+        <!-- Fluent Background Ambiance -->
+        <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.65px,transparent_0.65px)] [background-size:24px_24px] opacity-[0.07] pointer-events-none"></div>
+        <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-gradient-to-tr from-sky-200/50 via-blue-100/30 to-purple-100/40 rounded-full blur-[110px] pointer-eve...
+        
+        <div class="relative z-10 max-w-5xl w-full text-center flex flex-col items-center py-12">
+            
+            <!-- Status Pill -->
+            <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-black/[0.08] text-fluent-subtext text-xs font-semibold tracking-wide mb-8 shadow-fluent-card">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                </span>
+                <span>Edge Infrastructure Operational</span>
+            </div>
+    
+            <!-- Typography Heading -->
+            <h1 class="text-5xl sm:text-7xl lg:text-8xl font-bold text-fluent-text tracking-tight mb-6 leading-[1.05]">
+                Stream Without <br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-fluent-blue via-[#0078d4] to-[#8661c5]">
+                    Boundaries.
+                </span>
+            </h1>
+    
+            <!-- Subheading -->
+            <p class="text-base sm:text-lg text-fluent-subtext font-normal max-w-2xl mx-auto mb-10 leading-relaxed">
+                A high-velocity proxy gateway specialized in dynamic media extraction and edge streaming. 
+                <span class="text-fluent-text font-medium">Zero local VPN setup required.</span>
+            </p>
+    
+            <!-- CTA Hub -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full max-w-md sm:max-w-none">
+                <a href="/view" class="group w-full sm:w-auto bg-fluent-blue hover:bg-fluent-blue-hover active:bg-fluent-blue-pressed text-white font-semibold py-3.5 px-8 rounded-md shadow-fluent-card hov...
+                    <span>Launch Gateway Terminal</span>
+                    <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+                
+                <a href="/abilities" class="group w-full sm:w-auto bg-white hover:bg-black/[0.02] text-fluent-text font-semibold py-3.5 px-8 rounded-md border border-black/10 shadow-fluent-card hover:shad...
+                    <svg class="w-4 h-4 text-fluent-subtext group-hover:text-fluent-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                    </svg>
+                    <span>View Architecture</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+  layout.html
+    <!DOCTYPE html>
+    <html lang="en" class="scroll-smooth">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}VexoStream{% endblock %}</title>
+        
+        <!-- Tailwind CSS CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <!-- Microsoft Segoe UI Variable & Aptos Variable Typography Stack -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+        
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: [
+                                '"Segoe UI Variable Display"',
+                                '"Segoe UI Variable Text"',
+                                '"Segoe UI"',
+                                '"Plus Jakarta Sans"',
+                                '-apple-system',
+                                'BlinkMacSystemFont',
+                                'Roboto',
+                                'sans-serif'
+                            ],
+                            mono: ['"JetBrains Mono"', 'Consolas', 'monospace'],
+                        },
+                        colors: {
+                            fluent: {
+                                blue: '#0067b8',
+                                'blue-hover': '#005da6',
+                                'blue-pressed': '#005293',
+                                'blue-light': '#eff6fc',
+                                canvas: '#f3f3f3',
+                                card: '#ffffff',
+                                'card-hover': '#fbfbfb',
+                                text: '#202020',
+                                subtext: '#605e5c',
+                                border: 'rgba(0, 0, 0, 0.08)',
+                                divider: 'rgba(0, 0, 0, 0.06)'
+                            }
+                        },
+                        boxShadow: {
+                            'fluent-card': '0 2px 4px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.04)',
+                            'fluent-elevated': '0 4px 8px rgba(0, 0, 0, 0.04), 0 12px 28px rgba(0, 0, 0, 0.08)',
+                            'fluent-dialog': '0 16px 48px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08)',
+                        }
+                    }
+                }
+            };
+        </script>
+        <style>
+            /* Smooth Fluent Scrollbar */
+            ::-webkit-scrollbar { width: 6px; height: 6px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 9999px; }
+            ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.35); }
+        </style>
+        {% block head %}{% endblock %}
+    </head>
+    <body class="min-h-screen flex flex-col relative overflow-x-hidden bg-fluent-canvas text-fluent-text font-sans antialiased selection:bg-fluent-blue selection:text-white">
+    
+        <!-- Fluent Layered Age Modal -->
+        <div id="age-modal" class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
+            <div class="bg-white/95 backdrop-blur-xl border border-black/10 p-8 sm:p-10 rounded-2xl max-w-md w-full text-center shadow-fluent-dialog relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-fluent-blue"></div>
+                
+                <div class="w-16 h-16 bg-fluent-blue-light text-fluent-blue rounded-2xl flex items-center justify-center mx-auto mb-6 border border-fluent-blue/15 shadow-sm">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></pat...
+                    </svg>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-fluent-text mb-2 tracking-tight">Access Control</h2>
+                <p class="text-fluent-subtext text-sm mb-8 leading-relaxed">
+                    This gateway proxies unfiltered media streams. By proceeding, you confirm you are 18+ and agree to our terms.
+                </p>
+                
+                <div class="flex flex-col gap-2.5">
+                    <button onclick="acceptAge()" class="bg-fluent-blue hover:bg-fluent-blue-hover active:bg-fluent-blue-pressed text-white font-semibold py-3 px-6 rounded-md shadow-sm transition-colors t...
+                        Confirm Age & Enter
+                    </button>
+                    <a href="https://www.bing.com" class="bg-black/[0.04] hover:bg-black/[0.08] text-fluent-text font-semibold py-3 px-6 rounded-md transition-colors text-sm">
+                        Exit Gateway
+                    </a>
+                </div>
+            </div>
+        </div>
+    
+        <script>
+            const ageModal = document.getElementById('age-modal');
+            if (localStorage.getItem('vexo_age_verified') === 'true') {
+                ageModal.style.display = 'none';
+            }
+            function acceptAge() {
+                localStorage.setItem('vexo_age_verified', 'true');
+                ageModal.style.opacity = '0';
+                ageModal.style.pointerEvents = 'none';
+                setTimeout(() => { ageModal.style.display = 'none'; }, 300);
+            }
+        </script>
+    
+        <!-- Acrylic Navbar -->
+        <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/[0.06] shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                
+                <!-- Brand -->
+                <a href="/" class="flex items-center gap-3">
+                    <div class="grid grid-cols-2 gap-0.5 w-5 h-5">
+                        <span class="bg-[#f25022] w-2.5 h-2.5"></span>
+                        <span class="bg-[#7fba00] w-2.5 h-2.5"></span>
+                        <span class="bg-[#00a4ef] w-2.5 h-2.5"></span>
+                        <span class="bg-[#ffb900] w-2.5 h-2.5"></span>
+                    </div>
+                    <span class="text-lg font-bold tracking-tight text-neutral-800">
+                        Vexo<span class="text-fluent-blue">Stream</span>
+                    </span>
+                </a>
+    
+                <!-- Nav Links -->
+                <nav class="hidden md:flex items-center space-x-7 text-sm font-medium text-fluent-subtext">
+                    <a href="/" class="hover:text-fluent-blue hover:underline underline-offset-8 transition-colors">Home</a>
+                    <a href="/abilities" class="hover:text-fluent-blue hover:underline underline-offset-8 transition-colors">Abilities</a>
+                    <a href="/view" class="hover:text-fluent-blue hover:underline underline-offset-8 transition-colors">Viewer</a>
+                </nav>
+    
+                <!-- Status Indicator -->
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] border border-black/5 text-xs font-semibold text-neutral-700">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-70"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                    </span>
+                    <span class="hidden sm:inline">Tunnel Online</span>
+                </div>
+            </div>
+        </header>
+    
+        <!-- Main Viewport Target -->
+        <main class="flex-1 flex flex-col items-center w-full z-10 relative">
+            {% block content %}{% endblock %}
+        </main>
+    
+        <!-- Clean Footer -->
+        <footer class="bg-white/80 border-t border-black/[0.06] mt-auto w-full py-8 px-6 lg:px-8 text-xs text-fluent-subtext">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center justify-center gap-3 font-medium">
+                    <span>System Operational</span>
+                    <span>•</span>
+                    <span>Railway Deployed</span>
+                    <span>•</span>
+                    <span>VexoStream Architecture</span>
+                </div>
+                <div class="font-medium">
+                    © 2026 VexoStream • Created by Muvixo
+                </div>
+            </div>
+        </footer>
+    
+    </body>
+    </html>
+
+
+
+
+
+
+
+
+
+
+
+  player.html
+    {% extends "layout.html" %}
+    
+    {% block title %}Viewer | VexoStream{% endblock %}
+    
+    {% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        video::-webkit-media-controls-panel { 
+            background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.3) 60%, transparent) !important; 
+        }
+        
+        .quality-btn {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .quality-btn.active { 
+            border-color: #0067b8 !important; 
+            background: #eff6fc !important; 
+            color: #0067b8 !important; 
+            font-weight: 600;
+        }
+        .quality-btn.active svg.check-icon { 
+            opacity: 1 !important; 
+        }
+        
+        .section-header {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #605e5c;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+        }
+    </style>
+    {% endblock %}
+    
+    {% block content %}
+    <div class="max-w-[1700px] mx-auto w-full p-4 md:p-8 grid grid-cols-1 xl:grid-cols-12 gap-8 relative text-fluent-text">
+    
+        <!-- Player Main Area -->
+        <div class="xl:col-span-9 flex flex-col gap-6">
+            
+            <!-- Video Container -->
+            <div id="player-container" class="bg-black rounded-2xl overflow-hidden shadow-fluent-card border border-black/10 relative aspect-video group flex items-center justify-center cursor-pointer tra...
+                
+                <!-- Play Overlay -->
+                <div id="play-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm z-10 transition-opacity duration-300">
+                    <div class="w-16 h-16 rounded-full bg-white text-fluent-blue shadow-fluent-elevated flex items-center justify-center mb-3 hover:scale-105 transition-transform duration-200 cursor-point...
+                        <svg class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <span class="text-white text-xs font-semibold tracking-wide">Initialize Stream</span>
+                </div>
+    
+                <video id="main-player" controls controlsList="nodownload" disablePictureInPicture oncontextmenu="return false;" poster="{{ data.thumbnail }}" preload="metadata" playsinline class="w-full ...
+                
+                <button onclick="toggleFullscreen()" class="absolute bottom-4 right-4 z-20 p-2.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/20 text-white hover:bg-black/80 transition-all ...
+                    <svg id="fs-icon-enter" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l...
+                    <svg id="fs-icon-exit" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v4m0 0...
+                </button>
+            </div>
+    
+            <!-- Metadata Card -->
+            <div class="bg-white rounded-2xl p-6 sm:p-8 border border-black/[0.08] shadow-fluent-card flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 bottom-0 w-1 bg-fluent-blue"></div>
+                
+                <div class="flex-1 pl-2">
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight mb-3 text-fluent-text leading-snug">{{ data.title }}</h1>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <span class="px-2.5 py-1 bg-fluent-blue-light border border-fluent-blue/20 rounded-md text-xs font-semibold text-fluent-blue flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-fluent-blue"></span>
+                            Secure Edge Proxy
+                        </span>
+                        
+                        {% if 'pornhub' in data.url %}
+                        <span class="px-2.5 py-1 bg-amber-50 border border-amber-500/20 rounded-md text-xs font-semibold text-amber-700 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            Pornhub Line
+                        </span>
+                        {% elif 'xnxx' in data.url %}
+                        <span class="px-2.5 py-1 bg-sky-50 border border-sky-500/20 rounded-md text-xs font-semibold text-sky-700 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                            XNXX Line
+                        </span>
+                        {% elif 'xvideos' in data.url %}
+                        <span class="px-2.5 py-1 bg-rose-50 border border-rose-500/20 rounded-md text-xs font-semibold text-rose-700 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                            XVideos Line
+                        </span>
+                        {% endif %}
+    
+                        <span class="px-2.5 py-1 bg-black/[0.03] border border-black/5 rounded-md text-xs font-medium text-fluent-subtext">
+                            Tokenized Gateway Payload
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-8 pl-4 border-l border-black/5 text-right">
+             
+                    <div>
+                        <div class="text-[11px] text-fluent-subtext font-semibold uppercase tracking-wider mb-0.5">Gateway</div>
+                        <div class="text-sm text-emerald-600 font-bold flex items-center gap-1.5 justify-end">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            Online
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Sidebar Stream Selector -->
+        <div class="xl:col-span-3">
+            <div class="bg-white rounded-2xl p-6 sticky top-24 border border-black/[0.08] shadow-fluent-card max-h-[calc(100vh-8rem)] overflow-y-auto">
+                
+                <div class="flex flex-col gap-6">
+                    
+                    {% if data.streams.qualities %}
+                        <div>
+                            <h3 class="section-header">Adaptive Streams (HLS)</h3>
+                            <div class="flex flex-col gap-1.5">
+                                {% for q in data.streams.qualities %}
+                                <button onclick="loadQuality('{{ q.url }}', this)" 
+                                        class="quality-btn w-full py-2.5 px-3.5 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-xs font-medium transition-all flex justify-...
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-fluent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d=...
+                                        {{ q.quality }}
+                                    </span>
+                                    <svg class="check-icon w-4 h-4 text-fluent-blue opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-...
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+    
+                    {% if data.streams.direct_mp4 %}
+                        <div>
+                            <h3 class="section-header">Direct Progressive (MP4)</h3>
+                            <div class="flex flex-col gap-1.5">
+                                {% for label, url in data.streams.direct_mp4.items() %}
+                                <button onclick="loadQuality('{{ url }}', this)" 
+                                        class="quality-btn w-full py-2.5 px-3.5 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-xs font-medium transition-all flex justify-...
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-[#0078d4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M...
+                                        {{ label }}
+                                    </span>
+                                    <svg class="check-icon w-4 h-4 text-[#0078d4] opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-li...
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+    
+                    {% if data.streams.video_only %}
+                        <div>
+                            <h3 class="section-header">Video Feeds</h3>
+                            <div class="flex flex-col gap-1.5">
+                                {% for label, url in data.streams.video_only.items() %}
+                                <button onclick="loadQuality('{{ url }}', this)" 
+                                        class="quality-btn w-full py-2 px-3 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-[11px] font-medium transition-all flex justify-...
+                                    <span class="truncate pr-2">{{ label }}</span>
+                                    <svg class="check-icon w-3.5 h-3.5 text-fluent-subtext opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" ...
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+    
+                    {% if data.streams.audio_only %}
+                        <div>
+                            <h3 class="section-header">Audio Feeds</h3>
+                            <div class="flex flex-col gap-1.5">
+                                {% for label, url in data.streams.audio_only.items() %}
+                                <button onclick="loadQuality('{{ url }}', this)" 
+                                        class="quality-btn w-full py-2 px-3 bg-black/[0.02] hover:bg-black/[0.05] border border-black/[0.06] rounded-lg text-[11px] font-medium transition-all flex justify-...
+                                    <span class="truncate pr-2">{{ label }}</span>
+                                    <svg class="check-icon w-3.5 h-3.5 text-fluent-subtext opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" ...
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+    
+                </div>
+    
+                <div class="mt-8 pt-4 border-t border-black/5">
+                    <a href="/view" class="w-full text-center block bg-black/[0.04] hover:bg-black/[0.08] text-fluent-text font-semibold py-2.5 rounded-md transition-colors text-xs">
+                        Process New Media URL
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const video = document.getElementById('main-player');
+        const overlay = document.getElementById('play-overlay');
+        const playerContainer = document.getElementById('player-container');
+        const fsIconEnter = document.getElementById('fs-icon-enter');
+        const fsIconExit = document.getElementById('fs-icon-exit');
+        
+        let hlsPlayer = null;
+        let isUserInitiated = false;
+        let currentUrl = "";
+    
+        video.addEventListener('contextmenu', e => e.preventDefault());
+    
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                if (playerContainer.requestFullscreen) {
+                    playerContainer.requestFullscreen();
+                } else if (playerContainer.webkitRequestFullscreen) {
+                    playerContainer.webkitRequestFullscreen();
+                } else if (playerContainer.msRequestFullscreen) {
+                    playerContainer.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+    
+        document.addEventListener('fullscreenchange', updateFsIcon);
+        document.addEventListener('webkitfullscreenchange', updateFsIcon);
+        document.addEventListener('mozfullscreenchange', updateFsIcon);
+        document.addEventListener('MSFullscreenChange', updateFsIcon);
+    
+        function updateFsIcon() {
+            if (document.fullscreenElement) {
+                fsIconEnter.classList.add('hidden');
+                fsIconExit.classList.remove('hidden');
+            } else {
+                fsIconEnter.classList.remove('hidden');
+                fsIconExit.classList.add('hidden');
+            }
+        }
+    
+        function handleInitialPlay() {
+            if (overlay) overlay.style.display = 'none';
+            isUserInitiated = true;
+            
+            if (currentUrl) {
+                applySource(currentUrl, true);
+            } else {
+                const firstSource = document.querySelector('.quality-btn');
+                if (firstSource) firstSource.click();
+            }
+        }
+    
+        video.addEventListener('play', () => {
+            if (overlay) overlay.style.display = 'none';
+            isUserInitiated = true;
+        });
+    
+        function loadQuality(url, btnElement) {
+            document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+    
+            currentUrl = url;
+            applySource(url, isUserInitiated);
+        }
+    
+        function applySource(proxyUrl, shouldPlay) {
+            if (!proxyUrl) return;
+    
+            const finalUrl = '/proxy?url=' + encodeURIComponent(proxyUrl);
+            const isHls = proxyUrl.includes('.m3u8') || proxyUrl.includes('hls') || proxyUrl.includes('manifest');
+            const wasPlaying = !video.paused && video.currentTime > 0;
+            const currentTime = video.currentTime;
+    
+            if (hlsPlayer) {
+                hlsPlayer.destroy();
+                hlsPlayer = null;
+            }
+    
+            if (isHls && Hls.isSupported()) {
+                hlsPlayer = new Hls({ 
+                    maxBufferSize: 60*1000*1000, 
+                    maxBufferLength: 60,
+                    enableWorker: true,
+                    lowLatencyMode: true
+                });
+                
+                hlsPlayer.loadSource(finalUrl);
+                hlsPlayer.attachMedia(video);
+                
+                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                    if (currentTime > 0) video.currentTime = currentTime;
+                    if (shouldPlay || wasPlaying) {
+                        video.play().catch(e => console.log("Autoplay blocked:", e));
+                    }
+                });
+    
+                hlsPlayer.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                hlsPlayer.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                hlsPlayer.recoverMediaError();
+                                break;
+                            default:
+                                hlsPlayer.destroy();
+                                break;
+                        }
+                    }
+                });
+            } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = finalUrl;
+                if (currentTime > 0) video.currentTime = currentTime;
+                if (shouldPlay || wasPlaying) video.play().catch(()=>{});
+            } else {
+                video.src = finalUrl;
+                video.load();
+                if (currentTime > 0) video.currentTime = currentTime;
+                if (shouldPlay || wasPlaying) video.play().catch(()=>{});
+            }
+        }
+    
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstSource = document.querySelector('.quality-btn');
+            if (firstSource) {
+                firstSource.classList.add('active');
+                
+                {% if data.streams.qualities %}
+                    currentUrl = "{{ data.streams.qualities[0].url }}";
+                {% elif data.streams.direct_mp4 %}
+                    currentUrl = "{{ data.streams.direct_mp4.values()|first }}";
+                {% elif data.streams.video_only %}
+                    currentUrl = "{{ data.streams.video_only.values()|first }}";
+                {% elif data.streams.audio_only %}
+                    currentUrl = "{{ data.streams.audio_only.values()|first }}";
+                {% else %}
+                    currentUrl = "";
+                {% endif %}
+                
+                if (currentUrl) {
+                    const initialProxyUrl = '/proxy?url=' + encodeURIComponent(currentUrl);
+                    video.src = initialProxyUrl;
+                    video.load();
+                }
+            }
+        });
+    </script>
+    {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+  view.html
+    {% extends "layout.html" %}
+    
+    {% block title %}Gateway | VexoStream{% endblock %}
+    
+    {% block content %}
+    <div class="w-full flex-1 flex items-center justify-center p-4 sm:p-6 min-h-[80vh] relative antialiased">
+        <div class="absolute inset-0 bg-[radial-gradient(#0067b8_0.65px,transparent_0.65px)] [background-size:24px_24px] opacity-[0.06] pointer-events-none"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[400px] bg-gradient-to-tr from-sky-100/50 via-blue-50/40 to-slate-100/50 rounded-full blur-[100px] pointer-event...
+    
+        <div class="w-full max-w-lg bg-white rounded-2xl p-8 sm:p-10 shadow-fluent-card hover:shadow-fluent-elevated transition-all relative z-10 border border-black/[0.08]">
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-fluent-blue-light border border-fluent-blue/20 mb-4 text-fluent-blue shadow-sm">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 ...
+                    </svg>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-fluent-text tracking-tight mb-2">Target Terminal</h2>
+                <p class="text-fluent-subtext text-xs sm:text-sm leading-relaxed max-w-sm mx-auto">
+                    Input a video stream URL. The gateway engine will resolve manifest lines and proxy downstream chunks.
+                </p>
+            </div>
+    
+            {% if error %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-xs font-semibold flex items-start gap-2.5 shadow-sm">
+                <svg class="w-4 h-4 shrink-0 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="break-all">{{ error }}</span>
+            </div>
+            {% endif %}
+    
+            <form action="/extract" method="POST" class="space-y-4" onsubmit="handleExtract(this)">
+                <div>
+                    <div class="flex items-center bg-black/[0.02] hover:bg-black/[0.04] focus-within:bg-white border border-black/15 focus-within:border-fluent-blue focus-within:ring-2 focus-within:ring-f...
+                        <div class="pl-3.5 pr-2 text-fluent-subtext">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-...
+                            </svg>
+                        </div>
+                        <input type="url" name="url" required placeholder="https://..." 
+                               class="w-full bg-transparent border-none py-3.5 pr-4 text-sm text-fluent-text placeholder-fluent-subtext/60 focus:outline-none font-medium">
+                    </div>
+                </div>
+    
+                <button type="submit" id="submit-btn"
+                        class="w-full bg-fluent-blue hover:bg-fluent-blue-hover active:bg-fluent-blue-pressed text-white font-semibold py-3 px-5 rounded-md shadow-sm transition-all flex items-center justi...
+                    <span id="btn-text" class="flex items-center gap-2">
+                        Execute Extraction
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </span>
+                    <span id="btn-loading" class="hidden flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing Payload...
+                    </span>
+                </button>
+            </form>
+    
+            <div class="mt-8 pt-5 border-t border-black/5 flex flex-col items-center">
+                <p class="text-[11px] font-semibold text-fluent-subtext uppercase tracking-wider mb-3">Supported Extraction Protocols</p>
+                <div class="flex items-center justify-center gap-2.5">
+                    <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">Pornhub</span>
+                    <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">XNXX</span>
+                    <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">XVideos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function handleExtract(form) {
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+            
+            btn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+            btn.classList.add('cursor-not-allowed', 'opacity-80');
+        }
+    </script>
+    {% endblock %}
+

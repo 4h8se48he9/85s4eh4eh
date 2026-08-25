@@ -12,7 +12,7 @@
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-fluent-blue-light border border-fluent-blue/20 mb-4 text-fluent-blue shadow-sm">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656 0l-1.102 1.101m-.758 4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                 </svg>
             </div>
             <h2 class="text-2xl sm:text-3xl font-bold text-fluent-text tracking-tight mb-2">Target Terminal</h2>
@@ -32,10 +32,10 @@
 
         <form action="/extract" method="POST" class="space-y-4" onsubmit="handleExtract(this)">
             <div>
-                <div class="flex items-center bg-black/[0.02] hover:bg-black/[0.04] focus-within:bg-white border border-black/15 focus-within:border-fluent-blue focus-within:ring-2 focus-within:ring-fluent-blue/20 rounded-lg transition-all shadow-sm">
+                <div class="flex items-center bg-black/[0.02] hover:bg-black/[0.04] focus-within:bg-white border border-black/15 focus-within:border-fluent-blue focus-within:ring-2 focus-within:ring-fluent-blue/20 rounded-md transition-colors overflow-hidden">
                     <div class="pl-3.5 pr-2 text-fluent-subtext">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656 0l-1.102 1.101m-.758 4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                         </svg>
                     </div>
                     <input type="url" name="url" required placeholder="https://..." 
@@ -44,7 +44,7 @@
             </div>
 
             <button type="submit" id="submit-btn"
-                    class="w-full bg-fluent-blue hover:bg-fluent-blue-hover active:bg-fluent-blue-pressed text-white font-semibold py-3 px-5 rounded-md shadow-sm transition-all flex items-center justify-center gap-2 text-sm">
+                    class="w-full bg-fluent-blue hover:bg-fluent-blue-hover active:bg-fluent-blue-pressed text-white font-semibold py-3 px-5 rounded-md shadow-sm transition-all flex items-center justify-center min-h-[48px]">
                 <span id="btn-text" class="flex items-center gap-2">
                     Execute Extraction
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,10 +63,11 @@
 
         <div class="mt-8 pt-5 border-t border-black/5 flex flex-col items-center">
             <p class="text-[11px] font-semibold text-fluent-subtext uppercase tracking-wider mb-3">Supported Extraction Protocols</p>
-            <div class="flex items-center justify-center gap-2.5">
+            <div class="flex items-center justify-center flex-wrap gap-2.5">
                 <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">Pornhub</span>
                 <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">XNXX</span>
                 <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">XVideos</span>
+                <span class="px-2.5 py-1 bg-black/[0.03] rounded-md text-[11px] font-medium text-fluent-subtext border border-black/5">3movs</span>
             </div>
         </div>
     </div>

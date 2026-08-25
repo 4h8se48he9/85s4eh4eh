@@ -112,13 +112,97 @@ class VideoScraper:
 
         return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "streams": stream_data, "url": url}
 
-    def extract(self, url):
-        m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
-        if m: url = f"https://www.xnxx.com/video-{m.group(1)}/x"
+    def _scrape_3movs(self, url):
+        try:
+            resp = requests.get(url, headers=self.headers, timeout=15)
+            if resp.status_code != 200: 
+                return {"status": "error", "error": f"HTTP {resp.status_code}", "url": url}
+        except Exception as e: 
+            return {"status": "error", "error": str(e), "url": url}
 
-        elif 'pornhub' in url:
+        page = resp.text
+        tree = html.fromstring(resp.content)
+        
+        # 1. Extract Title
+        title_raw = tree.xpath('//meta[@property="og:title"]/@content')
+        title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
+        if title == "Unknown Title":
+            title_tag = tree.xpath('//title/text()')
+            if title_tag:
+                title = title_tag[0].split('|')[0].split('-')[0].strip()
+
+        # 2. Extract Thumbnail
+        thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
+        thumbnail = thumb_raw[0] if thumb_raw else ""
+        if not thumbnail:
+            poster_match = re.search(r'poster\s*[:=]\s*["\']([^"\']+)["\']', page)
+            if poster_match:
+                thumbnail = poster_match.group(1).replace('\\/', '/')
+
+        stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
+        sources = []
+        
+        # Method A: Look for <source> elements in the HTML natively used by Fluid Player
+        for src in tree.xpath('//source/@src'):
+            sources.append(src)
+            
+        # Method B: Parse configuration dictionaries / FlashVars using Regex
+        for match in re.finditer(r'(?:video_url|video_alt_url\d*|src|file)\s*[:=]\s*["\'](https?://[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
+            sources.append(match.group(1).replace('\\/', '/'))
+            
+        # Method C: Aggressive fallback catching raw URLs pointing to media files in the page source
+        for match in re.finditer(r'["\'](https?://[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
+            sources.append(match.group(1).replace('\\/', '/'))
+
+        seen_q = set()
+        seen_urls = set()
+        
+        for src in sources:
+            if not src or src in seen_urls: continue
+            
+            # Filter out ads, thumbnails, preview chunks, and sprite sheets
+            if any(x in src.lower() for x in ['ad.', 'ads.', 'banner', 'sprite', 'thumb', 'preview', 'timeline']): 
+                continue
+                
+            seen_urls.add(src)
+            
+            # Sort as HLS/M3U8
+            if '.m3u8' in src:
+                for pq in self.parse_hls_qualities(src):
+                    if pq["quality"] not in seen_q:
+                        seen_q.add(pq["quality"])
+                        stream_data["qualities"].append(pq)
+                        
+            # Sort as MP4
+            elif '.mp4' in src:
+                qual = "auto"
+                q_match = re.search(r'(\d{3,4})p', src, re.I)
+                
+                if q_match:
+                    qual = f"{q_match.group(1)}p"
+                else:
+                    q_match2 = re.search(r'_(high|low|medium|hq|lq)_', src, re.I)
+                    if q_match2:
+                        qual = q_match2.group(1).capitalize()
+                
+                # Assign to MP4 streams if it hasn't been added yet
+                if qual != "auto" or "auto" not in stream_data["direct_mp4"]:
+                    stream_data["direct_mp4"][qual] = src
+
+        return {"status": "success", "title": title.strip(), "thumbnail": thumbnail, "streams": stream_data, "url": url}
+
+    def extract(self, url):
+        # Optional: Normalize shortened tags to XNXX URLs
+        m = re.search(r"\[([a-z0-9]{6,8})\]\.[^.]+$", url, re.I) or re.match(r"^([a-z0-9]{6,8})_.+", url, re.I)
+        if m: 
+            url = f"https://www.xnxx.com/video-{m.group(1)}/x"
+
+        # Routing Logic
+        if 'pornhub' in url:
             return self._scrape_pornhub(url)
         elif 'xnxx' in url or 'xvideos' in url:
             return self._scrape_xnxx_xvideos(url)
+        elif '3movs' in url:
+            return self._scrape_3movs(url)
             
         return {"status": "error", "error": "Unsupported provider"}

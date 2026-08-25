@@ -2,7 +2,6 @@
 import os
 import sys
 import logging
-import argparse
 import subprocess
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -16,14 +15,37 @@ def run_cmd(cmd, check=True):
     return result.stdout.strip()
 
 def main():
-    parser = argparse.ArgumentParser(description="Initialize, commit, and push project to GitHub")
-    parser.add_argument("repo", help="GitHub repository URL (e.g., https://github.com/user/repo.git)")
-    parser.add_argument("-b", "--branch", default="main", help="Target branch name")
-    parser.add_argument("-m", "--message", default="UI overhaul and new routing", help="Commit message")
-    parser.add_argument("-f", "--force", action="store_true", help="Force push to remote repository")
-    args = parser.parse_args()
+    print("="*50)
+    print(" GitHub Auto-Pusher Interactive Terminal")
+    print("="*50)
+    
+    # Get Repository
+    repo = input("\nEnter GitHub repository URL (e.g., https://github.com/...):\n> ").strip()
+    while not repo:
+        print("Error: Repository URL cannot be empty.")
+        repo = input("Enter GitHub repository URL:\n> ").strip()
+        
+    # Get Branch
+    branch = input("\nTarget branch name [default: main]:\n> ").strip()
+    if not branch:
+        branch = "main"
+        
+    # Get Commit Message
+    message = input("\nCommit message [default: UI overhaul and new routing]:\n> ").strip()
+    if not message:
+        message = "UI overhaul and new routing"
+        
+    # Force Push option
+    force_input = input("\nForce push to remote? (y/N) [default: N]:\n> ").strip().lower()
+    force = force_input == 'y'
+    
+    print("\n" + "="*50)
+    print(" Starting Deployment...")
+    print("="*50 + "\n")
 
-    if not os.path.exists(".git"): run_cmd(["git", "init"])
+    # Git logic
+    if not os.path.exists(".git"): 
+        run_cmd(["git", "init"])
 
     run_cmd(["git", "add", "."])
     
@@ -31,21 +53,29 @@ def main():
     if not status:
         logging.info("No changes to commit. Proceeding to push.")
     else:
-        run_cmd(["git", "commit", "-m", args.message])
+        run_cmd(["git", "commit", "-m", message])
 
-    run_cmd(["git", "branch", "-M", args.branch])
+    run_cmd(["git", "branch", "-M", branch])
     
     remotes = run_cmd(["git", "remote"], check=False)
     if "origin" in remotes.split():
-        run_cmd(["git", "remote", "set-url", "origin", args.repo])
+        run_cmd(["git", "remote", "set-url", "origin", repo])
     else:
-        run_cmd(["git", "remote", "add", "origin", args.repo])
+        run_cmd(["git", "remote", "add", "origin", repo])
 
-    push_cmd = ["git", "push", "-u", "origin", args.branch]
-    if args.force: push_cmd.append("--force")
+    push_cmd = ["git", "push", "-u", "origin", branch]
+    if force: 
+        push_cmd.append("--force")
 
     run_cmd(push_cmd)
-    logging.info("System deployed to remote repository.")
+    
+    print("\n" + "="*50)
+    logging.info("✅ System deployed to remote repository successfully.")
+    print("="*50)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\nOperation cancelled by user. Exiting.")
+        sys.exit(0)
