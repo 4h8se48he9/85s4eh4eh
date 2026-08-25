@@ -180,23 +180,28 @@ class VideoScraper:
                 
                 # Check explicit HTML tag first
                 if item['qual']:
-                    qual = item['qual'].lower().replace('hd', '').strip()
-                    if qual.isdigit(): qual += "p"
+                    q_text = item['qual'].strip().lower()
+                    if 'high' in q_text:
+                        qual = 'High'
+                    elif 'low' in q_text:
+                        qual = 'Low'
+                    elif re.search(r'(\d{3,4})', q_text):
+                        qual = f"{re.search(r'(\d{3,4})', q_text).group(1)}p"
+                    else:
+                        qual = item['qual'].strip().title()
                 
                 # Smart Regex fallback if no HTML attribute exists
                 if qual == "auto":
-                    q_match = re.search(r'(?:[-_/]|(?<=[a-zA-Z]))(\d{3,4})[pP]?(?:[-_./]|\.mp4)', src)
-                    if q_match:
-                        qual = f"{q_match.group(1)}p"
+                    if 'high' in src.lower():
+                        qual = 'High'
+                    elif 'low' in src.lower():
+                        qual = 'Low'
                     else:
-                        q_match2 = re.search(r'_(high|low|medium|hq|lq)_', src, re.I)
-                        if q_match2:
-                            qual = q_match2.group(1).capitalize()
+                        q_match = re.search(r'(?:[-_/]|(?<=[a-zA-Z]))(\d{3,4})[pP]?(?:[-_./]|\.mp4)', src)
+                        if q_match:
+                            qual = f"{q_match.group(1)}p"
                 
-                # Final formatting
-                if qual.isdigit(): qual += "p"
-                
-                # Prevent auto from overwriting actual qualities
+                # Assign to MP4 streams if it hasn't been added yet
                 if qual != "auto" or "auto" not in stream_data["direct_mp4"]:
                     stream_data["direct_mp4"][qual] = src
 
