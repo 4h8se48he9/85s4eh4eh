@@ -239,56 +239,49 @@ class VideoScraper:
         player_source_elements = tree.xpath('//div[contains(@id, "player") or contains(@class, "player")]//video//source | //video//source')
         for s in player_source_elements:
             src = s.get('src')
-            title_attr = s.get('title') or s.get('label') or ''
             if src and '.mp4' in src.lower():
-                player_sources.append({'url': src, 'label': title_attr})
+                player_sources.append(src)
 
         # Fallback to JS Player regex configuration
         if not player_sources:
             for m in re.finditer(r'(?:video_url|video_alt_url|src|file)\s*[:=]\s*["\']([^"\']+\.mp4[^"\']*)["\']', page):
-                player_sources.append({'url': m.group(1), 'label': ''})
+                player_sources.append(m.group(1))
 
-        high_url = None
-        low_url = None
+        if player_sources:
+            # Clean and set High Quality
+            high_url = player_sources[0].replace('\\/', '/').strip()
+            if high_url.startswith('//'):
+                high_url = "https:" + high_url
+            elif high_url.startswith('/'):
+                high_url = urljoin(url, high_url)
 
-        # Check explicit labels from player sources
-        for s in player_sources:
-            full_src = s['url'].replace('\\/', '/').strip()
-            if full_src.startswith('//'):
-                full_src = "https:" + full_src
-            elif full_src.startswith('/'):
-                full_src = urljoin(url, full_src)
-
-            label_lower = s['label'].lower()
-            if 'high' in label_lower or '1080' in label_lower or '720' in label_lower:
-                if not high_url:
-                    high_url = full_src
-            elif 'low' in label_lower or '360' in label_lower or '480' in label_lower:
-                if not low_url:
-                    low_url = full_src
-            elif not high_url:
-                high_url = full_src
-
-        # If only one source was extracted, lock it as High Quality and force Low Quality
-        if high_url and not low_url:
-            low_candidate = high_url
-            if '1080p' in low_candidate:
-                low_candidate = low_candidate.replace('1080p', '360p')
-            elif '720p' in low_candidate:
-                low_candidate = low_candidate.replace('720p', '360p')
-            elif '480p' in low_candidate:
-                low_candidate = low_candidate.replace('480p', '360p')
-            elif 'high' in low_candidate.lower():
-                low_candidate = re.sub(r'high', 'low', low_candidate, flags=re.I)
-            elif 'hq' in low_candidate.lower():
-                low_candidate = re.sub(r'hq', 'lq', low_candidate, flags=re.I)
+            # Forcing Bad Quality via strict URI manipulation
+            low_url = high_url
+            
+            # Map down resolutions or labels
+            if '1080p' in low_url:
+                low_url = low_url.replace('1080p', '360p')
+            elif '720p' in low_url:
+                low_url = low_url.replace('720p', '360p')
+            elif '480p' in low_url:
+                low_url = low_url.replace('480p', '360p')
+            elif '1080' in low_url:
+                low_url = low_url.replace('1080', '360')
+            elif '720' in low_url:
+                low_url = low_url.replace('720', '360')
+            elif '/high/' in low_url.lower():
+                low_url = re.sub(r'/high/', '/low/', low_url, flags=re.I)
+            elif '_high.' in low_url.lower():
+                low_url = re.sub(r'_high\.', '_low.', low_url, flags=re.I)
+            elif 'high' in low_url.lower():
+                low_url = re.sub(r'high', 'low', low_url, flags=re.I)
+            elif 'hq' in low_url.lower():
+                low_url = re.sub(r'hq', 'lq', low_url, flags=re.I)
             else:
-                low_candidate = low_candidate.replace('.mp4', '_low.mp4')
-            low_url = low_candidate
+                low_url = low_url.replace('.mp4', '_low.mp4')
 
-        if high_url:
+            # Inject the streams
             stream_data["direct_mp4"]["High Quality"] = high_url
-        if low_url and low_url != high_url:
             stream_data["direct_mp4"]["Low Quality"] = low_url
 
         return {
