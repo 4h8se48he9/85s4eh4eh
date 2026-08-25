@@ -3,7 +3,7 @@ import re
 import os
 import sys
 import subprocess
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import requests
 from lxml import html
 
@@ -13,6 +13,7 @@ class VideoScraper:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://www.google.com/'
         }
 
     def title_case(self, text):
@@ -123,7 +124,7 @@ class VideoScraper:
         page = resp.text
         tree = html.fromstring(resp.content)
         
-        # Extract Title
+        # 1. Extract Title
         title_raw = tree.xpath('//meta[@property="og:title"]/@content')
         title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
         if title == "Unknown Title":
@@ -131,58 +132,68 @@ class VideoScraper:
             if title_tag:
                 title = title_tag[0].split('|')[0].split('-')[0].strip()
 
-        # Extract Thumbnail
+        # 2. Extract Thumbnail
         thumb_raw = tree.xpath('//meta[@property="og:image"]/@content')
         thumbnail = thumb_raw[0] if thumb_raw else ""
         if not thumbnail:
             poster_match = re.search(r'poster\s*[:=]\s*["\']([^"\']+)["\']', page)
             if poster_match:
                 thumbnail = poster_match.group(1).replace('\\/', '/')
+        if thumbnail.startswith('//'):
+            thumbnail = "https:" + thumbnail
 
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
         sources = []
         
-        # 1. Primary Method: Parse Fluid Player <source> tags which contain the 'title' (quality)
+        # Method A: Parse Fluid Player <source> tags
         for source in tree.xpath('//source'):
             src = source.get('src')
             if src:
-                # 3movs stores the quality in 'title' or 'label'
                 qual_hint = source.get('title') or source.get('label') or source.get('res')
-                sources.append({'url': src.replace('\\/', '/'), 'qual': qual_hint})
+                sources.append({'url': src, 'qual': qual_hint})
             
-        # 2. Fallback Method: Raw Regex for JS configurations
-        for match in re.finditer(r'["\'](https?://[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
-            sources.append({'url': match.group(1).replace('\\/', '/'), 'qual': None})
+        # Method B: Regex search for JS configs
+        for match in re.finditer(r'(?:video_url|video_alt_url\d*|src|file)\s*[:=]\s*["\']([^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
+            sources.append({'url': match.group(1), 'qual': None})
+
+        # Method C: Raw fallback search
+        for match in re.finditer(r'["\']((?:https?:)?//[^"\']+\.(?:mp4|m3u8)[^"\']*)["\']', page):
+            sources.append({'url': match.group(1), 'qual': None})
 
         seen_q = set()
         seen_urls = set()
         
         for item in sources:
-            src = item['url']
+            src = item['url'].replace('\\/', '/')
+            
+            # Resolve relative URLs
+            if src.startswith('//'):
+                src = "https:" + src
+            elif src.startswith('/'):
+                src = urljoin(url, src)
+                
             if not src or src in seen_urls: continue
             
-            # Filter out ads, previews, and banners
+            # Filter out ads and thumbnails
             if any(x in src.lower() for x in ['ad.', 'ads.', 'banner', 'sprite', 'thumb', 'preview', 'timeline']): 
                 continue
                 
             seen_urls.add(src)
             
-            # Parse HLS streams dynamically
+            # Process HLS
             if '.m3u8' in src:
                 for pq in self.parse_hls_qualities(src):
                     if pq["quality"] not in seen_q:
                         seen_q.add(pq["quality"])
                         stream_data["qualities"].append(pq)
                         
-            # Parse MP4 streams
+            # Process MP4
             elif '.mp4' in src:
                 qual = "auto"
                 
-                # Check explicit HTML tag first
                 if item['qual']:
                     q_text = item['qual'].strip().lower()
                     res_match = re.search(r'(\d{3,4})', q_text)
-                    
                     if 'high' in q_text:
                         qual = 'High'
                     elif 'low' in q_text:
@@ -192,7 +203,6 @@ class VideoScraper:
                     else:
                         qual = item['qual'].strip().title()
                 
-                # Smart Regex fallback if no HTML attribute exists
                 if qual == "auto":
                     if 'high' in src.lower():
                         qual = 'High'
@@ -203,7 +213,6 @@ class VideoScraper:
                         if q_match:
                             qual = f"{q_match.group(1)}p"
                 
-                # Assign to MP4 streams if it hasn't been added yet
                 if qual != "auto" or "auto" not in stream_data["direct_mp4"]:
                     stream_data["direct_mp4"][qual] = src
 
