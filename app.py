@@ -13,12 +13,12 @@ app.secret_key = os.urandom(24)
 
 scraper = VideoScraper()
 
-def rewrite_playlist(playlist, base_url):
+def rewrite_playlist(playlist, base_url, provider):
     def build_proxy_uri(raw_uri):
         clean_uri = raw_uri.strip().strip("'\"")
         if clean_uri.startswith("data:"): return clean_uri
         resolved = urljoin(base_url, clean_uri)
-        return "/proxy?url=" + quote(resolved, safe="")
+        return f"/proxy?url={quote(resolved, safe='')}&provider={provider}"
 
     out_lines = []
     for line in playlist.splitlines():
@@ -56,15 +56,17 @@ def extract():
 @app.route("/proxy")
 def proxy_media():
     target = request.args.get("url")
+    provider = request.args.get("provider", "")
     if not target: return "Missing URL", 400
 
     parsed_url = urlparse(target)
     netloc = parsed_url.netloc.lower()
 
-    if "phncdn" in netloc or "pornhub" in netloc: referer = "https://www.pornhub.com/"
-    elif "xnxx" in netloc: referer = "https://www.xnxx.com/"
-    elif "xvideos" in netloc: referer = "https://www.xvideos.com/"
-    elif "3movs" in netloc: referer = "https://www.3movs.com/"
+    # Apply strict Referer based on the provider payload
+    if "pornhub" in provider or "phncdn" in netloc or "pornhub" in netloc: referer = "https://www.pornhub.com/"
+    elif "xnxx" in provider or "xnxx" in netloc: referer = "https://www.xnxx.com/"
+    elif "xvideos" in provider or "xvideos" in netloc: referer = "https://www.xvideos.com/"
+    elif "3movs" in provider or "3movs" in netloc: referer = "https://www.3movs.com/"
     else: referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
 
     req_headers = {
@@ -94,17 +96,20 @@ def proxy_media():
         res_headers["Access-Control-Allow-Origin"] = "*"
         res_headers["Access-Control-Allow-Headers"] = "*"
         res_headers["Accept-Ranges"] = "bytes"
+        
+        # Pass exact content type to browser, especially important for proxying images
+        content_type = upstream.headers.get("content-type", "").lower()
+        res_headers["Content-Type"] = content_type
 
         if "Content-Length" in upstream.headers:
             res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
-        content_type = upstream.headers.get("content-type", "").lower()
         is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
 
         if is_m3u8:
             text = upstream.text
             final_base = upstream.url or target
-            rewritten = rewrite_playlist(text, final_base)
+            rewritten = rewrite_playlist(text, final_base, provider)
             res_headers["Content-Type"] = "application/vnd.apple.mpegurl"
             res_headers["Content-Length"] = str(len(rewritten.encode('utf-8')))
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
