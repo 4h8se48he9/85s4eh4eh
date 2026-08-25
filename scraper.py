@@ -2,6 +2,7 @@ import json
 import re
 import os
 import sys
+import subprocess
 from urllib.parse import urlparse, urljoin
 import requests
 from lxml import html
@@ -41,10 +42,8 @@ class VideoScraper:
             elif t.startswith('/'): t = urljoin(base_url, t)
             
             if t.startswith('http'):
-                # Filter out garbage UI images
                 if any(x in t.lower() for x in ['favicon', 'logo', 'icon', 'banner', 'avatar', 'blank', 'tracking']): 
                     continue
-                # Ensure it's a valid image type
                 if not any(ext in t.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp', 'poster', 'thumb']): 
                     continue
                 
@@ -170,33 +169,34 @@ class VideoScraper:
         page = resp.text
         tree = html.fromstring(resp.content)
         
-        # 1. Title
         title_raw = tree.xpath('//meta[@property="og:title"]/@content')
         title = self.title_case(title_raw[0]) if title_raw else "Unknown Title"
         if title == "Unknown Title":
             title_tag = tree.xpath('//title/text()')
             if title_tag: title = title_tag[0].split('|')[0].split('-')[0].strip()
 
-        # 2. Extract Thumbnails safely
         raw_thumbs = set()
         for meta in tree.xpath('//meta[@property="og:image"]/@content | //meta[@name="twitter:image"]/@content'): raw_thumbs.add(meta)
+        for poster in tree.xpath('//video/@poster'): raw_thumbs.add(poster)
         for m in re.finditer(r'poster(?:Image)?\s*[:=]\s*["\']([^"\']+)["\']', page, re.I): raw_thumbs.add(m.group(1))
-        for img in tree.xpath('//img/@src | //img/@data-src'): raw_thumbs.add(img)
 
         clean_thumbs = self.clean_thumbnails(raw_thumbs, url)
         thumbnail = clean_thumbs[0] if clean_thumbs else ""
 
-        # 3. Stream Routing & Forcing Low Quality
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
         main_url = None
         
-        # We explicitly target the fluid player <source> tag because it is the valid default video
-        for src in tree.xpath('//source/@src'):
-            if '.mp4' in src.lower():
+        for src in tree.xpath('//video//source/@src | //div[contains(@class, "player")]//source/@src'):
+            if '.mp4' in src.lower() and not any(x in src.lower() for x in ['preview', 'timeline', 'sprite']):
                 main_url = src
                 break
                 
-        # Fallback to regex if DOM is malformed
+        if not main_url:
+            for src in tree.xpath('//source/@src'):
+                if '.mp4' in src.lower() and not any(x in src.lower() for x in ['preview', 'timeline', 'sprite']):
+                    main_url = src
+                    break
+
         if not main_url:
             match = re.search(r'(?:video_url|src|file)\s*[:=]\s*["\']([^"\']+\.mp4[^"\']*)["\']', page)
             if match: main_url = match.group(1)
@@ -206,10 +206,8 @@ class VideoScraper:
             if main_url.startswith('//'): main_url = "https:" + main_url
             elif main_url.startswith('/'): main_url = urljoin(url, main_url)
             
-            # The EXACT default video the player loads is always set to High Quality
             stream_data["direct_mp4"]["High Quality"] = main_url
             
-            # Forcing Bad Quality via aggressive string manipulation
             low_url = main_url
             if '1080p' in low_url: low_url = low_url.replace('1080p', '360p')
             elif '720p' in low_url: low_url = low_url.replace('720p', '360p')
@@ -218,7 +216,6 @@ class VideoScraper:
             elif 'hq' in low_url.lower(): low_url = re.sub(r'hq', 'lq', low_url, flags=re.I)
             else: low_url = low_url.replace('.mp4', '_low.mp4')
             
-            # Ensure it isn't completely duplicate if the replace failed
             if low_url != main_url:
                 stream_data["direct_mp4"]["Low Quality"] = low_url
 
