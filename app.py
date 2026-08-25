@@ -97,32 +97,36 @@ def proxy_media():
 
     try:
         try:
-            upstream = requests.get(target, headers=req_headers, stream=True, timeout=12)
+            upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
             upstream.raise_for_status()
         except Exception as direct_err:
             logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
             active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
-            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=20)
+            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=25)
             upstream.raise_for_status()
 
         if upstream.status_code not in [200, 206]:
             return f"Upstream block: {upstream.status_code}", upstream.status_code
 
-        excluded_headers = ['transfer-encoding', 'connection']
+        excluded_headers = ['content-encoding', 'transfer-encoding', 'connection', 'keep-alive']
         res_headers = {k: v for k, v in upstream.headers.items() if k.lower() not in excluded_headers}
         res_headers["Access-Control-Allow-Origin"] = "*"
         res_headers["Access-Control-Allow-Headers"] = "*"
         res_headers["Accept-Ranges"] = "bytes"
 
         content_type = upstream.headers.get("content-type", "").lower()
+        res_headers["Content-Type"] = content_type
+
+        if "Content-Length" in upstream.headers:
+            res_headers["Content-Length"] = upstream.headers["Content-Length"]
+
+        if force_download:
+            ext = "mp4" if ".mp4" in target.lower() else "jpg" if "image" in content_type else "bin"
+            res_headers["Content-Disposition"] = f'attachment; filename="download.{ext}"'
+
         is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
 
         if is_m3u8 and not force_download:
-            res_headers.pop('Content-Encoding', None)
-            res_headers.pop('content-encoding', None)
-            res_headers.pop('Content-Length', None)
-            res_headers.pop('content-length', None)
-            
             text = upstream.text
             final_base = upstream.url or target
             rewritten = rewrite_playlist(text, final_base, provider)
@@ -130,20 +134,16 @@ def proxy_media():
             res_headers["Content-Length"] = str(len(rewritten.encode('utf-8')))
             return Response(rewritten, status=upstream.status_code, headers=res_headers)
 
-        if force_download:
-            filename = "media.mp4" if ".mp4" in target.lower() else "media_stream.m3u8"
-            res_headers["Content-Disposition"] = f'attachment; filename="{filename}"'
-
         def generate():
             try:
-                for chunk in upstream.raw.stream(131072, decode_content=False):
+                for chunk in upstream.iter_content(chunk_size=1048576):
                     if chunk:
                         yield chunk
             except Exception as stream_err:
                 logging.warning(f"Stream dropped: {stream_err}")
                 pass
 
-        return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=True)
+        return Response(generate(), status=upstream.status_code, headers=res_headers, direct_passthrough=False)
 
     except Exception as e:
         logging.error(f"Proxy failure for {target}: {e}")
