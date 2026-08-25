@@ -146,7 +146,7 @@
                                         <button onclick="copyToClipboard('{{ q.url }}', this)" class="py-1.5 px-3 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-medium text-gray-300 transition-all">
                                             Copy
                                         </button>
-                                        <button onclick="downloadHlsStream('{{ q.url }}', '{{ data.title|escape }} - {{ q.quality }}', this)" title="Download with progress" class="dl-progress-btn py-1.5 px-3 bg-accent-emerald/10 hover:bg-accent-emerald hover:text-gray-950 border border-accent-emerald/30 text-accent-emerald rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                        <button onclick="downloadHlsStream('{{ q.url }}', '{{ data.title|escape }} - {{ q.quality }}', this)" title="Download HLS Stream" class="dl-progress-btn py-1.5 px-3 bg-accent-emerald/10 hover:bg-accent-emerald hover:text-gray-950 border border-accent-emerald/30 text-accent-emerald rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                             <span class="btn-text">Download</span>
                                         </button>
@@ -353,7 +353,7 @@
     }
 
     // ==========================================
-    // Direct Stream Downloader with Live Progress
+    // Robust Blob Downloader with Live Progress
     // ==========================================
     async function downloadDirectFile(rawUrl, rawFilename, btn, defaultExt = 'mp4') {
         const origContent = btn.innerHTML;
@@ -395,21 +395,32 @@
             
             const contentType = response.headers.get('content-type') || (defaultExt === 'jpg' ? 'image/jpeg' : 'video/mp4');
             const blob = new Blob(chunks, { type: contentType });
+            const blobUrl = URL.createObjectURL(blob);
+            
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
+            a.style.display = 'none';
+            a.href = blobUrl;
             a.download = `${sanitizedFilename}.${defaultExt}`;
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+            }, 500);
 
             btn.innerHTML = `<span class="text-xs font-bold text-accent-emerald">Downloaded!</span>`;
             setTimeout(() => { btn.innerHTML = origContent; btn.disabled = false; }, 2000);
 
         } catch (err) {
-            alert('Download failed: ' + err.message);
-            btn.innerHTML = origContent;
-            btn.disabled = false;
+            console.error(err);
+            // Fallback to direct navigation if fetch streaming is blocked by CORS/Proxy
+            btn.innerHTML = `<span class="text-xs font-bold text-accent-cyan">Opening...</span>`;
+            setTimeout(() => {
+                window.open(proxyUrl, '_blank');
+                btn.innerHTML = origContent;
+                btn.disabled = false;
+            }, 1000);
         }
     }
 
@@ -423,10 +434,12 @@
         const sanitizedFilename = (rawFilename || 'video').replace(/[^a-zA-Z0-9_\- ]/g, '_').substring(0, 100);
 
         try {
-            btn.innerHTML = '<span class="text-xs font-bold text-accent-cyan">Manifest...</span>';
+            btn.innerHTML = '<span class="text-[11px] font-bold text-accent-cyan">Manifest...</span>';
             
             const proxyM3u8Url = '/proxy?url=' + encodeURIComponent(m3u8Url) + '&provider=' + providerName;
             const manifestRes = await fetch(proxyM3u8Url);
+            if (!manifestRes.ok) throw new Error("Failed to load HLS manifest.");
+            
             const manifestText = await manifestRes.text();
             const lines = manifestText.split('\n').map(l => l.trim());
             
@@ -448,28 +461,37 @@
                 tsUrls = parseSegments(manifestText);
             }
             
-            if (tsUrls.length === 0) throw new Error("No media segments found.");
+            if (tsUrls.length === 0) throw new Error("No media segments found in playlist.");
 
             const chunks = [];
             for (let i = 0; i < tsUrls.length; i++) {
                 const percent = Math.round(((i + 1) / tsUrls.length) * 100);
-                btn.innerHTML = `<span class="text-xs font-bold text-accent-cyan">${percent}%</span>`;
+                btn.innerHTML = `<span class="text-[11px] font-bold text-accent-cyan">${percent}%</span>`;
                 
                 const segRes = await fetch(tsUrls[i]);
+                if (!segRes.ok) continue;
                 chunks.push(await segRes.arrayBuffer());
             }
             
-            btn.innerHTML = '<span class="text-xs font-bold text-accent-emerald">Stitching...</span>';
+            if (chunks.length === 0) throw new Error("Failed to download video segments.");
+
+            btn.innerHTML = '<span class="text-[11px] font-bold text-accent-emerald">Stitching...</span>';
             const blob = new Blob(chunks, { type: 'video/mp4' });
+            const blobUrl = URL.createObjectURL(blob);
+            
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
+            a.style.display = 'none';
+            a.href = blobUrl;
             a.download = sanitizedFilename + '.mp4';
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
             
-            btn.innerHTML = '<span class="text-xs font-bold text-accent-emerald">Downloaded!</span>';
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+            }, 500);
+            
+            btn.innerHTML = '<span class="text-[11px] font-bold text-accent-emerald">Downloaded!</span>';
             setTimeout(() => { btn.innerHTML = origContent; btn.disabled = false; }, 2000);
             
         } catch (err) {
