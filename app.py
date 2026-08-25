@@ -97,12 +97,13 @@ def proxy_media():
 
     try:
         try:
-            upstream = requests.get(target, headers=req_headers, stream=True, timeout=15)
+            # allow_redirects=True ensures CDNs redirecting asset requests are resolved completely
+            upstream = requests.get(target, headers=req_headers, stream=True, allow_redirects=True, timeout=15)
             upstream.raise_for_status()
         except Exception as direct_err:
             logging.warning(f"Direct connection failed, switching to WARP SOCKS5: {direct_err}")
             active_proxies = {"http": "socks5h://127.0.0.1:40000", "https": "socks5h://127.0.0.1:40000"}
-            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, timeout=25)
+            upstream = requests.get(target, headers=req_headers, proxies=active_proxies, stream=True, allow_redirects=True, timeout=25)
             upstream.raise_for_status()
 
         if upstream.status_code not in [200, 206]:
