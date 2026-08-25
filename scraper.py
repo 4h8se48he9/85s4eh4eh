@@ -228,28 +228,54 @@ class VideoScraper:
         thumbnail = clean_thumbs[0] if clean_thumbs else ""
 
         stream_data = {"direct_mp4": {}, "video_only": {}, "audio_only": {}, "qualities": []}
-        player_sources = []
+        candidates = []
 
+        # Gather all valid MP4 links from player source tags and script definitions
         player_source_elements = tree.xpath('//div[contains(@id, "player") or contains(@class, "player")]//video//source | //video//source')
         for s in player_source_elements:
             src = s.get('src')
-            title_attr = s.get('title') or s.get('label') or ''
             if src and '.mp4' in src.lower():
-                player_sources.append({'url': src, 'label': title_attr})
+                candidates.append(src)
 
-        if not player_sources:
+        if not candidates:
             for m in re.finditer(r'(?:video_url|video_alt_url|src|file)\s*[:=]\s*["\']([^"\']+\.mp4[^"\']*)["\']', page):
-                player_sources.append({'url': m.group(1), 'label': 'Standard Quality'})
+                candidates.append(m.group(1))
 
-        for idx, s in enumerate(player_sources):
-            full_src = s['url'].replace('\\/', '/').strip()
+        # Sort candidates numerically by resolution (e.g., 1080p over 720p over 360p)
+        scored_sources = []
+        for raw_src in set(candidates):
+            full_src = raw_src.replace('\\/', '/').strip()
             if full_src.startswith('//'):
                 full_src = "https:" + full_src
             elif full_src.startswith('/'):
                 full_src = urljoin(url, full_src)
 
-            label = s['label'] if s['label'] else f"Quality {idx+1}"
-            stream_data["direct_mp4"][label] = full_src
+            if any(bad in full_src.lower() for bad in ['preview', 'timeline', 'sprite', 'ad.']):
+                continue
+
+            # Extract numeric resolution score from URL or default to standard weight
+            res_match = re.search(r'(\d{3,4})[pP]?', full_src)
+            score = int(res_match.group(1)) if res_match else 480
+            if '1080' in full_src: score = 1080
+            elif '720' in full_src: score = 720
+            elif '480' in full_src: score = 480
+            elif '360' in full_src: score = 360
+
+            scored_sources.append((score, full_src))
+
+        # Sort descending so the highest resolution/score is first
+        scored_sources.sort(key=lambda x: x[0], reverse=True)
+
+        for score, src in scored_sources:
+            label = f"{score}p" if score >= 360 else "Standard Quality"
+            # Ensure nice naming for top/bottom if clear
+            if label not in stream_data["direct_mp4"]:
+                stream_data["direct_mp4"][label] = src
+
+        # Ensure a default 'High Quality' pointer exists pointing to the absolute best source
+        if scored_sources:
+            best_url = scored_sources[0][1]
+            stream_data["direct_mp4"]["High Quality"] = best_url
 
         return {
             "status": "success",
