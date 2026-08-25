@@ -23,10 +23,6 @@
         font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
     }
-    .dl-progress-btn {
-        min-width: 115px;
-        transition: all 0.2s ease;
-    }
 </style>
 {% endblock %}
 
@@ -104,11 +100,8 @@
                     <div class="block aspect-video relative overflow-hidden">
                         <img src="/proxy?url={{ t|urlencode }}&provider={{ data.provider }}" alt="Thumbnail" onerror="this.parentElement.parentElement.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     </div>
-                    <div class="p-2 flex items-center justify-between border-t border-white/5 bg-white/[0.02]">
-                        <button onclick="copyToClipboard('{{ t }}', this)" class="text-[11px] font-medium text-gray-400 hover:text-accent-cyan transition-colors">Copy URL</button>
-                        <button onclick="downloadDirectFile('{{ t }}', '{{ data.title|escape }} - Thumbnail', this, 'jpg')" class="text-[11px] font-semibold text-accent-emerald hover:underline flex items-center gap-1">
-                            Download
-                        </button>
+                    <div class="p-2 flex items-center justify-center border-t border-white/5 bg-white/[0.02]">
+                        <button onclick="copyToClipboard('{{ t }}', this)" class="text-[11px] font-medium text-gray-400 hover:text-accent-cyan transition-colors">Copy Thumbnail URL</button>
                     </div>
                 </div>
                 {% endfor %}
@@ -118,7 +111,7 @@
 
     </div>
 
-    <!-- Right Sidebar: Stream Links & Downloads -->
+    <!-- Right Sidebar: Stream Links -->
     <div class="xl:col-span-4">
         <div class="bg-[#09090b]/80 backdrop-blur-2xl rounded-3xl p-6 sticky top-24 border border-white/10 shadow-lg max-h-[calc(100vh-8rem)] overflow-y-auto">
             
@@ -140,15 +133,11 @@
                                         {{ q.quality }}
                                     </span>
                                     <div class="flex items-center gap-1.5">
-                                        <button onclick="loadQuality('{{ q.url }}', this)" class="quality-btn py-1.5 px-3 bg-white/5 hover:bg-accent-cyan hover:text-gray-950 border border-white/10 rounded-lg text-xs font-semibold transition-all">
+                                        <button onclick="loadQuality('{{ q.url }}', this)" class="quality-btn py-1.5 px-4 bg-white/5 hover:bg-accent-cyan hover:text-gray-950 border border-white/10 rounded-lg text-xs font-semibold transition-all">
                                             Play
                                         </button>
-                                        <button onclick="copyToClipboard('{{ q.url }}', this)" class="py-1.5 px-3 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-medium text-gray-300 transition-all">
+                                        <button onclick="copyToClipboard('{{ q.url }}', this)" class="py-1.5 px-4 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-medium text-gray-300 transition-all">
                                             Copy
-                                        </button>
-                                        <button onclick="downloadHlsStream('{{ q.url }}', '{{ data.title|escape }} - {{ q.quality }}', this)" title="Download HLS Stream" class="dl-progress-btn py-1.5 px-3 bg-accent-emerald/10 hover:bg-accent-emerald hover:text-gray-950 border border-accent-emerald/30 text-accent-emerald rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                            <span class="btn-text">Download</span>
                                         </button>
                                     </div>
                                 </div>
@@ -175,15 +164,11 @@
                                         {{ label }}
                                     </span>
                                     <div class="flex items-center gap-1.5">
-                                        <button onclick="loadQuality('{{ url }}', this)" class="quality-btn py-1.5 px-3 bg-white/5 hover:bg-accent-emerald hover:text-gray-950 border border-white/10 rounded-lg text-xs font-semibold transition-all">
+                                        <button onclick="loadQuality('{{ url }}', this)" class="quality-btn py-1.5 px-4 bg-white/5 hover:bg-accent-emerald hover:text-gray-950 border border-white/10 rounded-lg text-xs font-semibold transition-all">
                                             Play
                                         </button>
-                                        <button onclick="copyToClipboard('{{ url }}', this)" class="py-1.5 px-3 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-medium text-gray-300 transition-all">
+                                        <button onclick="copyToClipboard('{{ url }}', this)" class="py-1.5 px-4 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-xs font-medium text-gray-300 transition-all">
                                             Copy
-                                        </button>
-                                        <button onclick="downloadDirectFile('{{ url }}', '{{ data.title|escape }} - {{ label }}', this, 'mp4')" title="Direct Download with progress" class="dl-progress-btn py-1.5 px-3 bg-accent-emerald/10 hover:bg-accent-emerald hover:text-gray-950 border border-accent-emerald/30 text-accent-emerald rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                            <span class="btn-text">Download</span>
                                         </button>
                                     </div>
                                 </div>
@@ -205,11 +190,8 @@
                             <div class="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center justify-between gap-2">
                                 <span class="text-xs font-medium text-gray-300 truncate">{{ label }}</span>
                                 <div class="flex items-center gap-1.5">
-                                    <button onclick="loadQuality('{{ url }}', this)" class="quality-btn py-1 px-2.5 bg-white/5 hover:bg-white/15 border border-white/10 rounded text-[11px] font-medium">Play</button>
-                                    <button onclick="copyToClipboard('{{ url }}', this)" class="py-1 px-2.5 bg-white/5 hover:bg-white/15 border border-white/10 rounded text-[11px] font-medium">Copy</button>
-                                    <button onclick="downloadDirectFile('{{ url }}', '{{ data.title|escape }} - {{ label }}', this, 'mp4')" class="dl-progress-btn py-1 px-2.5 bg-accent-emerald/10 hover:bg-accent-emerald hover:text-gray-950 border border-accent-emerald/30 text-accent-emerald rounded text-[11px] font-bold flex items-center justify-center gap-1">
-                                        <span class="btn-text">Download</span>
-                                    </button>
+                                    <button onclick="loadQuality('{{ url }}', this)" class="quality-btn py-1 px-3 bg-white/5 hover:bg-white/15 border border-white/10 rounded text-[11px] font-medium">Play</button>
+                                    <button onclick="copyToClipboard('{{ url }}', this)" class="py-1 px-3 bg-white/5 hover:bg-white/15 border border-white/10 rounded text-[11px] font-medium">Copy</button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -350,123 +332,6 @@
             btn.innerText = 'Copied!';
             setTimeout(() => { btn.innerText = orig; }, 1500);
         } catch {}
-    }
-
-    // ==========================================
-    // Robust Direct Downloader with Native Fallback
-    // ==========================================
-    function downloadDirectFile(rawUrl, rawFilename, btn, defaultExt = 'mp4') {
-        const sanitizedFilename = (rawFilename || 'download').replace(/[^a-zA-Z0-9_\- ]/g, '_').substring(0, 100);
-        const downloadUrl = '/proxy?url=' + encodeURIComponent(rawUrl) + '&provider=' + providerName + '&dl=1';
-
-        // Trigger native download via a temporary invisible anchor tag to avoid CORS blockades from CDNs
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = `${sanitizedFilename}.${defaultExt}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        // Visual feedback on button
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<span class="text-xs font-bold text-accent-cyan">Downloading...</span>';
-        btn.disabled = true;
-        
-        setTimeout(() => {
-            btn.innerHTML = '<span class="text-xs font-bold text-accent-emerald">Started!</span>';
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 2500);
-        }, 1500);
-    }
-
-    // ==========================================
-    // HLS Segment Downloader with Number Progress
-    // ==========================================
-    async function downloadHlsStream(m3u8Url, rawFilename, btn) {
-        const origContent = btn.innerHTML;
-        btn.disabled = true;
-        
-        const sanitizedFilename = (rawFilename || 'video').replace(/[^a-zA-Z0-9_\- ]/g, '_').substring(0, 100);
-
-        try {
-            btn.innerHTML = '<span class="text-[11px] font-bold text-accent-cyan">Manifest...</span>';
-            
-            const proxyM3u8Url = '/proxy?url=' + encodeURIComponent(m3u8Url) + '&provider=' + providerName;
-            const manifestRes = await fetch(proxyM3u8Url);
-            if (!manifestRes.ok) throw new Error("Failed to load HLS manifest.");
-            
-            const manifestText = await manifestRes.text();
-            const lines = manifestText.split('\n').map(l => l.trim());
-            
-            let tsUrls = [];
-            const hasChild = lines.some(l => l.startsWith('#EXT-X-STREAM-INF'));
-            
-            if (hasChild) {
-                let targetPlaylistUrl = '';
-                for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].startsWith('#EXT-X-STREAM-INF') && i + 1 < lines.length && !lines[i + 1].startsWith('#')) {
-                        targetPlaylistUrl = lines[i + 1];
-                        break;
-                    }
-                }
-                const subRes = await fetch(targetPlaylistUrl);
-                const subText = await subRes.text();
-                tsUrls = parseSegments(subText);
-            } else {
-                tsUrls = parseSegments(manifestText);
-            }
-            
-            if (tsUrls.length === 0) throw new Error("No media segments found in playlist.");
-
-            const chunks = [];
-            for (let i = 0; i < tsUrls.length; i++) {
-                const percent = Math.round(((i + 1) / tsUrls.length) * 100);
-                btn.innerHTML = `<span class="text-[11px] font-bold text-accent-cyan">${percent}%</span>`;
-                
-                const segRes = await fetch(tsUrls[i]);
-                if (!segRes.ok) continue;
-                chunks.push(await segRes.arrayBuffer());
-            }
-            
-            if (chunks.length === 0) throw new Error("Failed to download video segments.");
-
-            btn.innerHTML = '<span class="text-[11px] font-bold text-accent-emerald">Stitching...</span>';
-            const blob = new Blob(chunks, { type: 'video/mp4' });
-            const blobUrl = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = blobUrl;
-            a.download = sanitizedFilename + '.mp4';
-            document.body.appendChild(a);
-            a.click();
-            
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(blobUrl);
-            }, 500);
-            
-            btn.innerHTML = '<span class="text-[11px] font-bold text-accent-emerald">Downloaded!</span>';
-            setTimeout(() => { btn.innerHTML = origContent; btn.disabled = false; }, 2000);
-            
-        } catch (err) {
-            alert('Download failed: ' + err.message);
-            btn.innerHTML = origContent;
-            btn.disabled = false;
-        }
-    }
-
-    function parseSegments(text) {
-        const urls = [];
-        for (const line of text.split('\n')) {
-            const t = line.trim();
-            if (t && !t.startsWith('#')) {
-                urls.push(t);
-            }
-        }
-        return urls;
     }
 
     window.addEventListener('DOMContentLoaded', () => {

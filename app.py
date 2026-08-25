@@ -1,7 +1,6 @@
 import os
 import logging
 import re
-import subprocess
 from urllib.parse import urlparse, urljoin, quote
 from flask import Flask, request, render_template, Response
 import requests
@@ -65,7 +64,6 @@ def extract():
 def proxy_media():
     target = request.args.get("url")
     provider = request.args.get("provider", "")
-    force_download = request.args.get("dl") == "1"
     
     if not target:
         return "Missing URL", 400
@@ -85,7 +83,7 @@ def proxy_media():
         referer = f"{parsed_url.scheme}://{parsed_url.netloc}/"
 
     req_headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
         "Referer": referer,
         "Origin": referer.rstrip('/'),
         "Accept": "*/*",
@@ -93,55 +91,9 @@ def proxy_media():
     }
 
     range_header = request.headers.get("Range")
-    if range_header and not force_download:
+    if range_header:
         req_headers["Range"] = range_header
 
-    is_m3u8_url = ".m3u8" in target or "hls_playlist" in target
-
-    # ==========================================
-    # HLS DOWNLOADING LOGIC (FFMPEG MUXING)
-    # ==========================================
-    if force_download and is_m3u8_url:
-        def generate_ffmpeg_stream():
-            env = os.environ.copy()
-            # Force FFmpeg to route through your local WARP connection to bypass filters
-            env["HTTP_PROXY"] = "socks5h://127.0.0.1:40000"
-            env["HTTPS_PROXY"] = "socks5h://127.0.0.1:40000"
-            
-            cmd = [
-                'ffmpeg',
-                '-hide_banner', '-loglevel', 'error',
-                '-headers', f'Referer: {referer}\r\nOrigin: {referer.rstrip("/")}\r\nUser-Agent: Mozilla/5.0\r\n',
-                '-i', target,
-                '-c', 'copy',
-                '-f', 'mp4',
-                '-movflags', 'frag_keyframe+empty_moov',
-                'pipe:1'
-            ]
-            
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
-            try:
-                while True:
-                    chunk = process.stdout.read(1024 * 1024) # 1MB stream chunks
-                    if not chunk:
-                        break
-                    yield chunk
-            except Exception as e:
-                logging.error(f"FFmpeg stream error: {e}")
-            finally:
-                process.terminate()
-                process.wait()
-
-        dl_headers = {
-            "Content-Disposition": 'attachment; filename="vexostream_hls.mp4"',
-            "Content-Type": "video/mp4"
-        }
-        return Response(generate_ffmpeg_stream(), headers=dl_headers, direct_passthrough=False)
-
-
-    # ==========================================
-    # STANDARD PROXY LOGIC (Direct MP4 / M3U8 Player)
-    # ==========================================
     try:
         try:
             upstream = requests.get(target, headers=req_headers, stream=True, allow_redirects=True, timeout=15)
@@ -167,15 +119,9 @@ def proxy_media():
         if "Content-Length" in upstream.headers:
             res_headers["Content-Length"] = upstream.headers["Content-Length"]
 
-        is_m3u8 = "mpegurl" in content_type or is_m3u8_url
+        is_m3u8 = "mpegurl" in content_type or ".m3u8" in target or "hls_playlist" in target
 
-        if force_download:
-            ext = "mp4" if ".mp4" in target.lower() or "video" in content_type else "bin"
-            if "image" in content_type: ext = "jpg"
-            res_headers["Content-Disposition"] = f'attachment; filename="vexostream_media.{ext}"'
-
-        # Rewrite M3U8 specifically for the web player
-        if is_m3u8 and not force_download:
+        if is_m3u8:
             text = upstream.text
             final_base = upstream.url or target
             rewritten = rewrite_playlist(text, final_base, provider)
